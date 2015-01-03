@@ -1,4 +1,5 @@
 MituyaProject
 =============
 
-みつやPlugin予定地
+developにコミット
+※masterにはコミットしないこと
