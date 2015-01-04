@@ -69,7 +69,6 @@ public class PlayerInstance implements PlayerInstanceMBean {
     private MituyaProject plugin;
     private boolean debug = false;
     private boolean gobaku = true;
-    private boolean mituyamod = false;//ミツヤmod
     private String mituyamodversion = null;
     private ChatColor color;
     private Rank rank;
@@ -155,8 +154,7 @@ public class PlayerInstance implements PlayerInstanceMBean {
             player.setPlayerListName(this.getRawDisplayName());
             //あれ
             player.setCustomName(this.getNickName());
-        }
-        catch (NullPointerException | PlayerOfflineException ex) {
+        } catch (NullPointerException | PlayerOfflineException ex) {
         }
     }
 
@@ -168,24 +166,6 @@ public class PlayerInstance implements PlayerInstanceMBean {
     @Override
     public void setDisplayName(String disname) {
         this.disname = disname;
-    }
-
-    /**
-     * ミツヤmodを設定する
-     *
-     * @param b true = 有 false = 無
-     */
-    public void setMituyaMod(boolean b) {
-        mituyamod = b;
-    }
-
-    /**
-     * ﾐﾂﾔmodがあるか取得
-     *
-     * @return true false
-     */
-    public boolean getMituyaMod() {
-        return mituyamod;
     }
 
     public void setMituyaModVersion(String ver) {
@@ -294,8 +274,7 @@ public class PlayerInstance implements PlayerInstanceMBean {
                 throw new PlayerOfflineException(name);
             }
             return player;
-        }
-        catch (NullPointerException ex) {
+        } catch (NullPointerException ex) {
             throw new PlayerOfflineException(name);
         }
     }
@@ -415,7 +394,7 @@ public class PlayerInstance implements PlayerInstanceMBean {
      * @return 操作後のMineがマイナスの場合はfalseを返し、更新しません
      */
     public boolean gainMine(int mine) {
-        return this.gainMine((long)mine);
+        return this.gainMine((long) mine);
     }
 
     /**
@@ -427,9 +406,9 @@ public class PlayerInstance implements PlayerInstanceMBean {
      */
     public boolean gainMine(int mine, boolean msg) {
         if (msg) {
-            return this.gainMine((long)mine);
+            return this.gainMine((long) mine);
         } else {
-            return this.gainRawMine((long)mine);
+            return this.gainRawMine((long) mine);
         }
     }
 
@@ -457,8 +436,7 @@ public class PlayerInstance implements PlayerInstanceMBean {
             } else {
                 this.sendInfo(info, ChatColor.RED + "Mineが足りません。");
             }
-        }
-        catch (PlayerOfflineException ex) {
+        } catch (PlayerOfflineException ex) {
         }
     }
 
@@ -591,8 +569,7 @@ public class PlayerInstance implements PlayerInstanceMBean {
     public boolean changeRank(Rank rank) {
         try {
             return this.plugin.getMituyaPermissionManager().setRank(this.getPlayer(), this, rank);
-        }
-        catch (PlayerOfflineException ex) {
+        } catch (PlayerOfflineException ex) {
             return this.plugin.getMituyaPermissionManager().setRank(null, this, rank);
         }
     }
@@ -752,8 +729,7 @@ public class PlayerInstance implements PlayerInstanceMBean {
                 //Markerを削除
                 plugin.getDynmap().getMarker().deleteHomeMarker(name, ld);
             }
-        }
-        catch (NullPointerException e) {
+        } catch (NullPointerException e) {
         }
     }
 
@@ -896,8 +872,7 @@ public class PlayerInstance implements PlayerInstanceMBean {
                 rs.close();
                 ps.close();
             }
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             this.sendAttention("マネーランキングの呼び出しに失敗しました");
             plugin.ErrLog("Money Ranking err :" + e);
         }
@@ -907,8 +882,7 @@ public class PlayerInstance implements PlayerInstanceMBean {
     public int getLevel() {
         try {
             return this.getPlayer().getLevel();
-        }
-        catch (PlayerOfflineException ex) {
+        } catch (PlayerOfflineException ex) {
 
             return 0;
         }
@@ -918,8 +892,7 @@ public class PlayerInstance implements PlayerInstanceMBean {
     public void setLevel(int lv) {
         try {
             this.getPlayer().setLevel(lv);
-        }
-        catch (PlayerOfflineException ex) {
+        } catch (PlayerOfflineException ex) {
         }
     }
 
@@ -946,7 +919,7 @@ public class PlayerInstance implements PlayerInstanceMBean {
             rr = ammount % 64;
             rrr = true;
         }
-        is.setDurability((short)type);
+        is.setDurability((short) type);
         lo.setY(lo.getY() + 1);
         if (!rrr) {
             is.setAmount(ammount);
@@ -1102,7 +1075,7 @@ public class PlayerInstance implements PlayerInstanceMBean {
                 stack = amount / maxstack;
                 amari = amount % maxstack;
             }
-            is.setDurability((short)type);//アイテムタイプ設定
+            is.setDurability((short) type);//アイテムタイプ設定
             if (stack == 1) {
                 is.setAmount(amount);
                 inventory.addItem(is);
@@ -1130,8 +1103,7 @@ public class PlayerInstance implements PlayerInstanceMBean {
         //this.setName(pr.getName());//プレーヤー名更新
         try {
             ManagementFactory.getPlatformMBeanServer().registerMBean(this, ObjectName.getInstance("OnlinePlayers:type=" + pr.getName()));
-        }
-        catch (MalformedObjectNameException | NullPointerException | InstanceAlreadyExistsException | MBeanRegistrationException | NotCompliantMBeanException ex) {
+        } catch (MalformedObjectNameException | NullPointerException | InstanceAlreadyExistsException | MBeanRegistrationException | NotCompliantMBeanException ex) {
         }
         this.LoadCharFromDB(true);//キャラクターロード
         this.LoadMineFromDB();//Mineをロード
@@ -1189,8 +1161,7 @@ public class PlayerInstance implements PlayerInstanceMBean {
         }
         try {
             ManagementFactory.getPlatformMBeanServer().unregisterMBean(ObjectName.getInstance("OnlinePlayers:type=" + getPlayer().getName()));
-        }
-        catch (PlayerOfflineException | MalformedObjectNameException | NullPointerException | InstanceNotFoundException | MBeanRegistrationException ex) {
+        } catch (PlayerOfflineException | MalformedObjectNameException | NullPointerException | InstanceNotFoundException | MBeanRegistrationException ex) {
         }
         plugin.Log(this.name + " : セーブ完了");
     }
@@ -1284,8 +1255,7 @@ public class PlayerInstance implements PlayerInstanceMBean {
                         if (ret) {
                             try {
                                 WelcomeMessage();
-                            }
-                            catch (PlayerOfflineException ex) {
+                            } catch (PlayerOfflineException ex) {
                             }
                         }
                     }
@@ -1332,8 +1302,7 @@ public class PlayerInstance implements PlayerInstanceMBean {
                                 }
                             }
                         }
-                    }
-                    catch (SQLException ex) {
+                    } catch (SQLException ex) {
                     }
                     rs.close();
                     ps.close();
@@ -1346,8 +1315,7 @@ public class PlayerInstance implements PlayerInstanceMBean {
                     }
                 }
             }
-        }
-        catch (SQLException ex) {
+        } catch (SQLException ex) {
             Logger.getLogger(PlayerInstance.class.getName()).log(Level.SEVERE, null, ex);
             this.sendWarning("SQL err. character zyouhouga syutoku dekimasen. sa-ba-kanrisyani renrakusitekudasai.");
         }
@@ -1392,8 +1360,7 @@ public class PlayerInstance implements PlayerInstanceMBean {
                 ps.setString(3, this.nickname);//ニックネーム
                 try {
                     ps.setString(4, this.getPlayer().getAddress().toString());//IPアドレス
-                }
-                catch (PlayerOfflineException ex) {
+                } catch (PlayerOfflineException ex) {
                     ps.setString(4, "null");//IPアドレス
                 }
                 ps.setInt(5, plugin.getWorldManager().getWorldData(Parameter328.SecondWorld).getId());//WorldID
@@ -1406,18 +1373,18 @@ public class PlayerInstance implements PlayerInstanceMBean {
                 ps.setInt(11, this.location_id);//templocationテーブルのレコードID
                 ps.setInt(12, this.mine_id);//MineテーブルのレコードID
                 ps.setInt(13, this.tax);//使用税金総額
-                ps.setByte(14, (byte)(this.gobaku ? 1 : 0));//誤爆設定
+                ps.setByte(14, (byte) (this.gobaku ? 1 : 0));//誤爆設定
                 ps.setString(15, this.loginbmessage);//ログインメッセージ
                 ps.setInt(16, this.guildid);//ギルドID
                 ps.setInt(17, this.tpp);//tp public
-                ps.setByte(18, (byte)(false ? 1 : 0));
-                ps.setByte(19, (byte)(false ? 1 : 0));
-                ps.setByte(20, (byte)(false ? 1 : 0));
+                ps.setByte(18, (byte) (false ? 1 : 0));
+                ps.setByte(19, (byte) (false ? 1 : 0));
+                ps.setByte(20, (byte) (false ? 1 : 0));
                 ps.setInt(21, -1);//lastworld worldid
                 ps.setString(22, this.deathmessage);//deathmessage
                 ps.setInt(23, this.mp);//mp
                 ps.setInt(24, this.max_mp);//max_mp
-                ps.setByte(25, (byte)(this.spongeperm ? 1 : 0));
+                ps.setByte(25, (byte) (this.spongeperm ? 1 : 0));
                 //SQL実行
                 ps.executeUpdate();
 
@@ -1434,8 +1401,7 @@ public class PlayerInstance implements PlayerInstanceMBean {
                 rs.close();
                 ps.close();
             }
-        }
-        catch (SQLException ex) {
+        } catch (SQLException ex) {
             character = false;
             Logger.getLogger(PlayerInstance.class.getName()).log(Level.SEVERE, "CreateDefaultCharToDB", ex);
         }
@@ -1477,8 +1443,7 @@ public class PlayerInstance implements PlayerInstanceMBean {
                 rs.close();
                 ps.close();
             }
-        }
-        catch (SQLException ex) {
+        } catch (SQLException ex) {
             this.mine_id = -1;
             Logger.getLogger(PlayerInstance.class.getName()).log(Level.SEVERE, "CreateDefaultMineToDB", ex);
         }
@@ -1508,15 +1473,13 @@ public class PlayerInstance implements PlayerInstanceMBean {
                 Player pr = null;
                 try {
                     pr = this.getPlayer();
-                }
-                catch (PlayerOfflineException ex) {
+                } catch (PlayerOfflineException ex) {
                 }
                 if (pr != null) {
                     try {
                         ps.setString(4, pr.getAddress().toString());//IPアドレス
                         ps.setInt(5, this.getPlugin().getWorldManager().getWorldData(pr.getLocation().getWorld()).getId());//WorldID
-                    }
-                    catch (NullPointerException ex) {
+                    } catch (NullPointerException ex) {
                         ps.setString(4, "null");//IPアドレス
                         ps.setInt(5, -1);//WorldID
                     }
@@ -1533,14 +1496,14 @@ public class PlayerInstance implements PlayerInstanceMBean {
                 ps.setInt(11, this.location_id);//templocationテーブルのレコードID
                 ps.setInt(12, this.mine_id);//MineテーブルのレコードID
                 ps.setInt(13, this.tax);//使用税金総額
-                ps.setByte(14, (byte)(this.gobaku ? 1 : 0));//誤爆設定
+                ps.setByte(14, (byte) (this.gobaku ? 1 : 0));//誤爆設定
                 ps.setString(15, this.loginbmessage);//ログインメッセージ
                 ps.setInt(16, this.guildid);//ギルドID
                 ps.setInt(17, this.tpp);//tp public
-                ps.setByte(18, (byte)(this.check_skip ? 1 : 0));//check
-                ps.setByte(19, (byte)(this.pvp ? 1 : 0));//pvp
-                ps.setByte(20, (byte)(this.ime ? 1 : 0));//ime
-                ps.setByte(21, (byte)(this.world_invite ? 1 : 0));//world_invite
+                ps.setByte(18, (byte) (this.check_skip ? 1 : 0));//check
+                ps.setByte(19, (byte) (this.pvp ? 1 : 0));//pvp
+                ps.setByte(20, (byte) (this.ime ? 1 : 0));//ime
+                ps.setByte(21, (byte) (this.world_invite ? 1 : 0));//world_invite
                 ps.setString(22, this.deathmessage);//deathmessage
                 ps.setInt(23, this.mp);//mp
                 ps.setInt(24, this.max_mp);//maxmp
@@ -1566,8 +1529,7 @@ public class PlayerInstance implements PlayerInstanceMBean {
                 character = true;
                 ps.close();
             }
-        }
-        catch (SQLException ex) {
+        } catch (SQLException ex) {
             character = false;
             Logger.getLogger(PlayerInstance.class.getName()).log(Level.SEVERE, "SaveDefaultCharToDB", ex);
         }
@@ -1631,8 +1593,7 @@ public class PlayerInstance implements PlayerInstanceMBean {
                 }
                 ps.close();
             }
-        }
-        catch (SQLException ex) {
+        } catch (SQLException ex) {
             this.mine_id = -1;
             this.sendWarning("Sql err LoadMine. サーバー管理者に連絡してください");
             Logger.getLogger(PlayerInstance.class.getName()).log(Level.SEVERE, "LoadMineFromDB", ex);
@@ -1723,8 +1684,7 @@ public class PlayerInstance implements PlayerInstanceMBean {
                 }
                 ps.close();
             }
-        }
-        catch (SQLException ex) {
+        } catch (SQLException ex) {
             Logger.getLogger(PlayerInstance.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
@@ -1755,8 +1715,7 @@ public class PlayerInstance implements PlayerInstanceMBean {
                 }
                 ps.close();
             }
-        }
-        catch (SQLException ex) {
+        } catch (SQLException ex) {
             this.savelocation_use = false;
             //Logger.getLogger(PlayerInstance.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -1785,8 +1744,7 @@ public class PlayerInstance implements PlayerInstanceMBean {
                 }
                 ps.close();
             }
-        }
-        catch (SQLException ex) {
+        } catch (SQLException ex) {
             Logger.getLogger(PlayerInstance.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
@@ -1826,15 +1784,15 @@ public class PlayerInstance implements PlayerInstanceMBean {
                 ps.setString(1, this.name);
                 ps.setInt(2, this.getPlugin().getWorldManager().getWorldData(this.savelocation.getWorld()).getId());
                 ps.setDouble(3, this.savelocation.getX());
-                ps.setByte(4, (byte)this.savelocation.getY());
+                ps.setByte(4, (byte) this.savelocation.getY());
                 ps.setDouble(5, this.savelocation.getZ());
-                ps.setShort(6, (short)this.savelocation.getYaw());
-                ps.setShort(7, (short)this.savelocation.getPitch());
+                ps.setShort(6, (short) this.savelocation.getYaw());
+                ps.setShort(7, (short) this.savelocation.getPitch());
                 if (update) {
-                    ps.setByte(8, (byte)(this.savelocation_use ? 1 : 0));
+                    ps.setByte(8, (byte) (this.savelocation_use ? 1 : 0));
                     ps.setInt(9, this.location_id);
                 } else {
-                    ps.setByte(8, (byte)1);
+                    ps.setByte(8, (byte) 1);
                 }
                 int updateRows = ps.executeUpdate();
                 if (!update) {
@@ -1851,8 +1809,7 @@ public class PlayerInstance implements PlayerInstanceMBean {
                 ps.close();
             }
             SaveCharToDB(true);
-        }
-        catch (SQLException ex) {
+        } catch (SQLException ex) {
             Logger.getLogger(PlayerInstance.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
@@ -1876,10 +1833,10 @@ public class PlayerInstance implements PlayerInstanceMBean {
                 ps.setString(1, name);
                 ps.setInt(2, plugin.getWorldManager().getWorldData(location.getWorld()).getId());
                 ps.setDouble(3, location.getX());
-                ps.setByte(4, (byte)location.getY());
+                ps.setByte(4, (byte) location.getY());
                 ps.setDouble(5, location.getZ());
-                ps.setShort(6, (short)location.getYaw());
-                ps.setShort(7, (short)location.getPitch());
+                ps.setShort(6, (short) location.getYaw());
+                ps.setShort(7, (short) location.getPitch());
                 if (update) {
                     ps.setInt(8, this.spawn_id);
                 }
@@ -1897,8 +1854,7 @@ public class PlayerInstance implements PlayerInstanceMBean {
                 }
                 ps.close();
             }
-        }
-        catch (SQLException ex) {
+        } catch (SQLException ex) {
             Logger.getLogger(PlayerInstance.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
@@ -1941,18 +1897,10 @@ public class PlayerInstance implements PlayerInstanceMBean {
             } else {//スキップしないで確認メッセージを出す
                 //確認フラグをセット
                 this.setCheck(true);
-                if (!mituyamod) {
-                    //固有メッセージ
-                    this.sendMessage(ChatColor.YELLOW + message);
-                    //確認メッセージ
-                    this.sendMessage(Parameter328.Check_Message);
-                } else {
-                    try {
-                        PluginPacketManager.SendYesNo(this, "確認", message);
-                    }
-                    catch (IOException ex) {
-                    }
-                }
+                //固有メッセージ
+                this.sendMessage(ChatColor.YELLOW + message);
+                //確認メッセージ
+                this.sendMessage(Parameter328.Check_Message);
             }
         }
     }
@@ -2084,8 +2032,7 @@ public class PlayerInstance implements PlayerInstanceMBean {
                 //他のコマンドが残っている場合はそれを実行
                 this.plugin.getSignCommandManager().executionCommandTaskFromCheckInstance(player, this);
             }
-        }
-        catch (PlayerOfflineException ex) {
+        } catch (PlayerOfflineException ex) {
             this.sendAttention("エラーが発生しました。GMおよび管理者に連絡してください。");
             plugin.getLogger().log(Level.WARNING, "check instance err.", ex);
         }
@@ -2148,8 +2095,7 @@ public class PlayerInstance implements PlayerInstanceMBean {
     public void sendMessage(String message) {
         try {
             this.getPlayer().sendMessage(message);
-        }
-        catch (NullPointerException | PlayerOfflineException ex) {
+        } catch (NullPointerException | PlayerOfflineException ex) {
         }
     }
     // </editor-fold>
@@ -2281,11 +2227,10 @@ public class PlayerInstance implements PlayerInstanceMBean {
             if (monstername != null) {
                 for (int i = 0; i <= amount; i++) {
                     Location l = getPlayer().getLocation();
-                    LivingEntity mob = (LivingEntity)getPlayer().getWorld().spawnEntity(l, EntityType.fromName(monstername));
+                    LivingEntity mob = (LivingEntity) getPlayer().getWorld().spawnEntity(l, EntityType.fromName(monstername));
                 }
             }
-        }
-        catch (PlayerOfflineException e) {
+        } catch (PlayerOfflineException e) {
         }
     }
 
@@ -2300,7 +2245,7 @@ public class PlayerInstance implements PlayerInstanceMBean {
             rr = ammount % 64;
             rrr = true;
         }
-        is.setDurability((short)type);
+        is.setDurability((short) type);
         lo.setY(lo.getY() + 1);
         if (!rrr) {
             is.setAmount(ammount);
@@ -2458,8 +2403,7 @@ public class PlayerInstance implements PlayerInstanceMBean {
     public void setTotalExperience(int te) {
         try {
             this.getPlayer().setTotalExperience(te);
-        }
-        catch (PlayerOfflineException ex) {
+        } catch (PlayerOfflineException ex) {
         }
     }
 
@@ -2517,8 +2461,7 @@ public class PlayerInstance implements PlayerInstanceMBean {
     public boolean hasPermission(String permission) {
         try {
             return plugin.permission.has(this.getPlayer(), permission);
-        }
-        catch (PlayerOfflineException ex) {
+        } catch (PlayerOfflineException ex) {
             return false;
         }
     }
@@ -2535,8 +2478,7 @@ public class PlayerInstance implements PlayerInstanceMBean {
     public String getPlayerListName() {
         try {
             return getPlayer().getPlayerListName();
-        }
-        catch (PlayerOfflineException ex) {
+        } catch (PlayerOfflineException ex) {
             return "ERROR";
         }
     }
@@ -2545,8 +2487,7 @@ public class PlayerInstance implements PlayerInstanceMBean {
     public float getExhaustion() {
         try {
             return getPlayer().getExhaustion();
-        }
-        catch (PlayerOfflineException ex) {
+        } catch (PlayerOfflineException ex) {
             return 0;
         }
     }
@@ -2555,8 +2496,7 @@ public class PlayerInstance implements PlayerInstanceMBean {
     public float getSaturation() {
         try {
             return getPlayer().getSaturation();
-        }
-        catch (PlayerOfflineException ex) {
+        } catch (PlayerOfflineException ex) {
             return 0;
         }
     }
@@ -2565,8 +2505,7 @@ public class PlayerInstance implements PlayerInstanceMBean {
     public float getExp() {
         try {
             return getPlayer().getExp();
-        }
-        catch (PlayerOfflineException ex) {
+        } catch (PlayerOfflineException ex) {
             return 0;
         }
     }
@@ -2575,8 +2514,7 @@ public class PlayerInstance implements PlayerInstanceMBean {
     public int getFoodLevel() {
         try {
             return getPlayer().getFoodLevel();
-        }
-        catch (PlayerOfflineException ex) {
+        } catch (PlayerOfflineException ex) {
             return 0;
         }
     }
@@ -2585,8 +2523,7 @@ public class PlayerInstance implements PlayerInstanceMBean {
     public int getTotalExperience() {
         try {
             return getPlayer().getTotalExperience();
-        }
-        catch (PlayerOfflineException ex) {
+        } catch (PlayerOfflineException ex) {
             return 0;
         }
     }
@@ -2595,8 +2532,7 @@ public class PlayerInstance implements PlayerInstanceMBean {
     public void chat(String str) {
         try {
             getPlayer().chat(str);
-        }
-        catch (PlayerOfflineException ex) {
+        } catch (PlayerOfflineException ex) {
         }
     }
 
@@ -2604,8 +2540,7 @@ public class PlayerInstance implements PlayerInstanceMBean {
     public void setExhaustion(float value) {
         try {
             getPlayer().setSaturation(value);
-        }
-        catch (PlayerOfflineException ex) {
+        } catch (PlayerOfflineException ex) {
         }
     }
 
@@ -2613,8 +2548,7 @@ public class PlayerInstance implements PlayerInstanceMBean {
     public void setExp(float exp) {
         try {
             getPlayer().setExp(exp);
-        }
-        catch (PlayerOfflineException ex) {
+        } catch (PlayerOfflineException ex) {
         }
     }
 
@@ -2622,8 +2556,7 @@ public class PlayerInstance implements PlayerInstanceMBean {
     public void setFoodLevel(int value) {
         try {
             getPlayer().setFoodLevel(value);
-        }
-        catch (PlayerOfflineException ex) {
+        } catch (PlayerOfflineException ex) {
         }
     }
 
@@ -2631,8 +2564,7 @@ public class PlayerInstance implements PlayerInstanceMBean {
     public void setPlayerListName(String name) {
         try {
             getPlayer().setPlayerListName(name);
-        }
-        catch (PlayerOfflineException ex) {
+        } catch (PlayerOfflineException ex) {
         }
     }
 
@@ -2640,8 +2572,7 @@ public class PlayerInstance implements PlayerInstanceMBean {
     public void setSaturation(float value) {
         try {
             getPlayer().setSaturation(value);
-        }
-        catch (PlayerOfflineException ex) {
+        } catch (PlayerOfflineException ex) {
         }
     }
 
@@ -2650,8 +2581,7 @@ public class PlayerInstance implements PlayerInstanceMBean {
         try {
             Player pl = plugin.getInstanceManager().getInstance(player).getPlayer();
             getPlayer().showPlayer(pl);
-        }
-        catch (PlayerOfflineException ex) {
+        } catch (PlayerOfflineException ex) {
         }
     }
 
@@ -2660,8 +2590,7 @@ public class PlayerInstance implements PlayerInstanceMBean {
         try {
             Player pl = plugin.getInstanceManager().getInstance(player).getPlayer();
             getPlayer().hidePlayer(pl);
-        }
-        catch (PlayerOfflineException ex) {
+        } catch (PlayerOfflineException ex) {
         }
     }
 
@@ -2669,8 +2598,7 @@ public class PlayerInstance implements PlayerInstanceMBean {
     public void kickPlayer(String message) {
         try {
             getPlayer().kickPlayer(message);
-        }
-        catch (PlayerOfflineException ex) {
+        } catch (PlayerOfflineException ex) {
         }
     }
 
@@ -2678,8 +2606,7 @@ public class PlayerInstance implements PlayerInstanceMBean {
     public void shootArrow() {
         try {
             getPlayer().launchProjectile(Arrow.class);
-        }
-        catch (PlayerOfflineException ex) {
+        } catch (PlayerOfflineException ex) {
         }
     }
 
@@ -2687,8 +2614,7 @@ public class PlayerInstance implements PlayerInstanceMBean {
     public void throwEgg() {
         try {
             getPlayer().launchProjectile(Egg.class);
-        }
-        catch (PlayerOfflineException ex) {
+        } catch (PlayerOfflineException ex) {
         }
     }
 
@@ -2696,8 +2622,7 @@ public class PlayerInstance implements PlayerInstanceMBean {
     public void throwEnderPearl() {
         try {
             getPlayer().launchProjectile(EnderPearl.class);
-        }
-        catch (PlayerOfflineException ex) {
+        } catch (PlayerOfflineException ex) {
         }
     }
 
@@ -2705,8 +2630,7 @@ public class PlayerInstance implements PlayerInstanceMBean {
     public void throwFireball() {
         try {
             getPlayer().launchProjectile(Fireball.class);
-        }
-        catch (PlayerOfflineException ex) {
+        } catch (PlayerOfflineException ex) {
         }
     }
 
@@ -2714,8 +2638,7 @@ public class PlayerInstance implements PlayerInstanceMBean {
     public void throwSmallFireBall() {
         try {
             getPlayer().launchProjectile(SmallFireball.class);
-        }
-        catch (PlayerOfflineException ex) {
+        } catch (PlayerOfflineException ex) {
         }
     }
 
@@ -2723,8 +2646,7 @@ public class PlayerInstance implements PlayerInstanceMBean {
     public void throwSnowball() {
         try {
             getPlayer().launchProjectile(Snowball.class);
-        }
-        catch (PlayerOfflineException ex) {
+        } catch (PlayerOfflineException ex) {
         }
     }
 
@@ -2732,8 +2654,7 @@ public class PlayerInstance implements PlayerInstanceMBean {
     public double getHealth() {
         try {
             return getPlayer().getHealth();
-        }
-        catch (PlayerOfflineException ex) {
+        } catch (PlayerOfflineException ex) {
             return -1;
         }
     }
@@ -2742,8 +2663,7 @@ public class PlayerInstance implements PlayerInstanceMBean {
     public double getMaxHealth() {
         try {
             return getPlayer().getMaxHealth();
-        }
-        catch (PlayerOfflineException ex) {
+        } catch (PlayerOfflineException ex) {
             return -1;
         }
     }
@@ -2752,8 +2672,7 @@ public class PlayerInstance implements PlayerInstanceMBean {
     public int getMaximumAir() {
         try {
             return getPlayer().getMaximumAir();
-        }
-        catch (PlayerOfflineException ex) {
+        } catch (PlayerOfflineException ex) {
             return -1;
         }
     }
@@ -2762,8 +2681,7 @@ public class PlayerInstance implements PlayerInstanceMBean {
     public int getRemainingAir() {
         try {
             return getPlayer().getRemainingAir();
-        }
-        catch (PlayerOfflineException ex) {
+        } catch (PlayerOfflineException ex) {
             return -1;
         }
     }
@@ -2772,8 +2690,7 @@ public class PlayerInstance implements PlayerInstanceMBean {
     public void damage(int amount) {
         try {
             getPlayer().damage(amount);
-        }
-        catch (PlayerOfflineException ex) {
+        } catch (PlayerOfflineException ex) {
         }
     }
 
@@ -2781,8 +2698,7 @@ public class PlayerInstance implements PlayerInstanceMBean {
     public void setHealth(double health) {
         try {
             getPlayer().setHealth(health);
-        }
-        catch (PlayerOfflineException ex) {
+        } catch (PlayerOfflineException ex) {
         }
     }
 
@@ -2790,8 +2706,7 @@ public class PlayerInstance implements PlayerInstanceMBean {
     public void setMaximumAir(int ticks) {
         try {
             getPlayer().setMaximumAir(ticks);
-        }
-        catch (PlayerOfflineException ex) {
+        } catch (PlayerOfflineException ex) {
         }
     }
 
@@ -2799,8 +2714,7 @@ public class PlayerInstance implements PlayerInstanceMBean {
     public void setRemainingAir(int ticks) {
         try {
             getPlayer().setRemainingAir(ticks);
-        }
-        catch (PlayerOfflineException ex) {
+        } catch (PlayerOfflineException ex) {
         }
     }
 
@@ -2808,8 +2722,7 @@ public class PlayerInstance implements PlayerInstanceMBean {
     public int getMaxFireTicks() {
         try {
             return getPlayer().getMaxFireTicks();
-        }
-        catch (PlayerOfflineException ex) {
+        } catch (PlayerOfflineException ex) {
             return -1;
         }
     }
@@ -2818,8 +2731,7 @@ public class PlayerInstance implements PlayerInstanceMBean {
     public int getFireTicks() {
         try {
             return getPlayer().getFireTicks();
-        }
-        catch (PlayerOfflineException ex) {
+        } catch (PlayerOfflineException ex) {
             return -1;
         }
     }
@@ -2828,8 +2740,7 @@ public class PlayerInstance implements PlayerInstanceMBean {
     public void setFireTicks(int ticks) {
         try {
             getPlayer().setFireTicks(ticks);
-        }
-        catch (PlayerOfflineException ex) {
+        } catch (PlayerOfflineException ex) {
         }
     }
 
@@ -2837,8 +2748,7 @@ public class PlayerInstance implements PlayerInstanceMBean {
     public void playEntityEffect(String type) {
         try {
             getPlayer().playEffect(EntityEffect.valueOf(type));
-        }
-        catch (PlayerOfflineException ex) {
+        } catch (PlayerOfflineException ex) {
         }
     }
 
@@ -2851,8 +2761,7 @@ public class PlayerInstance implements PlayerInstanceMBean {
     public void playEffect(String effect, int data) {
         try {
             getPlayer().playEffect(getPlayer().getLocation(), Effect.valueOf(effect), data);
-        }
-        catch (PlayerOfflineException ex) {
+        } catch (PlayerOfflineException ex) {
         }
     }
 
@@ -2865,8 +2774,7 @@ public class PlayerInstance implements PlayerInstanceMBean {
     public void playSound(String sound, float volume, float note) {
         try {
             getPlayer().playSound(getPlayer().getLocation(), Sound.valueOf(sound), volume, note);
-        }
-        catch (PlayerOfflineException ex) {
+        } catch (PlayerOfflineException ex) {
         }
     }
 
@@ -2879,8 +2787,7 @@ public class PlayerInstance implements PlayerInstanceMBean {
     public void addPotionEffect(String type, int duration, int amplifier) {
         try {
             getPlayer().addPotionEffect(PotionEffectType.getByName(type).createEffect(duration, amplifier));
-        }
-        catch (PlayerOfflineException ex) {
+        } catch (PlayerOfflineException ex) {
         }
     }
 
@@ -2893,8 +2800,7 @@ public class PlayerInstance implements PlayerInstanceMBean {
     public void addUnsafeEnchantment(String type, int level) {
         try {
             getPlayer().getItemInHand().addUnsafeEnchantment(Enchantment.getByName(type), level);
-        }
-        catch (PlayerOfflineException ex) {
+        } catch (PlayerOfflineException ex) {
         }
     }
 
@@ -2902,8 +2808,7 @@ public class PlayerInstance implements PlayerInstanceMBean {
     public void addEnchantment(String type, int level) {
         try {
             getPlayer().getItemInHand().addEnchantment(Enchantment.getByName(type), level);
-        }
-        catch (PlayerOfflineException ex) {
+        } catch (PlayerOfflineException ex) {
         }
     }
 

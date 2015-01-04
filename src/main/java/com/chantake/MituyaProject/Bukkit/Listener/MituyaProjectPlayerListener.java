@@ -347,41 +347,6 @@ public class MituyaProjectPlayerListener implements Listener {
         this.LoginMessage(pr, ins);
         //ログイン時イントロ 壊すと止まるため一時停止
         this.sendIntro(pr);
-        try {
-            PluginPacketManager.NoChecksendPacket(ins, PacketParameter.register, PacketParameter.True);
-            //プレーヤーSpout遅延用タイマー
-            //TimerManager.getInstance().schedule(new PlayerJoin(plugin, sp), Parameter328.Login_Delay);
-            /*//バレンタインイベント
-             if (!Parameter328.ValentineEvent.containsKey(ins.getRawName())) {
-             Calendar calendar = Calendar.getInstance();
-             Date trialtime = new Date();
-             calendar.setTime(trialtime);
-             if (calendar.get(Calendar.DATE) == 14) {
-             int amount = (DropItem.Rand(60) + 4);
-             if (ins.InventryCheck(Material.COOKIE.getId(), (short)0, amount)) {
-             ins.gainItem(new ItemStack(Material.COOKIE), amount);
-             ins.sendSuccess("クッキーを " + amount + " 個もらった");
-             Parameter328.ValentineEvent.put(ins.getRawName(), true);
-             }
-             }
-             }*/
-        }
-        catch (IOException ex) {
-        }
-        /*Scoreboard scoreboard = pr.getScoreboard();
-         Objective objective = scoreboard.registerNewObjective("States", "states");
-        
-         objective.setDisplaySlot(DisplaySlot.SIDEBAR);
-         objective.setDisplayName(ChatColor.WHITE+"ステータス");
-        
-         Score hp = objective.getScore(Bukkit.getOfflinePlayer(ChatColor.RED + "HP:")); //Get a fake offline player
-         hp.setScore(100);
-         Score mp = objective.getScore(Bukkit.getOfflinePlayer(ChatColor.BLUE + "MP:")); //Get a fake offline player
-         mp.setScore(100);
-        
-         Score test = objective.getScore(Bukkit.getOfflinePlayer(ChatColor.AQUA + "test:" + ChatColor.WHITE)); //Get a fake offline player
-         test.setScore(100);
-         pr.setScoreboard(scoreboard);*/
     }
 
     /**

@@ -10,7 +10,6 @@ import java.lang.reflect.Field;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.WorldType;
-import org.bukkit.craftbukkit.v1_8_R1.CraftWorld;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -60,25 +59,25 @@ public class SkyLandListener implements Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.NORMAL)
+    /*@EventHandler(priority = EventPriority.NORMAL)
     public void onWorldInit(WorldInitEvent event) {
-        World world = event.getWorld();
-
-        if (((world.getGenerator() instanceof SkyLandChunkGenerator)) && (world.getEnvironment() == World.Environment.NORMAL)) {
-            net.minecraft.server.v1_8_R1.WorldServer worldServer = ((CraftWorld)world).getHandle();
-            try {
-                Class worldData = worldServer.worldData.getClass();
-
-                Field type = worldData.getDeclaredField("type");
-                type.setAccessible(true);
-
-                type.set(worldServer.worldData, WorldType.NORMAL);
-
-                plugin.Log("The world type of '" + world.getName() + "' has been set to to normal.");
-            }
-            catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
-                plugin.Log("Could not change the world type of '" + world.getName() + "'.");
-            }
-        }
+    World world = event.getWorld();
+    
+    if (((world.getGenerator() instanceof SkyLandChunkGenerator)) && (world.getEnvironment() == World.Environment.NORMAL)) {
+    net.minecraft.server.v1_8_R1.WorldServer worldServer = ((CraftWorld)world).getHandle();
+    try {
+    Class worldData = worldServer.worldData.getClass();
+    
+    Field type = world;
+    type.setAccessible(true);
+    
+    type.set(worldServer.worldData, WorldType.NORMAL);
+    
+    plugin.Log("The world type of '" + world.getName() + "' has been set to to normal.");
     }
+    catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
+    plugin.Log("Could not change the world type of '" + world.getName() + "'.");
+    }
+    }
+    }*/
 }

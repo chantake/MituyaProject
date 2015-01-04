@@ -1,12 +1,9 @@
 package com.chantake.MituyaProject.World.Generator.Skyland;
 
+import com.chantake.MituyaProject.Bukkit.util.NoiseGeneratorOctaves;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import net.minecraft.server.v1_8_R1.NoiseGeneratorOctaves;
-import net.minecraft.server.v1_8_R1.WorldGenCaves;
-import net.minecraft.server.v1_8_R1.WorldGenCavesHell;
-import net.minecraft.server.v1_8_R1.WorldGenNether;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Biome;
@@ -21,9 +18,9 @@ public class SkyLandChunkGenerator extends org.bukkit.generator.ChunkGenerator {
     private NoiseGeneratorOctaves o;
     private NoiseGeneratorOctaves a;
     private NoiseGeneratorOctaves b;
-    private WorldGenCaves caveGen;
-    private WorldGenCavesHell caveGenNether;
-    private WorldGenNether genNetherFort;
+    //private WorldGenCaves caveGen;
+    //private WorldGenCavesHell caveGenNether;
+    //private WorldGenNether genNetherFort;
     private double[] q;
     private double[] t = new double[256];
     double[] d;
@@ -313,16 +310,15 @@ public class SkyLandChunkGenerator extends org.bukkit.generator.ChunkGenerator {
             this.a = new NoiseGeneratorOctaves(this.random, 10);
             this.b = new NoiseGeneratorOctaves(this.random, 16);
 
-            if (environment == World.Environment.NORMAL) {
-                this.caveGen = new WorldGenCaves();
+            /*if (environment == World.Environment.NORMAL) {
+            this.caveGen = new WorldGenCaves();
             } else if (environment == World.Environment.NETHER) {
-                this.caveGenNether = new WorldGenCavesHell();
-                this.genNetherFort = new WorldGenNether();
-            }
+            this.caveGenNether = new WorldGenCavesHell();
+            this.genNetherFort = new WorldGenNether();
+            }*/
         }
 
         //net.minecraft.server.v1_4_R1.World mcWorld = ((CraftWorld)world).getHandle();
-        net.minecraft.server.v1_8_R1.World mcWorld = (net.minecraft.server.v1_8_R1.World)world;
 
         byte[] blocks = new byte[32768];
 
