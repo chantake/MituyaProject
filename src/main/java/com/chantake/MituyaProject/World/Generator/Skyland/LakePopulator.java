@@ -2,10 +2,8 @@ package com.chantake.MituyaProject.World.Generator.Skyland;
 
 import java.util.Arrays;
 import java.util.Random;
-import net.minecraft.server.v1_8_R1.BlockPosition;
-import net.minecraft.server.v1_8_R1.World;
-import net.minecraft.server.v1_8_R1.WorldGenReed;
 import org.bukkit.Chunk;
+import org.bukkit.World;
 import org.bukkit.block.Biome;
 import org.bukkit.generator.BlockPopulator;
 
@@ -33,8 +31,8 @@ public class LakePopulator extends BlockPopulator {
 
                 if (this.random.nextInt(100) < 85) {
                     //new WorldGenLakes(Material.STATIONARY_WATER).a(mcWorld, this.random, x, y, z);
-                    WorldGenReed worldGenReed = new WorldGenReed();
-                    worldGenReed.generate(mcWorld, random, BlockPosition.ZERO);
+                    //WorldGenReed worldGenReed = new WorldGenReed();
+                    //worldGenReed.generate(mcWorld, random, BlockPosition.ZERO);
                 } else {
                     //new WorldGenLakes(Material.STATIONARY_LAVA.getId()).a(mcWorld, this.random, x, y, z);
                 }

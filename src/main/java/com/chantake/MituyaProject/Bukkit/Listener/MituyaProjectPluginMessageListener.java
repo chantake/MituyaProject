@@ -40,38 +40,38 @@ public class MituyaProjectPluginMessageListener implements PluginMessageListener
 
     @Override
     public void onPluginMessageReceived(String string, Player pl, byte[] bytes) {
-
+        /*
         ByteArrayInputStream os = new ByteArrayInputStream(bytes);
         DataInputStream dis = new DataInputStream(os);
-
+        
         System.out.println(string);
         PlayerInstance player = plugin.getInstanceManager().getInstance(pl);
         if (bytes[0] == 0x00 && bytes[1] == 0x00 && bytes[2] == PacketParameter.True[0]) {
-            try {
-                player.sendMessage("MituyaMod Enable!");
-                dis.skipBytes(3);
-                String version = dis.readUTF();
-                player.setMituyaModVersion(version);
-                player.setMituyaMod(true);
-            }
-            catch (IOException ex) {
-            }
-
+        try {
+        player.sendMessage("MituyaMod Enable!");
+        dis.skipBytes(3);
+        String version = dis.readUTF();
+        player.setMituyaModVersion(version);
+        player.setMituyaMod(true);
+        }
+        catch (IOException ex) {
+        }
+        
         } else if (bytes[0] == 0x00 && bytes[1] == 0x00 && bytes[2] == PacketParameter.False[0]) {
-            player.sendMessage("MituyaMod Disable!");
-            player.setMituyaModVersion(null);
-            player.setMituyaMod(false);
+        player.sendMessage("MituyaMod Disable!");
+        player.setMituyaModVersion(null);
+        player.setMituyaMod(false);
         }
-
+        
         if (bytes[0] == 0x00 && bytes[1] == 0x01) {
-            if (bytes[2] == PacketParameter.True[0]) {
-                if (player.isCheck()) {
-                    player.executionCheckInstance();
-                }
-            } else if (bytes[2] == PacketParameter.False[0]) {
-                player.removeCheckInstance();
-                player.sendSystem("***キャンセルしました。***");
-            }
+        if (bytes[2] == PacketParameter.True[0]) {
+        if (player.isCheck()) {
+        player.executionCheckInstance();
         }
+        } else if (bytes[2] == PacketParameter.False[0]) {
+        player.removeCheckInstance();
+        player.sendSystem("***キャンセルしました。***");
+        }
+        }*/
     }
 }

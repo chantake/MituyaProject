@@ -37,12 +37,9 @@ import java.io.IOException;
 import java.util.Random;
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.MidiUnavailableException;
-import net.minecraft.server.v1_8_R1.EntityInsentient;
-import net.minecraft.server.v1_8_R1.GenericAttributes;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.craftbukkit.v1_8_R1.entity.CraftLivingEntity;
 
 import org.bukkit.entity.*;
 import org.bukkit.inventory.BeaconInventory;
@@ -919,7 +916,7 @@ public class GeneralCommands {
         h.setColor(Horse.Color.WHITE);
         h.setTamed(true);
         h.setJumpStrength(2);
-        ((EntityInsentient)((CraftLivingEntity)h).getHandle()).getAttributeInstance(GenericAttributes.d).setValue(20);
+        //((EntityInsentient)((CraftLivingEntity)h).getHandle()).getAttributeInstance(GenericAttributes.d).setValue(20);
         player.sendSuccess("ｳﾏﾄﾞﾝﾅｧｧｧｧ");
     }
 //</editor-fold>
