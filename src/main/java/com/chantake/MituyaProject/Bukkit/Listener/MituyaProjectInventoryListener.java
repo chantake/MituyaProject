@@ -22,6 +22,7 @@ import com.chantake.MituyaProject.MituyaProject;
 import com.chantake.MituyaProject.Player.PlayerInstance;
 import com.chantake.MituyaProject.Tool.Tools;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -91,7 +92,7 @@ public class MituyaProjectInventoryListener implements Listener {
         String old_name = Tools.GetItemName(iv.getItem(0));
         String new_name = Tools.GetItemName(event.getCurrentItem());
 
-        if (event.getCurrentItem().getTypeId() != 0) {
+        if (event.getCurrentItem().getType() != Material.AIR) {
             if (!old_name.equals(new_name)) {
                 if (GachaponDataManager.isGachaponItemNameCoincident(old_name)) {
                     pi.sendAttention("このアイテムの名称は変更出来ません。");
