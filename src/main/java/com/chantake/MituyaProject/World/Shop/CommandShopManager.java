@@ -106,6 +106,9 @@ public class CommandShopManager {
      * @param player Player
      */
     public void sell(final String id, final int amount, final PlayerInstance ins, final Player player) {
+         ins.sendAttention("只今コマンドショップにて重要な不具合が発生しているため売却を停止しています。皆様にはご迷惑をおかけしますが、ご理解とご協力をお願い致します。");
+        
+         /*
         final CommandShopData itemData = this.getItemData(id);
         //見つからない場合
         if (itemData == null || !itemData.isSellTransaction()) {
@@ -168,7 +171,7 @@ public class CommandShopManager {
                     MySqlProcessing.ShopDealingsLog(ins.getRawName(), "sell", itemData.getId(), itemData.getType(), is.getAmount(), mine);
                 }
             }
-        });
+        });*/
     }
 
     public void price(String id, final PlayerInstance ins) {

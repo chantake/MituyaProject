@@ -27,6 +27,7 @@ import com.chantake.mituyaapi.commands.CommandContext;
 import com.chantake.mituyaapi.commands.CommandException;
 import com.chantake.mituyaapi.commands.CommandPermissions;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -43,12 +44,12 @@ public class EnchantmentCommands {
     public static void gachaponBrush(CommandContext message, final MituyaProject plugin, final Player player, final PlayerInstance playerInstance) throws MituyaProjectException {
         final ItemStack is = player.getInventory().getItemInHand();
 
-        if (is.getTypeId() == 403) {
+        if (is.getType() == Material.ENCHANTED_BOOK) {
             playerInstance.sendMessage(ChatColor.RED + "エンチャントブックのエンチャントは消せません。");
             return;
         }
 
-        if (is == null || is.getTypeId() == 0) {
+        if (is == null || is.getType() == Material.AIR) {
             playerInstance.sendMessage(ChatColor.RED + "手にエンチャントを消したいアイテムを持って下さい。");
             return;
         }

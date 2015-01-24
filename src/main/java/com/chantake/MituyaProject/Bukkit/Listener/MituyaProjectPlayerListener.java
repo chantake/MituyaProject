@@ -142,7 +142,7 @@ public class MituyaProjectPlayerListener implements Listener {
         } else if (event.getPlayer().getWorld().equals(plugin.getWorldManager().getWorld("world_nether")) && !this.getBorder(event.getTo())) {
             event.setCancelled(true);
             ins.sendMessage("エリア制限がかかっています。 エリア制限外に出ないところで作成、または利用してください。");
-        } else if (event.getPlayer().getLocation().getY() >= 119 && event.getPlayer().getItemInHand().getTypeId() == 288) {
+        } else if (event.getPlayer().getLocation().getY() >= 119 && event.getPlayer().getItemInHand().getType() == Material.FEATHER) {
             World world = plugin.getWorldManager().getWorld("skyland");
             ins.setLastworld(pr.getWorld());
             event.setCancelled(true);
@@ -268,11 +268,11 @@ public class MituyaProjectPlayerListener implements Listener {
                     /*
                      * 右クリック
                      */
-                    if (pr.getItemInHand().getTypeId() == 269) {
+                    if (pr.getItemInHand().getType() == Material.WOOD_SPADE) {
                         final StringBuilder stbr = new StringBuilder();
                         stbr.append("[").append(ChatColor.GREEN).append("Item").append(ChatColor.WHITE).append("] ItemId:").append(clickblock.getTypeId()).append(" ItemType:").append(clickblock.getData()).append(" ItemName:").append(clickblock.getState().getType().toString()).append(" pos x:").append(clickblock.getX()).append(" y:").append(clickblock.getY()).append(" z:").append(clickblock.getZ());
                         event.getPlayer().sendMessage(stbr.toString());
-                    } else if (clickblock.getState().getTypeId() == 25) {
+                    } else if (clickblock.getState().getType() == Material.NOTE_BLOCK) {
                         if (!plugin.canBuild(pr, clickblock)) {
                             event.setCancelled(true);
                             ins.sendAttention("この音ブロックは保護されています");
@@ -284,7 +284,7 @@ public class MituyaProjectPlayerListener implements Listener {
                      */
                 }
                 //ブロック情報表示
-                if (clickblock.getState().getTypeId() == 25 && ins.getShowNote()) {
+                if (clickblock.getState().getType() == Material.NOTE_BLOCK && ins.getShowNote()) {
                     NoteBlock nb = (NoteBlock)clickblock.getState();
                     ins.sendInfo(ChatColor.GREEN + "NoteBlock", NoteBlockNote.GetNote(nb.getNote().getId(), event.getAction() == Action.RIGHT_CLICK_BLOCK));
                 }
