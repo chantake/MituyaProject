@@ -21,6 +21,7 @@ import com.chantake.MituyaProject.Exception.PlayerOfflineException;
 import com.chantake.MituyaProject.MituyaManager;
 import com.chantake.MituyaProject.MituyaProject;
 import com.chantake.MituyaProject.Player.PlayerInstance;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -91,7 +92,11 @@ public class PackBookManager extends MituyaManager {
             return false;
         }
         BookMeta bm = (BookMeta)book.getItemMeta();
-        List<String> data = bm.getPages();
+        List<String> data = new ArrayList<>();
+        //エンコードされているため除去する
+        for(String s : bm.getPages()) {
+            data.add(s.replaceAll("§0", ""));
+        }
         BookType type = BookType.getType(data.get(0));
         if (type == null) {
             return false;
@@ -156,7 +161,7 @@ public class PackBookManager extends MituyaManager {
             catch (PlayerOfflineException ex) {
             }
         }
-        //player.updateInventory();
+        player.updateInventory();
         ins.sendSuccess("アイテムパックを開封しました。");
     }
 
