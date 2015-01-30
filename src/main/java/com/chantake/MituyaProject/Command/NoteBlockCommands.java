@@ -30,6 +30,7 @@ import com.chantake.mituyaapi.commands.CommandException;
 import com.chantake.mituyaapi.commands.CommandPermissions;
 import org.bukkit.ChatColor;
 import org.bukkit.Instrument;
+import org.bukkit.Material;
 import org.bukkit.block.NoteBlock;
 
 /**
@@ -61,7 +62,7 @@ public class NoteBlockCommands {
                 player.sendInfo(ChatColor.GREEN + "NoteBlock", ChatColor.YELLOW + "音ブロッククリック時の音階表示を " + Tools.ReturnColorOnOff(player.getShowNote()) + ChatColor.YELLOW + " に設定しました ");
             } else {
                 Block block = players.getTargetBlock(null, 25);
-                if (block != null && block.getTypeId() == 25) {
+                if (block != null && block.getType() == Material.NOTE_BLOCK) {
                     if (message.getString(0).equals("info")) {
                         NoteBlock nb = (NoteBlock)block.getState();
                         if (plugin.canBuild(players, block)) {
