@@ -57,6 +57,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.potion.PotionEffectType;
+import java.util.UUID;
 
 /**
  * プレーヤーごとにインスタンスを持つクラスです
@@ -67,6 +68,7 @@ import org.bukkit.potion.PotionEffectType;
 public class PlayerInstance implements PlayerInstanceMBean {
 
     private MituyaProject plugin;
+    private UUID uuid;
     private boolean debug = false;
     private boolean gobaku = true;
     private String mituyamodversion = null;
@@ -139,6 +141,25 @@ public class PlayerInstance implements PlayerInstanceMBean {
     public PlayerInstance(String PlayerID, MituyaProject plugin) {
         this.name = PlayerID;
         this.plugin = plugin;
+    }
+    
+    /**
+     * 暫定対応
+     * @param uuid 
+     */
+    @Deprecated
+    public void setUUID(UUID uuid) {
+        this.uuid = uuid;
+    }
+    
+    /**
+     * 暫定対応
+     * @param uuid
+     * @return 
+     */
+    @Deprecated
+    public UUID getUUID(UUID uuid) {
+        return this.uuid;
     }
 
     /**

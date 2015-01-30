@@ -199,8 +199,12 @@ public class ServerCommands {
             }
             catch (PlayerOfflineException ex) {
             }
-            plugin.getServer().getOfflinePlayer(ins.getName()).setBanned(true);
-            plugin.broadcastGMMessage(ChatColor.RED + player.getName() + "が プレーヤー:" + ins.getName() + " をBanしました. 理由:" + reason);
+            plugin.getServer().getOfflinePlayer(ins.getRawName()).setBanned(true);
+            if(!ins.getRawName().equals(ins.getName())) {
+                plugin.broadcastGMMessage(ChatColor.RED + player.getName() + "が プレーヤー:" + ins.getName() + "("+ins.getRawName()+") をBanしました. 理由:" + reason);
+            } else {
+                plugin.broadcastGMMessage(ChatColor.RED + player.getName() + "が プレーヤー:" + ins.getName() + " をBanしました. 理由:" + reason);
+            }
         } else {
             players.sendMessage("/ban playerID {理由}");
         }
