@@ -93,6 +93,7 @@ public class MituyaProjectInventoryListener implements Listener {
         String new_name = Tools.GetItemName(event.getCurrentItem());
 
         if (event.getCurrentItem().getType() != Material.AIR) {
+            //名前の変更チェック
             if (!old_name.equals(new_name)) {
                 if (GachaponDataManager.isGachaponItemNameCoincident(old_name)) {
                     pi.sendAttention("このアイテムの名称は変更出来ません。");
@@ -117,7 +118,15 @@ public class MituyaProjectInventoryListener implements Listener {
                 if (GachaponDataManager.isGachaponItemName(new_name)) {
                     pi.sendAttention("このアイテム名称には変更出来ません。");
                     event.setCancelled(true);
+                    return;
                 }
+            }
+            
+            //修理可否チェック
+            if(GachaponDataManager.isDenyRepair(old_name)) {
+                pi.sendAttention("このアイテムは修理できません。");
+                event.setCancelled(true);
+                return;
             }
         }
     }
