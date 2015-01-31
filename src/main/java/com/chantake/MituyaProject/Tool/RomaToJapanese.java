@@ -256,6 +256,6 @@ public class RomaToJapanese {
             t = HiraganaToKanji.IME(t);
             ret += " " + t;
         }
-        return !ret.trim().equals(roma) ? ret.trim() + "(" + roma + ")" : ret.trim();
+        return ret.trim();
     }
 }
