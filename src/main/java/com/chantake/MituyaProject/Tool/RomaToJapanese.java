@@ -204,6 +204,13 @@ public class RomaToJapanese {
         put("lo", "ぉ");
     }
 
+    public static RomaToJapanese getInstance() {
+        if (instance == null) {
+            instance = new RomaToJapanese();
+        }
+        return instance;
+    }
+
     private void put(String oldtext, String newtext) {
         map.put(oldtext, newtext);
         if (oldtext.length() > 1 && oldtext.charAt(0) != oldtext.charAt(1)) {
@@ -217,13 +224,7 @@ public class RomaToJapanese {
         for (String mp : map.keySet()) {
             text = text.replaceAll(mp, map.get(mp));
         }
+        text = HiraganaToKanji.IME(text);
         return text;
-    }
-
-    public static RomaToJapanese getInstance() {
-        if (instance == null) {
-            instance = new RomaToJapanese();
-        }
-        return instance;
     }
 }
