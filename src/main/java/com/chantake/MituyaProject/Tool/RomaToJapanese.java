@@ -17,6 +17,7 @@
  */
 package com.chantake.MituyaProject.Tool;
 
+import java.util.Objects;
 import java.util.TreeMap;
 
 /**
@@ -29,6 +30,13 @@ public class RomaToJapanese {
     private final TreeMap<String, String> map = new TreeMap<>(new DataComparator());
 
     public RomaToJapanese() {
+        //etc
+        put("?", "？");
+        put("!", "！");
+        put(",", "、");
+        put(".", "。");
+        put("-", "ー");
+        put("~", "～");
         //あ行
         put("a", "あ");
         put("i", "い");
@@ -41,24 +49,40 @@ public class RomaToJapanese {
         put("kyo", "きょ");
         //しゃ
         put("sya", "しゃ");
+        put("syi", "しぃ");
         put("syu", "しゅ");
+        put("sye", "しぇ");
         put("syo", "しょ");
         put("sha", "しゃ");
+        put("shi", "し");
         put("shu", "しゅ");
+        put("she", "しぇ");
         put("sho", "しょ");
         //じょ
         put("zya", "じゃ");
+        put("zyi", "じぃ");
         put("zyu", "じゅ");
+        put("zye", "じぇ");
         put("zyo", "じょ");
         put("jya", "じゃ");
+        put("jyi", "じぃ");
         put("jyu", "じゅ");
+        put("jye", "じぇ");
         put("jyo", "じょ");
+        put("ja", "じゃ");
+        put("ju", "じゅ");
+        put("je", "じぇ");
+        put("jo", "じょ");
         //ちゃ
         put("tya", "ちゃ");
+        put("tyi", "ちぃ");
         put("tyu", "ちゅ");
+        put("tye", "ちぇ");
         put("tyo", "ちょ");
         put("cha", "ちゃ");
+        put("chi", "ち");
         put("chu", "ちゅ");
+        put("che", "ちぇ");
         put("cho", "ちょ");
         //てゃ
         put("tha", "てゃ");
@@ -220,11 +244,18 @@ public class RomaToJapanese {
 
     public String Conversion(String roma) {
         //StringBuilder sb = new StringBuilder();
-        String text = roma;
-        for (String mp : map.keySet()) {
-            text = text.replaceAll(mp, map.get(mp));
+        String ret = "";
+        for (String t : roma.split(" ")) {
+            if (Objects.equals(t.substring(0, 1).toUpperCase(), t.substring(0, 1))) {
+                ret += " " + t;
+                continue;
+            }
+            for (String mp : map.keySet()) {
+                t = t.replaceAll(mp, map.get(mp));
+            }
+            t = HiraganaToKanji.IME(t);
+            ret += " " + t;
         }
-        text = HiraganaToKanji.IME(text);
-        return text;
+        return ret.trim();
     }
 }
