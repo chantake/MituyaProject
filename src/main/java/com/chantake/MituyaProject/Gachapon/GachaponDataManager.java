@@ -36,7 +36,7 @@ import org.bukkit.inventory.meta.BookMeta;
  * @author ezura573
  */
 public class GachaponDataManager {
-
+    //
     // <editor-fold defaultstate="collapsed" desc="プライベート変数">
     private static MituyaProject plugin;
     private static boolean init_flg = false;                                 // 初期化済フラグ
