@@ -41,6 +41,7 @@ public class GachaponDataManager {
     private static MituyaProject plugin;
     private static boolean init_flg = false;                                 // 初期化済フラグ
     private static final List<String> GachaponItemNames = new ArrayList<>();      // ガチャ専用アイテム名リスト
+    private static final List<String> test = new ArrayList<>();
     private static final List<GachaponPhaseData> Phases = new ArrayList<>();      // フェーズデータ
     private static int MaxPhase = 0;                                         // フェーズの最大値
     private static int DefaultPhase = 0;                                     // デフォルトフェーズ
