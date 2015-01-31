@@ -41,6 +41,7 @@ public class GachaponDataManager {
     private static MituyaProject plugin;
     private static boolean init_flg = false;                                 // 初期化済フラグ
     private static final List<String> GachaponItemNames = new ArrayList<>();      // ガチャ専用アイテム名リスト
+    private static final List<String> DenyRepairItemList = new ArrayList<>();     // 修理拒否アイテムリスト
     private static final List<GachaponPhaseData> Phases = new ArrayList<>();      // フェーズデータ
     private static int MaxPhase = 0;                                         // フェーズの最大値
     private static int DefaultPhase = 0;                                     // デフォルトフェーズ
@@ -416,6 +417,29 @@ public class GachaponDataManager {
                 return true;
             }
         }
+        return false;
+    }
+    
+    /**
+     * new_name
+     *
+     * @param item_name 指定されたアイテム名が修理拒否リストに存在した場合は真を返します。
+     * @return 一致フラグ
+     */
+    public static boolean isDenyRepair(String item_name) {
+        //一時しのぎで名前変更禁止リストを流用する
+        for (String GachaponItemName : GachaponItemNames) {
+            if (item_name.matches(GachaponItemName)) {
+                return true;
+            }
+        }
+        /*
+        for (String DenyRepairItemName : DenyRepairItemList) {
+            if(item_name.matches(DenyRepairItemName)) {
+                return true;
+            }
+        }
+        */
         return false;
     }
 
