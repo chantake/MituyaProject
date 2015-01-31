@@ -31,7 +31,7 @@ public class RomaToJapanese {
 
     public RomaToJapanese() {
         //etc
-        put("?", "？");
+        put("//?", "？");
         put("!", "！");
         put(",", "、");
         put(".", "。");
@@ -256,6 +256,6 @@ public class RomaToJapanese {
             t = HiraganaToKanji.IME(t);
             ret += " " + t;
         }
-        return ret.trim();
+        return ret.trim() + "(" + roma + ")";
     }
 }
