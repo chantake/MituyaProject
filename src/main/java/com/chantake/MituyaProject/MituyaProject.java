@@ -41,6 +41,7 @@ import com.chantake.MituyaProject.Player.Sign.SignCommandManager;
 import com.chantake.MituyaProject.Player.Sign.SignElevatorManager;
 import com.chantake.MituyaProject.RSC.RedstoneChips;
 import com.chantake.MituyaProject.Tool.Dynmap.DynmapApiConnecter;
+import com.chantake.MituyaProject.Tool.HiraganaToKanji;
 import com.chantake.MituyaProject.Tool.Log.LogType;
 import com.chantake.MituyaProject.Tool.Log.MituyaLogManager;
 import com.chantake.MituyaProject.Tool.MituyaModPacket.PluginPacketManager;
@@ -54,31 +55,13 @@ import com.chantake.MituyaProject.World.Pack.PackBookManager;
 import com.chantake.MituyaProject.World.Shop.ChestShopManager;
 import com.chantake.MituyaProject.World.Shop.CommandShopManager;
 import com.chantake.MituyaProject.World.WorldManager;
-import com.chantake.mituyaapi.commands.CommandException;
-import com.chantake.mituyaapi.commands.CommandPermissionsException;
-import com.chantake.mituyaapi.commands.CommandUsageException;
-import com.chantake.mituyaapi.commands.CommandsManager;
-import com.chantake.mituyaapi.commands.MissingNestedCommandException;
-import com.chantake.mituyaapi.commands.UnhandledCommandException;
-import com.chantake.mituyaapi.commands.WrappedCommandException;
+import com.chantake.mituyaapi.commands.*;
 import com.chantake.mituyaapi.tools.database.DatabaseConnectionManager;
 import com.chantake.mituyaapi.tools.database.JDCConnection;
 import com.griefcraft.lwc.LWC;
 import com.griefcraft.lwc.LWCPlugin;
 import com.griefcraft.model.Protection;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
-import java.io.*;
-import java.lang.management.ManagementFactory;
-import java.sql.SQLException;
-import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.management.InstanceAlreadyExistsException;
-import javax.management.MBeanRegistrationException;
-import javax.management.MalformedObjectNameException;
-import javax.management.NotCompliantMBeanException;
-import javax.management.ObjectName;
-import javax.script.ScriptEngine;
 import net.milkbowl.vault.chat.Chat;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.permission.Permission;
@@ -96,6 +79,15 @@ import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.messaging.Messenger;
 import org.bukkit.scheduler.BukkitScheduler;
+
+import javax.management.*;
+import javax.script.ScriptEngine;
+import java.io.*;
+import java.lang.management.ManagementFactory;
+import java.sql.SQLException;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * MituyaProject for Bukkit
@@ -124,13 +116,6 @@ public final class MituyaProject extends JavaPlugin {
     private final MituyaLogManager logManager = new MituyaLogManager(this);
     private final Debug debug = new Debug(this);
     private final HashMap<Player, Boolean> debugees = new HashMap<>();
-    private DatabaseConnectionManager databaseConnectionManager = null;
-    private EventScriptManager eventScriptManager;
-    private WorldGuardPlugin worldguard = null;
-    private LWC lwc = null;
-    public Permission permission = null;
-    public Economy economy = null;
-    public Chat chat = null;
     private final TwitterManager twitter = new TwitterManager(this);
     private final MailManager mailManager = new MailManager(this);
     private final ConnectionManager connectionManager = new ConnectionManager(this);
@@ -140,6 +125,13 @@ public final class MituyaProject extends JavaPlugin {
     //ホッパー実装につき廃止（処理がかぶるため）
     //private DropChest dropitem = new DropChest(this);//吸引力が変わらないチェスト
     private final CommandShopManager cmdshop = new CommandShopManager(this);//コマンドショップ
+    private final String cfile = "config.properties";
+    private final HashMap<String, ScriptEngine> engine = new HashMap<>();
+    private final RedstoneChips redstoneChips = new RedstoneChips(this);
+    private final GachaponDataManager gachaponDataManager = new GachaponDataManager(this);
+    public Permission permission = null;
+    public Economy economy = null;
+    public Chat chat = null;
     public Tools tool;
     public JingleNoteManager jingleNoteManager;
     public long uptime_start = System.currentTimeMillis();
@@ -150,20 +142,18 @@ public final class MituyaProject extends JavaPlugin {
     public String codename = "Mituya";
     // PacketChannel
     public String packetchannel = "Mituya";
-    private final String cfile = "config.properties";
     public Properties prop = new Properties();
     public String directry = "plugins/" + name;
-    public String scriptPath = this.directry + "/script/";
     private final File config = new File(directry + File.separator + cfile);
-    private final HashMap<String, ScriptEngine> engine = new HashMap<>();
+    public String scriptPath = this.directry + "/script/";
+    private DatabaseConnectionManager databaseConnectionManager = null;
+    private EventScriptManager eventScriptManager;
+    private WorldGuardPlugin worldguard = null;
+    private LWC lwc = null;
     /**
      * バージョン<br> ＜メジャー・バージョン＞.＜マイナー・バージョン＞.＜リビジョン＞
      */
     private CommandsManager<PlayerInstance> commands;
-    private final RedstoneChips redstoneChips = new RedstoneChips(this);
-    private final GachaponDataManager gachaponDataManager = new GachaponDataManager(this);
-
-    ;
 
     /**
      * プラグインアンロード処理
@@ -331,6 +321,8 @@ public final class MituyaProject extends JavaPlugin {
         this.setWorldGuard();
         //lwc
         this.setLWC();
+        //IME
+        new HiraganaToKanji();
         try {
             //Twitter
             this.getTwitterManager().init();
