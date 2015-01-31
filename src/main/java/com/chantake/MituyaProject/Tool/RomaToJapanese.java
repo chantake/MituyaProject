@@ -31,10 +31,10 @@ public class RomaToJapanese {
 
     public RomaToJapanese() {
         //etc
-        put("//?", "？");
+        put("\\?", "？");
         put("!", "！");
         put(",", "、");
-        put(".", "。");
+        put("\\.", "。");
         put("-", "ー");
         put("~", "～");
         //あ行
