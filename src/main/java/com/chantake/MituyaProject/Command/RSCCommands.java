@@ -34,9 +34,9 @@ import com.chantake.MituyaProject.RSC.Circuit.Scan.ScanParameters;
 import com.chantake.MituyaProject.RSC.CommandUtils;
 import com.chantake.MituyaProject.RSC.PrefsManager;
 import com.chantake.MituyaProject.RSC.RedstoneChips;
+import com.chantake.MituyaProject.RSC.Session.*;
 import com.chantake.MituyaProject.RSC.Session.Debugger.Flag;
 import com.chantake.MituyaProject.RSC.Session.UserSession.Mode;
-import com.chantake.MituyaProject.RSC.Session.*;
 import com.chantake.MituyaProject.RSC.Wireless.BroadcastChannel;
 import com.chantake.MituyaProject.RSC.Wireless.Receiver;
 import com.chantake.MituyaProject.RSC.Wireless.Transmitter;
@@ -47,11 +47,6 @@ import com.chantake.MituyaProject.Tool.Parsing.ParsingUtils;
 import com.chantake.MituyaProject.Tool.Parsing.Tokenizer;
 import com.chantake.mituyaapi.commands.Command;
 import com.chantake.mituyaapi.commands.CommandContext;
-import com.chantake.mituyaapi.commands.CommandException;
-import com.chantake.mituyaapi.commands.CommandPermissions;
-import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -63,12 +58,17 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.material.MaterialData;
 
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
  *
  * @author fumitti
  */
 public class RSCCommands {
 
+    public static final ChatColor color = ChatColor.AQUA;
     static RedstoneChips rc;
 
     public RSCCommands() {
@@ -497,7 +497,7 @@ public class RSCCommands {
 
         if (bthis || (filters.isEmpty() && (sender instanceof Player))) {
             CircuitFilter f = new WorldFilter().setPlugin(rc);
-            ((WorldFilter)f).world = ((Player)sender).getWorld();
+            ((WorldFilter) f).world = sender.getWorld();
             filters.add(f);
         }
 
@@ -706,11 +706,6 @@ public class RSCCommands {
 
     }
 
-    public static enum ProtCommand {
-
-        PROTECT, UNPROTECT, ADD, REMOVE
-    }
-
     @Command(aliases = {"rcprotect"}, usage = "", desc = "", flags = "", min = 0, max = -1)
     public static void rcProtect(CommandContext command, MituyaProject plugin, Player sender, PlayerInstance playeri) {
         rc = plugin.getRedstoneChips();
@@ -818,8 +813,8 @@ public class RSCCommands {
                         }
 
                         if (sender instanceof Player) {
-                            if (!curChannel.owners.contains(((Player)sender).getName().toLowerCase())) {
-                                curChannel.owners.add(((Player)sender).getName().toLowerCase());
+                            if (!curChannel.owners.contains(sender.getName().toLowerCase())) {
+                                curChannel.owners.add(sender.getName().toLowerCase());
                             }
                         }
 
@@ -982,29 +977,6 @@ public class RSCCommands {
             sender.sendMessage(rc.getPrefs().getInfoColor() + "Done saving " + rc.getCircuitManager().getCircuits().size() + " chips.");
         }
 
-    }
-    public static final ChatColor color = ChatColor.AQUA;
-
-    public static enum SelCommand {
-
-        WORLD(null), CUBOID(null), ID(null), TARGET(null), ACTIVATE("Activated"), RESET("Reset"), BREAK("Deactivated"), LIST(null),
-        DESTROY("Destroyed"), FIXIOBLOCKS("Fixed"), CLEAR(null), ENABLE("Enabled"), DISABLE("Disabled");
-        String verb;
-
-        SelCommand(String verb) {
-            this.verb = verb;
-        }
-
-        public static SelCommand startsWith(String s) {
-            s = s.toLowerCase();
-            for (SelCommand c : SelCommand.values()) {
-                if (c.name().toLowerCase().startsWith(s)) {
-                    return c;
-                }
-            }
-
-            return null;
-        }
     }
 
     @Command(aliases = {"rcsel"}, usage = "", desc = "", flags = "", min = 0, max = -1)
@@ -1794,8 +1766,8 @@ public class RSCCommands {
             return true;
         }
 
-        String playerName = ((Player)sender).getName();
-        return ((Player)sender).hasPermission("redstonechips.channel.admin")
+        String playerName = sender.getName();
+        return sender.hasPermission("redstonechips.channel.admin")
                 || rc.getChannelManager().getChannelByName(name, false).users.contains(playerName.toLowerCase())
                 || rc.getChannelManager().getChannelByName(name, false).owners.contains(playerName.toLowerCase());
     }
@@ -2013,60 +1985,60 @@ public class RSCCommands {
         try {
             ChatColor infoColor = rc.getPrefs().getInfoColor();
             ChatColor extraColor = ChatColor.YELLOW;
-            
+
             String disabled;
             if (c.isDisabled()) {
                 disabled = ChatColor.GRAY + " - disabled";
             } else {
                 disabled = "";
             }
-            
+
             String loc = c.activationBlock.getBlockX() + ", " + c.activationBlock.getBlockY() + ", " + c.activationBlock.getBlockZ();
             String chunkCoords = "";
             for (ChunkLocation l : c.circuitChunks) {
                 chunkCoords += (l.isChunkLoaded() ? extraColor : ChatColor.WHITE) + "[" + l.getX() + ", " + l.getZ() + " " + (l.isChunkLoaded() ? "L" : "u") + "]" + infoColor + ", ";
             }
-            
+
             if (!chunkCoords.isEmpty()) {
                 chunkCoords = chunkCoords.substring(0, chunkCoords.length() - 2);
             }
-            
+
             String name;
             if (c.name == null) {
                 name = "unnamed";
             } else {
                 name = c.name;
             }
-            
+
             sender.sendMessage("");
             sender.sendMessage(infoColor + c.getChipString() + disabled);
             sender.sendMessage(extraColor + "----------------------------------------");
-            
+
             sender.sendMessage(infoColor + "" + c.inputs.length + " input(s), " + c.outputs.length + " output(s) and " + c.interfaceBlocks.length + " interface blocks.");
             sender.sendMessage(infoColor
                     + "location: " + extraColor + loc + infoColor + " @ " + extraColor + c.world.getName());
             sender.sendMessage(infoColor + " chunks: " + chunkCoords);
-            
+
             int inputInt = BitSetUtils.bitSetToUnsignedInt(c.getInputBits(), 0, c.inputs.length);
             int outputInt = BitSetUtils.bitSetToUnsignedInt(c.getOutputBits(), 0, c.outputs.length);
-            
+
             if (c.inputs.length > 0) {
                 sender.sendMessage(infoColor + "input states: " + extraColor + BitSetUtils.bitSetToBinaryString(c.getInputBits(), 0, c.inputs.length)
                         + infoColor + " (0x" + Integer.toHexString(inputInt) + ")");
             }
-            
+
             if (c.outputs.length > 0) {
                 sender.sendMessage(infoColor + "output states: " + extraColor + BitSetUtils.bitSetToBinaryString(c.getOutputBits(), 0, c.outputs.length)
                         + infoColor + " (0x" + Integer.toHexString(outputInt) + ")");
             }
-            
+
             String signargs = "";
             for (String arg : c.args) {
                 signargs += arg + " ";
             }
-            
+
             sender.sendMessage(infoColor + "sign args: " + extraColor + signargs);
-            
+
             Map<String, String> internalState = c.getInternalState();
             if (!internalState.isEmpty()) {
                 sender.sendMessage(infoColor + "internal state:");
@@ -2074,12 +2046,39 @@ public class RSCCommands {
                 for (String key : internalState.keySet()) {
                     internal += infoColor + key + ": " + extraColor + internalState.get(key) + infoColor + ", ";
                 }
-                
+
                 sender.sendMessage(internal.substring(0, internal.length() - 2));
             }
         }
         catch (CloneNotSupportedException ex) {
             Logger.getLogger(RSCCommands.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    public static enum ProtCommand {
+
+        PROTECT, UNPROTECT, ADD, REMOVE
+    }
+
+    public static enum SelCommand {
+
+        WORLD(null), CUBOID(null), ID(null), TARGET(null), ACTIVATE("Activated"), RESET("Reset"), BREAK("Deactivated"), LIST(null),
+        DESTROY("Destroyed"), FIXIOBLOCKS("Fixed"), CLEAR(null), ENABLE("Enabled"), DISABLE("Disabled");
+        String verb;
+
+        SelCommand(String verb) {
+            this.verb = verb;
+        }
+
+        public static SelCommand startsWith(String s) {
+            s = s.toLowerCase();
+            for (SelCommand c : SelCommand.values()) {
+                if (c.name().toLowerCase().startsWith(s)) {
+                    return c;
+                }
+            }
+
+            return null;
         }
     }
 }

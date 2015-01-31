@@ -21,8 +21,6 @@ import com.chantake.MituyaProject.MituyaProject;
 import com.chantake.MituyaProject.Player.PlayerInstance;
 import com.chantake.mituyaapi.commands.Command;
 import com.chantake.mituyaapi.commands.CommandContext;
-import com.chantake.mituyaapi.commands.CommandException;
-import com.chantake.mituyaapi.commands.CommandPermissions;
 import com.chantake.mituyaapi.commands.NestedCommand;
 import org.bukkit.entity.Player;
 

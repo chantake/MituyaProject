@@ -23,15 +23,15 @@ import com.chantake.MituyaProject.Player.PlayerInstance;
 import com.chantake.MituyaProject.Tool.Tools;
 import com.chantake.mituyaapi.commands.Command;
 import com.chantake.mituyaapi.commands.CommandContext;
-import com.chantake.mituyaapi.commands.CommandException;
 import com.chantake.mituyaapi.commands.CommandPermissions;
 import com.chantake.mituyaapi.tools.database.JDCConnection;
+import org.bukkit.ChatColor;
+import org.bukkit.entity.Player;
+
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.bukkit.ChatColor;
-import org.bukkit.entity.Player;
 
 /**
  *

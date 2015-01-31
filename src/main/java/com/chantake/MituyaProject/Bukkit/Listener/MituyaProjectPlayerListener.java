@@ -26,48 +26,30 @@ import com.chantake.MituyaProject.Parameter.Parameter328;
 import com.chantake.MituyaProject.Permissions.Rank;
 import com.chantake.MituyaProject.Player.Chat.ChatManager;
 import com.chantake.MituyaProject.Player.PlayerInstance;
-import com.chantake.MituyaProject.Tool.MituyaModPacket.PacketParameter;
 import com.chantake.MituyaProject.Tool.MySqlProcessing;
-import com.chantake.MituyaProject.Tool.MituyaModPacket.PluginPacketManager;
 import com.chantake.MituyaProject.Tool.Timer.BorderGuard;
 import com.chantake.MituyaProject.Tool.Tools;
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
+import org.bukkit.*;
 import org.bukkit.block.Block;
+import org.bukkit.block.NoteBlock;
 import org.bukkit.block.Sign;
+import org.bukkit.configuration.InvalidConfigurationException;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.player.PlayerAnimationEvent;
-import org.bukkit.event.player.PlayerCommandPreprocessEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerLoginEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.event.player.PlayerPortalEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.event.player.PlayerRespawnEvent;
+import org.bukkit.event.enchantment.EnchantItemEvent;
+import org.bukkit.event.player.*;
 
+import javax.sound.midi.InvalidMidiDataException;
+import javax.sound.midi.MidiUnavailableException;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.HashMap;
 import java.util.Map;
-import javax.sound.midi.InvalidMidiDataException;
-import javax.sound.midi.MidiUnavailableException;
-import org.bukkit.GameMode;
-import org.bukkit.Material;
-import org.bukkit.World;
-import org.bukkit.block.NoteBlock;
-import org.bukkit.configuration.InvalidConfigurationException;
-import org.bukkit.entity.Entity;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
-import org.bukkit.event.enchantment.EnchantItemEvent;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
-import org.bukkit.event.player.PlayerInteractEntityEvent;
-import org.bukkit.event.player.PlayerTeleportEvent;
 
 /**
  * プレーヤーリスナー
@@ -77,8 +59,8 @@ import org.bukkit.event.player.PlayerTeleportEvent;
  */
 public class MituyaProjectPlayerListener implements Listener {
 
-    private final MituyaProject plugin;
     private static ChatColor color;
+    private final MituyaProject plugin;
     private final Map<InetAddress, String> ips = new HashMap<>();
 
     /**
@@ -239,7 +221,7 @@ public class MituyaProjectPlayerListener implements Listener {
     }
 
     @EventHandler(priority = EventPriority.HIGH)
-    public void onPlayerInteract(PlayerInteractEvent event) throws PlayerOfflineException, FileNotFoundException, IOException, IOException, InvalidConfigurationException {
+    public void onPlayerInteract(PlayerInteractEvent event) throws PlayerOfflineException, IOException, InvalidConfigurationException {
         final Player pr = event.getPlayer();
         final PlayerInstance ins = plugin.getInstanceManager().getInstance(pr);
         if (event.getAction() != Action.PHYSICAL) {
