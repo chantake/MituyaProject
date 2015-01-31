@@ -63,7 +63,7 @@ public class ChatManager {
             String message = Tools.ChangeText(chatmessage, plugin, ins);
             //自動変換
             if (ins.getIME()) {
-                message = RomaToJapanese.getInstance().Conversion(message);
+                message = RomaToJapanese.getInstance().Conversion(message) + ChatColor.WHITE + "(" + ChatColor.DARK_GRAY + message + ChatColor.WHITE + ")";
             }
             //先頭文字
             if (message.length() > 0 && message.charAt(0) == Parameter328.command) {
@@ -124,8 +124,7 @@ public class ChatManager {
                     plugin.broadcastGMMessage(ChatColor.AQUA + "[GM]" + sb.toString());
                     break;
             }
-        }
-        catch (IllegalStateException | PlayerOfflineException ex) {
+        } catch (IllegalStateException | PlayerOfflineException ex) {
             plugin.ErrLog("ChatProcesser err:" + ex);
         }
     }
