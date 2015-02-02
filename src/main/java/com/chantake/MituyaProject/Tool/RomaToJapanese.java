@@ -226,6 +226,7 @@ public class RomaToJapanese {
         put("lu", "ぅ");
         put("le", "ぇ");
         put("lo", "ぉ");
+        map.put("nn", "ん");
     }
 
     public static RomaToJapanese getInstance() {
