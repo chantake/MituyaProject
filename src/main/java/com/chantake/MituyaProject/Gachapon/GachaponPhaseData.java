@@ -344,6 +344,8 @@ public class GachaponPhaseData {
                 return Enchantment.WATER_WORKER;
             case 7:
                 return Enchantment.THORNS;
+            case 8:
+                return Enchantment.DEPTH_STRIDER;
             case 16:
                 return Enchantment.DAMAGE_ALL;
             case 17:
@@ -372,8 +374,14 @@ public class GachaponPhaseData {
                 return Enchantment.ARROW_FIRE;
             case 51:
                 return Enchantment.ARROW_INFINITE;
+            case 61:
+                return Enchantment.LUCK;
+            case 62:
+                return Enchantment.LURE;
+            default:
+                return Enchantment.DURABILITY;
         }
-        return null;
+        //return null;
     }
     // </editor-fold>
 
