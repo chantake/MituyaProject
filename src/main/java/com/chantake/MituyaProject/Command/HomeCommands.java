@@ -73,187 +73,140 @@ public class HomeCommands {
     @CommandPermissions({"mituya.home"})
     public static void homeBrush(final CommandContext message, final MituyaProject plugin, final Player players, final PlayerInstance player) throws MituyaProjectException {
         World world = players.getWorld();
-        
-        if (world.equals(plugin.getWorldManager().getWorld("harvest")) || world.equals(plugin.getWorldManager().getWorld("harvest_nether"))) {
+        if (world.equals(plugin.getWorldManager().getWorld("harvest"))) {
             player.sendAttention("このワールドではこのコマンドは使用できません。");
-            
             return;
         }
-        
         if (message.argsLength() > 0 && message.getString(0).equals("set")) {
             final int subid;
-            
-            if (message.argsLength() == 2)
+            if (message.argsLength() == 2) {
                 subid = Tools.StringToInteger(message.getString(1));
-            else
+            } else {
                 subid = 0;
-            
+            }
             int home_size = 0;
             //Home既に使用済み
-            if (player.getWorldHome(world) != null) 
+            if (player.getWorldHome(world) != null) {
                 home_size = player.getWorldHome(world).size();
-            
+            }
             LocationData home = player.getHome(world, subid);
             if (home == null) {//Worldでhomeを使用してない or homeが無い場合
                 int max_subid = 3;
                 //player.hasPermission(Rank.Supporter) から　player.hasPermission(Rank.Niconama) に変更 byいんく
-                if (player.hasPermission(Rank.Niconama))
+                if (player.hasPermission(Rank.Niconama)) {
                     max_subid = 6;
-                
+                }
                 if (subid > max_subid || (subid > home_size)) {
                     player.sendAttention("ホームIDは " + max_subid + " 以下で下から順番に作成してください。");
-                    
-                    return;
+                } else {
+                    final int mine = Parameter328.Home_Mine[home_size];
+                    player.sendMineYesNo(mine, new Runnable() {
+                        @Override
+                        public void run() {
+                            player.gainMine(-mine);
+                            player.SaveHome(players.getLocation().clone(), subid, false, null);
+                            player.sendSuccess("ホームを設定しました。 ホームID:" + subid);
+                        }
+                    });
                 }
-                
-                final int mine = Parameter328.Home_Mine[home_size];
-                player.sendMineYesNo(mine, () -> {
-                    player.gainMine(-mine);
-                    player.SaveHome(players.getLocation().clone(), subid, false, null);
-                    player.sendSuccess("ホームを設定しました。 ホームID:" + subid);
-                });
-                
-                return;
+            } else { //ある場合
+                home.setLocation(players.getLocation().clone());
+                player.SaveHome(home);
+                player.sendSuccess("ホームを設定しました。 ホームID:" + subid);
             }
-            
-            home.setLocation(players.getLocation().clone());
-            player.SaveHome(home);
-            player.sendSuccess("ホームを設定しました。 ホームID:" + subid);
-            
-            return;
-        }
-        
-        if (message.argsLength() > 0 && (message.getString(0).equalsIgnoreCase("invite") || message.getString(0).equalsIgnoreCase("here"))) {
+        } else if (message.argsLength() > 0 && (message.getString(0).equalsIgnoreCase("invite") || message.getString(0).equalsIgnoreCase("here"))) {
             if (message.argsLength() < 2 && Tools.Help(message.getString(0))) {
                 player.sendAttention(Help.Here.Help());
-                
-                return;
-            }
-            
-            if (!player.hasPermission(Rank.LiveReporter)) {
+            } else if (!player.hasPermission(Rank.LiveReporter)) {
                 player.sendAttention(Help.Rank.Help());
-                
-                return;
+            } else {
+                PlayerInstance ins = plugin.getInstanceManager().matchSingleInstance(message.getString(1));
+                int subid = 0;
+                if (message.argsLength() > 2) {
+                    subid = Tools.StringToInteger(message.getString(2));
+                }
+                if (ins == null) {
+                    //エラーメッセージ
+                    throw new PlayerNotFoundException(message.getString(1));
+                }
+                Player cp = ins.getPlayer();
+                if (cp == null) {
+                    throw new PlayerOfflineException(ins.getName());
+                }
+                LocationData ld = player.getHome(players.getWorld(), subid);
+                if (ld == null) {
+                    player.sendAttention("あなたの ホーム(" + subid + ChatColor.RED + ") は見つかりませんでした。");
+                } else if (!cp.getWorld().equals(players.getWorld()) && !player.hasPermission(Rank.GM)) {
+                    player.sendAttention("プレーヤー " + ChatColor.YELLOW + cp.getName() + ChatColor.RED + " は、他のワールドにいません。");
+                } else {
+                    cp.teleport(ld.getLocation());
+                    player.sendAttention(ChatColor.LIGHT_PURPLE + "ホーム(" + subid + ") に " + cp.getName() + " を呼んでいます ....");
+                    ins.sendAttention(ChatColor.LIGHT_PURPLE + players.getName() + "(" + subid + ") のホームに移動しています....");
+                    cp.sendMessage(ChatColor.LIGHT_PURPLE + ld.getMessage());
+                }
             }
-            
-            PlayerInstance ins = plugin.getInstanceManager().matchSingleInstance(message.getString(1));
-            int subid = 0;
-            
-            if (message.argsLength() > 2)
-                subid = Tools.StringToInteger(message.getString(2));
-            
-            if (ins == null) {
-                //エラーメッセージ
-                throw new PlayerNotFoundException(message.getString(1));
-            }
-            
-            Player cp = ins.getPlayer();
-            if (cp == null)
-                throw new PlayerOfflineException(ins.getName());
-            
-            LocationData ld = player.getHome(players.getWorld(), subid);
-            if (ld == null) {
-                player.sendAttention("あなたの ホーム(" + subid + ChatColor.RED + ") は見つかりませんでした。");
-                
-                return;
-            }
-            
-            if (!cp.getWorld().equals(players.getWorld()) && !player.hasPermission(Rank.GM)) {
-                player.sendAttention("プレーヤー " + ChatColor.YELLOW + cp.getName() + ChatColor.RED + " は、他のワールドにいません。");
-                
-                return;
-            }
-            
-            cp.teleport(ld.getLocation());
-            player.sendAttention(ChatColor.LIGHT_PURPLE + "ホーム(" + subid + ") に " + cp.getName() + " を呼んでいます ....");
-            ins.sendAttention(ChatColor.LIGHT_PURPLE + players.getName() + "(" + subid + ") のホームに移動しています....");
-            cp.sendMessage(ChatColor.LIGHT_PURPLE + ld.getMessage());
-            
-            return;
-        }
-        
-        if (message.argsLength() > 0 && message.getString(0).equals("public")) {
+        } else if (message.argsLength() > 0 && message.getString(0).equals("public")) {
             int subid = 0;
             if (message.argsLength() > 1) {
                 if (Tools.Help(message.getString(1))) {
                     player.sendAttention(Help.Public.Help());
-                    
                     return;
                 }
-                
                 subid = Tools.StringToInteger(message.getString(1));
             }
-            
             LocationData ld = player.getHome(players.getWorld(), subid);
             int wid = plugin.getWorldManager().getWorldData(players.getWorld()).getId();
             if (ld == null) {
                 player.sendAttention(Help.Noth.Help());
-                
-                return;
+            } else {
+                player.setHomePublic(wid, subid);
+                player.sendInfo(Help.HomeInfo.Help(), ChatColor.YELLOW + "あなたのホーム(" + subid + ") のパブリック状況は " + Tools.ReturnColorOnOff(player.getHomePublic(wid, subid)) + ChatColor.YELLOW + "です。");
             }
-            
-            player.setHomePublic(wid, subid);
-            player.sendInfo(Help.HomeInfo.Help(), ChatColor.YELLOW + "あなたのホーム(" + subid + ") のパブリック状況は " + Tools.ReturnColorOnOff(player.getHomePublic(wid, subid)) + ChatColor.YELLOW + "です。");
-            
-            return;
-        }
-        
-        if (message.argsLength() > 0 && Tools.Help(message.getString(0))) {
+        } else if (message.argsLength() > 0 && Tools.Help(message.getString(0))) {
             player.sendAttention(Help.Main.Help());
-            
-            return;
-        }
-        
-        if (message.argsLength() > 0 && !Tools.CheckInteger(message.getString(0))) {//他のhomeに移動
-            PlayerInstance ins = plugin.getInstanceManager().matchSingleInstance(message.getString(0));
-            int subid = 0;
-            if (message.argsLength() > 1)
-                subid = Tools.StringToInteger(message.getString(1));
-                
-            if (ins == null)
-                throw new PlayerNotFoundException(message.getString(0));
-            
-            Player cp = plugin.getServer().getPlayer(ins.getName());
-            LocationData ld = ins.getHome(players.getWorld(), subid);
-            
-            if (ld == null) {
-                player.sendAttention(ChatColor.YELLOW + ins.getName() + "(" + subid + ChatColor.YELLOW + ")" + ChatColor.RED + " のホームは見つかりませんでした。");
-                
-                return;
+        } else {
+            if (message.argsLength() > 0 && !Tools.CheckInteger(message.getString(0))) {//他のhomeに移動
+                PlayerInstance ins = plugin.getInstanceManager().matchSingleInstance(message.getString(0));
+                int subid = 0;
+                if (message.argsLength() > 1) {
+                    subid = Tools.StringToInteger(message.getString(1));
+                }
+                if (ins == null) {
+                    throw new PlayerNotFoundException(message.getString(0));
+                }
+                Player cp = plugin.getServer().getPlayer(ins.getName());
+
+                LocationData ld = ins.getHome(players.getWorld(), subid);
+                if (ld == null) {
+                    player.sendAttention(ChatColor.YELLOW + ins.getName() + "(" + subid + ChatColor.YELLOW + ")" + ChatColor.RED + " のホームは見つかりませんでした。");
+                } else if (!ld.getPublic() && !player.hasPermission(Rank.GM)) {
+                    player.sendAttention(ins.getName() + "(" + subid + ")" + ChatColor.DARK_GRAY + " のホームはパブリックではありません。");
+                } else {
+                    if (player.hasPermission(Rank.Moderator) && !ld.getPublic()) {
+                        player.sendAttention(ins.getName() + "(" + subid + ")" + ChatColor.DARK_GRAY + " のホームはパブリックではありません。" + ChatColor.YELLOW + " GM権限でスキップしました。");
+                    }
+                    players.teleport(ld.getLocation());
+                    player.setTp();
+                    players.sendMessage(ChatColor.AQUA + ld.getMessage());
+                    if (cp != null) {// オンラインの場合
+                        ins.sendInfo(Help.HomeInfo.Help(), ChatColor.YELLOW + players.getName() + ChatColor.LIGHT_PURPLE + " がホーム(" + ld.getLocation().getWorld().getName() + "," + ld.getId() + ")を訪れました。");
+                    }
+                }
+            } else {//自宅
+                int subid = 0;
+                if (message.argsLength() > 0) {
+                    subid = Tools.StringToInteger(message.getString(0));
+                }
+                LocationData ld = player.getHome(players.getWorld(), subid);
+                if (ld == null) {
+                    player.sendAttention("ホーム(" + subid + ") を設定してません。");
+                } else {
+                    players.teleport(ld.getLocation());
+                    player.setTp();
+                    players.sendMessage(ChatColor.AQUA + ld.getMessage());
+                }
             }
-            
-            if (!ld.getPublic() && !player.hasPermission(Rank.GM)) {
-                player.sendAttention(ins.getName() + "(" + subid + ")" + ChatColor.DARK_GRAY + " のホームはパブリックではありません。");
-                
-                return;
-            }
-            
-            if (player.hasPermission(Rank.Moderator) && !ld.getPublic())
-                player.sendAttention(ins.getName() + "(" + subid + ")" + ChatColor.DARK_GRAY + " のホームはパブリックではありません。" + ChatColor.YELLOW + " GM権限でスキップしました。");
-            
-            players.teleport(ld.getLocation());
-            player.setTp();
-            players.sendMessage(ChatColor.AQUA + ld.getMessage());
-            if (cp != null) // オンラインの場合
-                ins.sendInfo(Help.HomeInfo.Help(), ChatColor.YELLOW + players.getName() + ChatColor.LIGHT_PURPLE + " がホーム(" + ld.getLocation().getWorld().getName() + "," + ld.getId() + ")を訪れました。");
-            
-            return;
         }
-        
-        int subid = 0;
-        if (message.argsLength() > 0)
-            subid = Tools.StringToInteger(message.getString(0));
-        
-        LocationData ld = player.getHome(players.getWorld(), subid);
-        if (ld == null) {
-            player.sendAttention("ホーム(" + subid + ") を設定してません。");
-            
-            return;
-        }
-        
-        players.teleport(ld.getLocation());
-        player.setTp();
-        players.sendMessage(ChatColor.AQUA + ld.getMessage());
     }
     // </editor-fold>
 
