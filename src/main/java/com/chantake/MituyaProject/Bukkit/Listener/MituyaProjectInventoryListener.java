@@ -97,6 +97,7 @@ public class MituyaProjectInventoryListener implements Listener {
             if (!old_name.equals(new_name)) {
                 if (GachaponDataManager.isGachaponItemNameCoincident(old_name)) {
                     pi.sendAttention("このアイテムの名称は変更出来ません。");
+                    this.showExplotion(pi);
                     event.setCancelled(true);
                     return;
                 }
@@ -111,12 +112,14 @@ public class MituyaProjectInventoryListener implements Listener {
                             + "「"
                             + new_name
                             + "」を偽造しようとしました。");
+                    this.showExplotion(pi);
                     event.setCancelled(true);
                     return;
                 }
 
                 if (GachaponDataManager.isGachaponItemName(new_name)) {
                     pi.sendAttention("このアイテム名称には変更出来ません。");
+                    this.showExplotion(pi);
                     event.setCancelled(true);
                     return;
                 }
@@ -125,6 +128,7 @@ public class MituyaProjectInventoryListener implements Listener {
             //修理可否チェック
             if(GachaponDataManager.isDenyRepair(old_name)) {
                 pi.sendAttention("このアイテムは修理できません。");
+                this.showExplotion(pi);
                 event.setCancelled(true);
                 return;
             }
@@ -133,6 +137,13 @@ public class MituyaProjectInventoryListener implements Listener {
 
     public void test(InventoryMoveItemEvent event) {
 
+    }
+    
+    private void showExplotion( PlayerInstance pi){
+        try{
+           pi.getPlayer().getWorld().createExplosion(pi.getLocation(),0,false);
+       }catch(Exception ex){
+       }       
     }
 
 }
