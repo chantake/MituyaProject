@@ -1895,26 +1895,6 @@ public class PlayerInstance implements PlayerInstanceMBean {
     public boolean neglect() {
         return neglect;
     }
-    
-    private void sendYesNo(String message, Runnable runnable, boolean canCheckSkip) {
-        //インスタンスを登録
-        if (!this.setCheckInstance(runnable))
-            return;
-        
-        //確認をスキップして実行する
-        if (this.isCheckSkip() && canCheckSkip) {
-            //実行する
-            this.executionCheckInstance();
-            return;
-        }
-            
-        //確認フラグをセット
-        this.setCheck(true);
-        //固有メッセージ
-        this.sendMessage(ChatColor.YELLOW + message);
-        //確認メッセージ
-        this.sendMessage(Parameter328.Check_Message);
-    }
 
     /**
      * ユーザーに確認メッセージを出し、実行します
@@ -1923,11 +1903,21 @@ public class PlayerInstance implements PlayerInstanceMBean {
      * @param runnable
      */
     public void sendYesNo(String message, Runnable runnable) {
-        this.sendYesNo(message, runnable, true);
-    }
-    
-    public void forceSendYesNo(String message, Runnable runnable) {
-        this.sendYesNo(message, runnable, false);
+        //インスタンスを登録
+        if (this.setCheckInstance(runnable)) {
+            //確認をスキップして実行する
+            if (this.isCheckSkip()) {
+                //実行する
+                this.executionCheckInstance();
+            } else {//スキップしないで確認メッセージを出す
+                //確認フラグをセット
+                this.setCheck(true);
+                //固有メッセージ
+                this.sendMessage(ChatColor.YELLOW + message);
+                //確認メッセージ
+                this.sendMessage(Parameter328.Check_Message);
+            }
+        }
     }
 
     /**
@@ -1942,7 +1932,7 @@ public class PlayerInstance implements PlayerInstanceMBean {
         if (this.isCheck()) {
             ins.sendAttention(ins.getName() + " は、現在応答できません。");
         } else {
-            this.forceSendYesNo(message, runnable);
+            this.sendYesNo(message, runnable);
         }
     }
 
