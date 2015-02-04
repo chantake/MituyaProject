@@ -105,15 +105,11 @@ public class TeleportCommands {
                         throw new PlayerNotFoundException(message.getString(0));
                     }
                     Player cp = ins.getPlayer();
-                    if (cp == null)
+                    if (cp == null) {
                         throw new PlayerOfflineException(ins.getName());
-                    
-                    if (cp.getWorld() != players.getWorld() && !player.hasPermission(Rank.GM)) {
+                    } else if (cp.getWorld() != players.getWorld() && !player.hasPermission(Rank.GM)) {
                         player.sendAttention("プレーヤー " + ChatColor.YELLOW + ins.getName() + ChatColor.RED + " は他のワールド(" + cp.getWorld().getName() + ")にいます。");
-                        return;
-                    }
-                    
-                    if (ins.getTpPublic() == 0) {
+                    } else if (ins.getTpPublic() == 0) {
                         String ms = ChatColor.RED + "プレーヤー " + ChatColor.YELLOW + ins.getName() + ChatColor.RED + " はテレポートをパブリックにしていません";
                         if (player.hasPermission(Rank.Moderator)) {
                             ms += ChatColor.YELLOW + " GM権限でスキップしました";
@@ -121,21 +117,15 @@ public class TeleportCommands {
                             player.setTp();
                         }
                         players.sendMessage(ms);
-                        return;
-                    }
-                    
-                    if (ins.getTpPublic() == 1) {
+                    } else if (ins.getTpPublic() == 1) {
                         player.setTp();
                         player.sendProcessing(ins.getName() + " にテレポート中");
                         if (player.teleport(cp.getLocation())) {
-                            if (!message.hasFlag('s') && !plugin.getInstanceManager().getHideManager().isHidePlayer(players))
+                            if (!message.hasFlag('s') && !plugin.getInstanceManager().getHideManager().isHidePlayer(players)) {
                                 ins.sendProcessing(players.getName() + " がテレポートしてきています...");
+                            }
                         }
-                        
-                        return;
-                    }
-                    
-                    if (ins.getTpPublic() == 2) {
+                    } else if (ins.getTpPublic() == 2) {
                         if (player.hasPermission(Rank.GM)) {
                             player.setTp();
                             player.sendProcessing(ins.getName() + " にテレポート中");
@@ -144,11 +134,9 @@ public class TeleportCommands {
                                     ins.sendProcessing(players.getName() + " がテレポートしてきています...");
                                 }
                             }
-                            
-                            return;
+                        } else {
+                            TeleportYesNo(plugin, player, ins, message, players);
                         }
-                        
-                        TeleportYesNo(plugin, player, ins, message, players);
                     }
                     break;
             }
