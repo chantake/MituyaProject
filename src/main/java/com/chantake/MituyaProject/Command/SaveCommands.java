@@ -42,7 +42,7 @@ public class SaveCommands {
     public static void saveBrush(CommandContext message, final MituyaProject plugin, final Player players, final PlayerInstance player) throws CommandException, PlayerOfflineException {
         if (message.argsLength() > 0) {
             if (message.getString(0).equalsIgnoreCase("location")) {
-                if (players.getWorld().equals(plugin.getWorldManager().getWorld("harvest"))) {
+                if (players.getWorld().equals(plugin.getWorldManager().getWorld("harvest")) || players.getWorld().equals(plugin.getWorldManager().getWorld("harvest_nether"))) {
                     player.sendAttention("採掘ワールドではこのコマンドは使用できません.");
                 } else {
                     player.SaveLocation(players.getLocation().clone());
