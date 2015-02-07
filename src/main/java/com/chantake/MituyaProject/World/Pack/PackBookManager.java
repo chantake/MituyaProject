@@ -147,7 +147,9 @@ public class PackBookManager extends MituyaManager {
         catch (PlayerOfflineException ex) {
         }
         //削除する
-        player.getInventory().setItem(heldItemSlot, null);
+        is.setAmount(is.getAmount() - 1);
+        player.getInventory().setItem(heldItemSlot, is);
+        
         //展開
         YamlConfiguration config = new YamlConfiguration();
         for (String s : data) {
