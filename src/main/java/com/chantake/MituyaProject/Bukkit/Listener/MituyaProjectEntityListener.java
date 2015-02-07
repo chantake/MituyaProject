@@ -192,6 +192,12 @@ public class MituyaProjectEntityListener implements Listener {
                 } else {
                     dins.sendInfo(ChatColor.DARK_GRAY + "PvP", ChatColor.RED + ins.getName() + "様のMineが足りないため受け取れませんでした。");
                 }
+                
+                //PVPでアイテムをドロップさせない
+                if (event instanceof PlayerDeathEvent) {
+                    PlayerDeathEvent deathEvent = (PlayerDeathEvent)event;
+                    deathEvent.setKeepInventory(true);
+                }
 
                 //攻撃フラグを削除
                 prpg.remove(player);
