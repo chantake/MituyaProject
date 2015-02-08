@@ -73,7 +73,7 @@ public class HomeCommands {
     @CommandPermissions({"mituya.home"})
     public static void homeBrush(final CommandContext message, final MituyaProject plugin, final Player players, final PlayerInstance player) throws MituyaProjectException {
         World world = players.getWorld();
-        if (world.equals(plugin.getWorldManager().getWorld("harvest"))) {
+        if (world.equals(plugin.getWorldManager().getWorld("harvest")) || world.equals(plugin.getWorldManager().getWorld("harvest_nether"))) {
             player.sendAttention("このワールドではこのコマンドは使用できません。");
             return;
         }

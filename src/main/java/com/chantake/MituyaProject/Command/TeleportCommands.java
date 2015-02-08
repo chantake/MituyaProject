@@ -231,7 +231,7 @@ public class TeleportCommands {
                     });
                 }
             } else if (message.getString(0).equalsIgnoreCase("set") || message.getString(0).equalsIgnoreCase("save")) {
-                if (players.getWorld().equals(plugin.getWorldManager().getWorld("harvest"))) {
+                if (players.getWorld().equals(plugin.getWorldManager().getWorld("harvest")) || players.getWorld().equals(plugin.getWorldManager().getWorld("harvest_nether"))) {
                     player.sendAttention("採掘ワールドでは このコマンドは使用できません.");
                     return;
                 }

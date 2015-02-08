@@ -1902,11 +1902,11 @@ public class PlayerInstance implements PlayerInstanceMBean {
      * @param message
      * @param runnable
      */
-    public void sendYesNo(String message, Runnable runnable) {
+    public void sendYesNo(String message, Runnable runnable, boolean canskip) {
         //インスタンスを登録
         if (this.setCheckInstance(runnable)) {
             //確認をスキップして実行する
-            if (this.isCheckSkip()) {
+            if (this.isCheckSkip() && canskip) {
                 //実行する
                 this.executionCheckInstance();
             } else {//スキップしないで確認メッセージを出す
@@ -1918,6 +1918,14 @@ public class PlayerInstance implements PlayerInstanceMBean {
                 this.sendMessage(Parameter328.Check_Message);
             }
         }
+    }
+    
+    public void sendYesNo(String message, Runnable runnable) {
+        sendYesNo(message, runnable, true);
+    }
+    
+    public void forceSendYesNo(String message, Runnable runnable) {
+        sendYesNo(message, runnable, false);
     }
 
     /**
@@ -1932,7 +1940,7 @@ public class PlayerInstance implements PlayerInstanceMBean {
         if (this.isCheck()) {
             ins.sendAttention(ins.getName() + " は、現在応答できません。");
         } else {
-            this.sendYesNo(message, runnable);
+            this.forceSendYesNo(message, runnable);
         }
     }
 
