@@ -1,5 +1,4 @@
-
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
@@ -175,11 +174,6 @@
             <id>sk89q-mvn2</id>
             <url>http://mvn2.sk89q.com/repo/</url>
         </repository>
-        <!-- Repository for Spout 
-        <repository>
-            <id>spout-repo</id>
-            <url>http://repo.spout.org/</url>
-        </repository>     --> 
         <!-- vault-repo -->
         <repository>
             <id>Plugin Metrics</id>

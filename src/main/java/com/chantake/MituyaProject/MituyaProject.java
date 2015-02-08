@@ -435,17 +435,6 @@ public final class MituyaProject extends JavaPlugin {
     }
 
     /**
-     * Spountを使用してNotificationMessageを送信します
-     *
-     * @param message
-     * @param message1
-     * @param ml
-     */
-    /*
-     * public void broadcastNotificationMessage(String message, String message1, Material ml) { for (SpoutPlayer sp : SpoutManager.getOnlinePlayers()) {
-     * sp.sendNotification(message, message1, ml); } }
-     */
-    /**
      * コマンドを実行します
      *
      * @param player Player
@@ -894,6 +883,7 @@ public final class MituyaProject extends JavaPlugin {
         };
 
         commands.register(GeneralCommands.class);
+        commands.register(DebuggingCommands.class);
         commands.register(ServerCommands.class);//サーバーコマンド
         commands.register(TeleportCommands.class);//テレポートコマンド
         commands.register(HomeCommands.class);//ホームコマンド

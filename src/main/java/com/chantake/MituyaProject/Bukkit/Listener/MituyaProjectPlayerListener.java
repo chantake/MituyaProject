@@ -307,8 +307,6 @@ public class MituyaProjectPlayerListener implements Listener {
         } else {
             event.setJoinMessage(ChatColor.YELLOW + ins.getName() + " 様がログインしました ");
         }
-        //Spout取得
-        //SpoutPlayer sp = (SpoutPlayer) pr;
         //Opだった場合はop権限はく奪（乗っ取り防止）
         if (pr.isOp()) {
             pr.setOp(false);
