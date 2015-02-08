@@ -1,4 +1,4 @@
 name: MituyaProject
 main: com.chantake.MituyaProject.MituyaProject
 version: ${project.version}
-softdepend: [WorldGuard, LWC, Dynmap, Vault, PermissionsEx]
+softdepend: [WorldGuard, LWC, Dynmap, Vault, PermissionsEx, ProtocolLib]
