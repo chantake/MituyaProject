@@ -39,6 +39,8 @@ import com.chantake.MituyaProject.Player.PlayerInstance;
 import com.chantake.MituyaProject.Player.Sign.ItemChestManager;
 import com.chantake.MituyaProject.Player.Sign.SignCommandManager;
 import com.chantake.MituyaProject.Player.Sign.SignElevatorManager;
+import com.chantake.MituyaProject.Protocol.Listener.ServerPingWrapper;
+import com.chantake.MituyaProject.Protocol.Listener.SignSendWrapper;
 import com.chantake.MituyaProject.RSC.RedstoneChips;
 import com.chantake.MituyaProject.Tool.Dynmap.DynmapApiConnecter;
 import com.chantake.MituyaProject.Tool.HiraganaToKanji;
@@ -215,6 +217,8 @@ public final class MituyaProject extends JavaPlugin {
         setupPermissions();
         //ProtocolLib
         protocolManager = ProtocolLibrary.getProtocolManager();
+        //protocolManager.addPacketListener(new ServerPingWrapper(this));
+        protocolManager.addPacketListener(new SignSendWrapper(this));
 
         try {
             final PluginManager pm = getServer().getPluginManager();
