@@ -33,56 +33,15 @@ import org.bukkit.block.Sign;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 
+import java.util.Set;
+
 /**
  *
  * @author chantake
  */
 public class MobSpawnerCommands {
 
-    public enum CreaturePrice {
-
-        Pig(3600, EntityType.PIG, Environment.NORMAL),
-        Cow(3600, EntityType.COW, Environment.NORMAL),
-        Chiken(2600, EntityType.CHICKEN, Environment.NORMAL),
-        Sheep(2200, EntityType.SHEEP, Environment.NORMAL),
-        Squid(2000, EntityType.SQUID, Environment.NORMAL),
-        Zombie(2500, EntityType.ZOMBIE, Environment.NORMAL),
-        Skeleton(2000, EntityType.SKELETON, Environment.NORMAL),
-        Creeper(2800, EntityType.CREEPER, Environment.NORMAL),
-        Spider(2000, EntityType.SPIDER, Environment.NORMAL),
-        Slime(3000, EntityType.SLIME, Environment.NORMAL),
-        Endermen(2900, EntityType.ENDERMAN, Environment.NORMAL),
-        Cave_Spider(1700, EntityType.CAVE_SPIDER, Environment.NORMAL),
-        Silverfish(18000, EntityType.SILVERFISH, Environment.NORMAL),
-        Zombie_PigMen(7000, EntityType.PIG_ZOMBIE, Environment.NETHER),
-        Blaze(8000, EntityType.BLAZE, Environment.NETHER),
-        MagmaCube(3500, EntityType.MAGMA_CUBE, Environment.NETHER),
-        Mooshroom(18000, EntityType.MUSHROOM_COW, Environment.NORMAL);
-        private final int price;
-        private final EntityType cp;
-        private final Environment en;
-
-        private CreaturePrice(int price, EntityType cp, Environment en) {
-            this.price = price;
-            this.cp = cp;
-            this.en = en;
-        }
-
-        public int getPrice() {
-            return this.price;
-        }
-
-        public EntityType getType() {
-            return this.cp;
-        }
-
-        public Environment getEnvironment() {
-            return this.en;
-
-        }
-    }
-
-// <editor-fold defaultstate="collapsed" desc="mobspawner">
+    // <editor-fold defaultstate="collapsed" desc="mobspawner">
     @Command(aliases = {"mobspawner", "ms"}, usage = "", desc = "mobspawner command",
             flags = "", min = 0, max = -1)
     @CommandPermissions({"mituya.mobspawner"})
@@ -117,7 +76,7 @@ public class MobSpawnerCommands {
                 default:
                     if (isMobSpawnerTarget(players, player)) {
                         Block block = getTarget(players);
-                        final CreatureSpawner cs = (CreatureSpawner)block.getState();
+                        final CreatureSpawner cs = (CreatureSpawner) block.getState();
                         if (message.getString(0).equals("info")) {
                             if (plugin.canBuild(players, block)) {
                                 player.sendInfo(ChatColor.DARK_GRAY + "MobSpawner", "スポーンブロック：" + cs.getCreatureTypeName());
@@ -167,7 +126,6 @@ public class MobSpawnerCommands {
             player.sendAttention("/ms protect スポーンブロックを保護します");
         }
     }
-// </editor-fold>
 
     public static CreaturePrice Creature(String creature) {
         creature = creature.replaceAll("_", "");
@@ -209,6 +167,7 @@ public class MobSpawnerCommands {
             return null;
         }
     }
+// </editor-fold>
 
     /**
      * 選択しているスポーンブロックを取得します
@@ -217,7 +176,7 @@ public class MobSpawnerCommands {
      * @see Sign
      */
     private static Block getTarget(Player player) {
-        return player.getTargetBlock(null, 5);
+        return player.getTargetBlock((Set) null, 5);
     }
 
     /**
@@ -227,11 +186,54 @@ public class MobSpawnerCommands {
      * @see Sign
      */
     private static boolean isMobSpawnerTarget(Player player, PlayerInstance ins) throws PlayerOfflineException {
-        if (player.getTargetBlock(null, 5).getType() == Material.MOB_SPAWNER) {
+        if (player.getTargetBlock((Set) null, 5).getType() == Material.MOB_SPAWNER) {
             return true;
         } else {
             ins.sendAttention("スポーンブロックを選択して下さい。");
             return false;
+        }
+    }
+
+    public enum CreaturePrice {
+
+        Pig(3600, EntityType.PIG, Environment.NORMAL),
+        Cow(3600, EntityType.COW, Environment.NORMAL),
+        Chiken(2600, EntityType.CHICKEN, Environment.NORMAL),
+        Sheep(2200, EntityType.SHEEP, Environment.NORMAL),
+        Squid(2000, EntityType.SQUID, Environment.NORMAL),
+        Zombie(2500, EntityType.ZOMBIE, Environment.NORMAL),
+        Skeleton(2000, EntityType.SKELETON, Environment.NORMAL),
+        Creeper(2800, EntityType.CREEPER, Environment.NORMAL),
+        Spider(2000, EntityType.SPIDER, Environment.NORMAL),
+        Slime(3000, EntityType.SLIME, Environment.NORMAL),
+        Endermen(2900, EntityType.ENDERMAN, Environment.NORMAL),
+        Cave_Spider(1700, EntityType.CAVE_SPIDER, Environment.NORMAL),
+        Silverfish(18000, EntityType.SILVERFISH, Environment.NORMAL),
+        Zombie_PigMen(7000, EntityType.PIG_ZOMBIE, Environment.NETHER),
+        Blaze(8000, EntityType.BLAZE, Environment.NETHER),
+        MagmaCube(3500, EntityType.MAGMA_CUBE, Environment.NETHER),
+        Mooshroom(18000, EntityType.MUSHROOM_COW, Environment.NORMAL);
+        private final int price;
+        private final EntityType cp;
+        private final Environment en;
+
+        private CreaturePrice(int price, EntityType cp, Environment en) {
+            this.price = price;
+            this.cp = cp;
+            this.en = en;
+        }
+
+        public int getPrice() {
+            return this.price;
+        }
+
+        public EntityType getType() {
+            return this.cp;
+        }
+
+        public Environment getEnvironment() {
+            return this.en;
+
         }
     }
 }

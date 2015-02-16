@@ -22,19 +22,6 @@ import com.chantake.MituyaProject.MituyaProject;
 import com.chantake.MituyaProject.Parameter.Parameter328;
 import com.chantake.MituyaProject.Player.PlayerInstance;
 import com.chantake.MituyaProject.World.Jackpot;
-import java.io.BufferedInputStream;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
-import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -45,6 +32,20 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.material.MaterialData;
 
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
  * ツール
  *
@@ -53,14 +54,14 @@ import org.bukkit.material.MaterialData;
  */
 public class Tools {
 
-    public static Tools instance = new Tools();
-    public static HexTool hextool;
-    public static ConsoleCommandSender ccs;
-    public static ChatColor color;
     /**
      * 冗長性のある改行
      */
     public static final String BR = System.getProperty("line.separator");
+    public static Tools instance = new Tools();
+    public static HexTool hextool;
+    public static ConsoleCommandSender ccs;
+    public static ChatColor color;
 
     public static ConsoleCommandSender getConsoleCommandSender() {
         return Tools.ccs;
@@ -202,52 +203,8 @@ public class Tools {
         return t.matches("[0-9]+");
     }
 
-    public String ChatColor(String[] t) {
-        String text = "";
-        for (final String element : t) {
-            text += element;
-        }
-        return text;
-    }
-
-    public boolean CheckChar(String s, char c) {
-        boolean b = false;
-        for (int i = 0; i < s.length(); i++) {
-            if (s.charAt(i) == c) {
-                b = true;
-                break;
-            }
-        }
-        return b;
-    }
-
-    public boolean CheckPass(String s) {
-        final String hankaku = "\\p{Punct}"; // 半角記号
-        return Pattern.compile("[" + hankaku + "]+").matcher(s).matches();
-    }
-
-    public String Color(String t) {
-        final String text = "";
-        if (t.matches("[0-9]+")) {
-            switch (Integer.valueOf(t)) {
-                case 1:
-            }
-        }
-        return text;
-    }
-
     public static boolean Help(String text) {
         return text.equalsIgnoreCase("help") || text.equalsIgnoreCase("?");
-    }
-
-    // </editor-fold>
-    public String PassWord(String s) {
-        final int l = s.length();
-        String t = "";
-        for (int i = 0; i < l; i++) {
-            t += "*";
-        }
-        return t;
     }
 
     public static String getWorldTime(World world) {
@@ -346,11 +303,11 @@ public class Tools {
                 }
                 if (txt.contains("<pos>")) {
                     Location lo = ins.getPlayer().getLocation();
-                    String pos = "[X:" + (int)lo.getX() + " Y:" + (int)lo.getY() + " Z:" + (int)lo.getZ() + "]";
+                    String pos = "[X:" + (int) lo.getX() + " Y:" + (int) lo.getY() + " Z:" + (int) lo.getZ() + "]";
                     txt = txt.replaceAll("<pos>", pos);
                 }
                 if (txt.contains("<target>") || txt.contains("<tnm>") || txt.contains("<t>")) {
-                    Block bl = ins.getPlayer().getTargetBlock(null, 100);
+                    Block bl = ins.getPlayer().getTargetBlock((Set) null, 100);
                     String name = "null";
                     if (bl != null) {
                         name = bl.getState().getType().toString();
@@ -390,8 +347,7 @@ public class Tools {
                 if (txt.contains("<level>")) {
                     txt = txt.replaceAll("<lv>", String.valueOf(ins.getPlayer().getLevel()));
                 }
-            }
-            catch (PlayerOfflineException ex) {
+            } catch (PlayerOfflineException ex) {
             }
         }
         if (txt.contains("<jpnowparsentYear>")) {
@@ -436,21 +392,6 @@ public class Tools {
     }
 
     /**
-     * CreatureTypeを取得します
-     *
-     * @param monstername モンスター名(CreatureType)
-     * @return CreatureType
-     */
-    /*public static CreatureType getCreatureType(String monstername) {
-     monstername = monstername.replaceAll("_", "");
-     for (CreatureType type : CreatureType.values()) {
-     if(type.toString().replaceAll("_", "").equalsIgnoreCase(monstername)) {
-     return type;
-     }
-     }
-     return null;
-     }*/
-    /**
      * intをkやmを使った単位に直して短くします
      *
      * @param number
@@ -458,9 +399,9 @@ public class Tools {
      */
     public static String IntegerToShortString(int number) {
         if (number >= 1000000) {
-            return String.valueOf((float)number / 1000000) + "M";
+            return String.valueOf((float) number / 1000000) + "M";
         } else if (number >= 1000) {
-            return String.valueOf((float)number / 1000) + "K";
+            return String.valueOf((float) number / 1000) + "K";
         } else {
             return String.valueOf(number);
         }
@@ -514,14 +455,12 @@ public class Tools {
             try (BufferedInputStream buffer = new BufferedInputStream(urlc.getInputStream())) {
                 int byteRead;
                 while ((byteRead = buffer.read()) != -1) {
-                    builder.append((char)byteRead);
+                    builder.append((char) byteRead);
                 }
             }
-        }
-        catch (MalformedURLException ex) {
+        } catch (MalformedURLException ex) {
             return null;
-        }
-        catch (IOException ex) {
+        } catch (IOException ex) {
             return null;
         }
         return builder;
@@ -540,6 +479,22 @@ public class Tools {
     }
 
     /**
+     * CreatureTypeを取得します
+     *
+     * @param monstername モンスター名(CreatureType)
+     * @return CreatureType
+     */
+    /*public static CreatureType getCreatureType(String monstername) {
+     monstername = monstername.replaceAll("_", "");
+     for (CreatureType type : CreatureType.values()) {
+     if(type.toString().replaceAll("_", "").equalsIgnoreCase(monstername)) {
+     return type;
+     }
+     }
+     return null;
+     }*/
+
+    /**
      * 文字列が数字かどうか判断します
      *
      * @param num
@@ -549,13 +504,56 @@ public class Tools {
         try {
             int n = Integer.parseInt(num);
             return true;
-        }
-        catch (NumberFormatException e) {
+        } catch (NumberFormatException e) {
             return false;
         }
     }
 
     public static int Rand(int ran) {
-        return (int)(Math.random() * ran);
+        return (int) (Math.random() * ran);
+    }
+
+    public String ChatColor(String[] t) {
+        String text = "";
+        for (final String element : t) {
+            text += element;
+        }
+        return text;
+    }
+
+    public boolean CheckChar(String s, char c) {
+        boolean b = false;
+        for (int i = 0; i < s.length(); i++) {
+            if (s.charAt(i) == c) {
+                b = true;
+                break;
+            }
+        }
+        return b;
+    }
+
+    public boolean CheckPass(String s) {
+        final String hankaku = "\\p{Punct}"; // 半角記号
+        return Pattern.compile("[" + hankaku + "]+").matcher(s).matches();
+    }
+
+    public String Color(String t) {
+        final String text = "";
+        if (t.matches("[0-9]+")) {
+            switch (Integer.valueOf(t)) {
+                case 1:
+            }
+        }
+        return text;
+    }
+
+    // </editor-fold>
+    public String PassWord(String s) {
+        final int l = s.length();
+        String t = "";
+        for (int i = 0; i < l; i++) {
+            t += "*";
+        }
+        return t;
     }
 }

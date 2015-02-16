@@ -416,7 +416,6 @@ public class PlayerInstance implements PlayerInstanceMBean {
      *
      * @param mine_success
      * @param mine
-     * @param tax
      */
     private void gainMineMessage(boolean mine_success, long mine) {
         try {
@@ -2023,7 +2022,7 @@ public class PlayerInstance implements PlayerInstanceMBean {
      * @see Sign
      */
     public Block getSignTarget() throws PlayerOfflineException {
-        return this.getPlayer().getTargetBlock(null, 25);
+        return this.getPlayer().getTargetBlock((Set) null, 25);
     }
 
     /**
@@ -2034,7 +2033,7 @@ public class PlayerInstance implements PlayerInstanceMBean {
      * @see Sign
      */
     public boolean isSignTarget() throws PlayerOfflineException {
-        if (this.getPlayer().getTargetBlock(null, 25).getState() instanceof Sign) {
+        if (this.getPlayer().getTargetBlock((Set) null, 25).getState() instanceof Sign) {
             return true;
         } else {
             this.sendAttention("看板を選択して下さい。");
