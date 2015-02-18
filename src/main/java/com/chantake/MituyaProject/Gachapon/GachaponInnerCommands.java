@@ -274,7 +274,8 @@ public class GachaponInnerCommands {
 
                     //ガチャポンログに結果を記録
                     try {
-                        GachaponDataManager.InsertGachaponLog(p.getName(), gcd.GetId());
+                        
+                        GachaponDataManager.InsertGachaponLog(p.getName(), p.getUniqueId().toString(), gcd.GetId());
                     }
                     catch (SQLException ex) {
                         Logger.getLogger(GachaponInnerCommands.class.getName()).log(Level.SEVERE, null, ex);
