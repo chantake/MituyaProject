@@ -209,15 +209,17 @@ public class GachaponDataManager {
      * ガチャ購入ログをDBに記録します。
      *
      * @param playerName　ガチャ購入者名
+     * @param uuid プレイヤーのユニークID
      * @param capsuleID 当選カプセルID
      * @throws SQLException
      */
-    public static void InsertGachaponLog(String playerName, int capsuleID) throws SQLException {
-        String sql = "insert into gachapon_log (player,capsule_id,DTM) values (?,?,now())";
+    public static void InsertGachaponLog(String playerName, String uuid, int capsuleID) throws SQLException {
+        String sql = "insert into gachapon_log (player,uuid,capsule_id,DTM) values (?,?,?,now())";
         try (JDCConnection con = plugin.getConnection()) {
             PreparedStatement ps = con.prepareStatement(sql);
             ps.setString(1, playerName);
-            ps.setInt(2, capsuleID);
+            ps.setString(2,uuid);
+            ps.setInt(3, capsuleID);
 
             //INSERT実行       
             ps.executeUpdate();
