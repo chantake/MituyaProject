@@ -23,6 +23,7 @@ import com.chantake.MituyaProject.MituyaProject;
 import com.chantake.MituyaProject.Parameter.Parameter328;
 import com.chantake.MituyaProject.Permissions.Rank;
 import com.chantake.MituyaProject.Player.Chat.ChatType;
+import com.chantake.MituyaProject.Player.Points.UserPointData;
 import com.chantake.MituyaProject.Tool.Encrypter;
 import com.chantake.MituyaProject.Tool.HexTool;
 import com.chantake.MituyaProject.Tool.MySqlProcessing;
@@ -119,7 +120,7 @@ public class PlayerInstance implements PlayerInstanceMBean {
     private long last_cmd_time = 0;
     private List<String> command_tasks = new ArrayList<>(3);
     private long GachaponBuyTime = 0;
-
+    private UserPointData PointData = new UserPointData();
     /**
      * インスタンス作成
      *
@@ -856,6 +857,9 @@ public class PlayerInstance implements PlayerInstanceMBean {
         return this.GachaponData;
     }
 
+    public UserPointData GetPointData(){
+        return this.PointData;
+    }
     /**
      * Mineの所持ランキング取得
      *
