@@ -59,10 +59,10 @@ public class MituyaProjectInventoryListener implements Listener {
     @EventHandler
     public void onInventoryClickEvent(InventoryClickEvent event) {
         InventoryType invType = event.getInventory().getType();
-
+         InventoryType.SlotType slotType;
         // 鉄床
         if (invType == InventoryType.ANVIL) {
-            InventoryType.SlotType slotType = event.getSlotType();
+            slotType = event.getSlotType();
             if (slotType == InventoryType.SlotType.CONTAINER) {
                 if (event.getSlot() == 9) {
                     // なぜかCONTAINERのSlot[9]が取り出し口（Bukkitのバグ？)
@@ -74,9 +74,40 @@ public class MituyaProjectInventoryListener implements Listener {
                 CheckRename(event);     // 名前変更チェク処理
             }
         }
+        
+        if(invType == InventoryType.CRAFTING || invType == InventoryType.WORKBENCH)
+        {
+            slotType = event.getSlotType();
+            if (slotType == InventoryType.SlotType.RESULT) {
+                CheckPackBookCopy(event);
+            }
+             
+        }
+        
+
     }
 
-    // 変更するアイテムと名前をチェックして、３２８ガチャ関連のアイテムの場合は変更をキャンセルする
+    //本のコピー元がItemパックだった場合キャンセルして、メッセージを送信する。
+    private void CheckPackBookCopy(InventoryClickEvent event) {
+        PlayerInstance pi = this.plugin.getInstanceManager().getInstance(event.getWhoClicked().getName());
+        
+        Inventory iv = event.getInventory();
+        if (iv == null) {
+            return;
+        }
+
+        if (iv.getSize() == 0) {
+            return;
+        }
+        
+        if(this.plugin.getPackBookManager().isPackBook( event.getCurrentItem())){
+            pi.sendAttention("この本は著作権保護されているため複製出来ません。");
+            event.setCancelled(true);
+        }     
+    }
+    
+
+// 変更するアイテムと名前をチェックして、３２８ガチャ関連のアイテムの場合は変更をキャンセルする
     private void CheckRename(InventoryClickEvent event) {
         PlayerInstance pi = this.plugin.getInstanceManager().getInstance(event.getWhoClicked().getName());
 
@@ -97,6 +128,7 @@ public class MituyaProjectInventoryListener implements Listener {
             if (!old_name.equals(new_name)) {
                 if (GachaponDataManager.isGachaponItemNameCoincident(old_name)) {
                     pi.sendAttention("このアイテムの名称は変更出来ません。");
+                    this.showExplotion(pi);
                     event.setCancelled(true);
                     return;
                 }
@@ -111,12 +143,14 @@ public class MituyaProjectInventoryListener implements Listener {
                             + "「"
                             + new_name
                             + "」を偽造しようとしました。");
+                    this.showExplotion(pi);
                     event.setCancelled(true);
                     return;
                 }
 
                 if (GachaponDataManager.isGachaponItemName(new_name)) {
                     pi.sendAttention("このアイテム名称には変更出来ません。");
+                    this.showExplotion(pi);
                     event.setCancelled(true);
                     return;
                 }
@@ -125,6 +159,7 @@ public class MituyaProjectInventoryListener implements Listener {
             //修理可否チェック
             if(GachaponDataManager.isDenyRepair(old_name)) {
                 pi.sendAttention("このアイテムは修理できません。");
+                this.showExplotion(pi);
                 event.setCancelled(true);
                 return;
             }
@@ -133,6 +168,13 @@ public class MituyaProjectInventoryListener implements Listener {
 
     public void test(InventoryMoveItemEvent event) {
 
+    }
+    
+    private void showExplotion( PlayerInstance pi){
+        try{
+           pi.getPlayer().getWorld().createExplosion(pi.getLocation(),0,false);
+       }catch(Exception ex){
+       }       
     }
 
 }

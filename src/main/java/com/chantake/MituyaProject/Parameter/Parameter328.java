@@ -18,6 +18,11 @@
 package com.chantake.MituyaProject.Parameter;
 
 import com.chantake.MituyaProject.Tool.Tools;
+import org.bukkit.ChatColor;
+import org.bukkit.Material;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
+
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -25,10 +30,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.bukkit.ChatColor;
-import org.bukkit.Material;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Player;
 
 /**
  * 設定用のクラスです
@@ -38,6 +39,16 @@ import org.bukkit.entity.Player;
  */
 public class Parameter328 {
 
+    // 看板
+    public static final String Sign_Command = "[Command]";
+    public static final String Sign_Command_Japanese = "[こまんど]";
+    //Icon
+    public static final Material Icon_Login = Material.GOLDEN_APPLE;
+    public static final Material Icon_Quit = Material.APPLE;
+    public static final String MainWorld = "world";
+    public static final String SecondWorld = "new_world";
+    public static final String The_EndWorld = "world_the_end";
+    public static final String SuperFlat = "superflat";
     public static Tools tool;
     public static String AdminKey;
     /**
@@ -52,6 +63,7 @@ public class Parameter328 {
      * 死亡位置に戻る料金
      */
     public static int spawnback = 4743;
+    // Mine関係
     /**
      * 税金
      */
@@ -66,7 +78,6 @@ public class Parameter328 {
     public static String LoginMessage;
     public static ChatColor color;
     public static int kicktime = 25;// Mine
-    // Mine関係
     /**
      * 初期Mine
      */
@@ -75,9 +86,6 @@ public class Parameter328 {
     public static char command = '$';
     public static int api_port = 25561;
     public static int slime = 4;// スライム
-    // 看板
-    public static final String Sign_Command = "[Command]";
-    public static final String Sign_Command_Japanese = "[こまんど]";
     // ペット
     public static int Pet_WOLF = 10000;
     public static int Pet_Ocelot = 50000;
@@ -87,13 +95,6 @@ public class Parameter328 {
     public static long jackpot;// ジャックポット
     public static int removeMobtime = 50;//分
     public static boolean Mentenance = false;
-    //Icon
-    public static final Material Icon_Login = Material.GOLDEN_APPLE;
-    public static final Material Icon_Quit = Material.APPLE;
-    public static final String MainWorld = "world";
-    public static final String SecondWorld = "new_world";
-    public static final String The_EndWorld = "world_the_end";
-    public static final String SuperFlat = "superflat";
     public static double FlyHeight = 130;
     public static int MAX_Party_Member = 7;
     public static boolean Login_Bonus = false;
@@ -101,8 +102,6 @@ public class Parameter328 {
      * Home作成料金
      */
     public static int[] Home_Mine = {0, 2000, 5000, 10000, 17500, 25000, 35000, 50000};
-    //Spout用のログイン遅延時間
-    public static long Login_Delay = 4000;
     //チャット範囲
     public static int ChatRange = 300;
     //削除アイテム（ID）

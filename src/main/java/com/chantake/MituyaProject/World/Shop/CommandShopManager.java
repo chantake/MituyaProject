@@ -25,14 +25,13 @@ import com.chantake.MituyaProject.Player.PlayerInstance;
 import com.chantake.MituyaProject.Tool.MySqlProcessing;
 import com.chantake.MituyaProject.Tool.Tools;
 import com.chantake.mituyaapi.tools.database.JDCConnection;
+import org.bukkit.ChatColor;
+import org.bukkit.entity.Player;
+
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.concurrent.ConcurrentHashMap;
-import org.bukkit.ChatColor;
-import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.PlayerInventory;
 
 /**
  *

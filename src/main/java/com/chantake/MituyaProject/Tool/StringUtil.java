@@ -167,4 +167,35 @@ public class StringUtil {
     public static String capitalize(String str) {
         return str.substring(0, 1).toUpperCase() + str.substring(1).toLowerCase();
     }
+
+    /**
+     * Unicode文字列に変換する("あ" -> "\u3042")
+     * @param original
+     * @return
+     */
+    public static String convertToUnicode(String original)
+    {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < original.length(); i++) {
+            sb.append(String.format("\\u%04X", Character.codePointAt(original, i)));
+        }
+        String unicode = sb.toString();
+        return unicode;
+    }
+
+    /**
+     * Unicode文字列から元の文字列に変換する ("\u3042" -> "あ")
+     * @param unicode
+     * @return
+     */
+    public static String convertToOiginal(String unicode)
+    {
+        String[] codeStrs = unicode.split("\\\\u");
+        int[] codePoints = new int[codeStrs.length - 1];
+        for (int i = 0; i < codePoints.length; i++) {
+            codePoints[i] = Integer.parseInt(codeStrs[i + 1], 16);
+        }
+        String encodedText = new String(codePoints, 0, codePoints.length);
+        return encodedText;
+    }
 }

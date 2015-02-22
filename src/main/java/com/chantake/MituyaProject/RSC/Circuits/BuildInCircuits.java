@@ -3,8 +3,6 @@ package com.chantake.MituyaProject.RSC.Circuits;
 import com.chantake.MituyaProject.RSC.Circuit.Circuit;
 import com.chantake.MituyaProject.RSC.Circuit.CircuitIndex;
 import com.chantake.MituyaProject.RSC.RedstoneChips;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  *

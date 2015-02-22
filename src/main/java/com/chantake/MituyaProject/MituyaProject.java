@@ -39,6 +39,7 @@ import com.chantake.MituyaProject.Player.PlayerInstance;
 import com.chantake.MituyaProject.Player.Sign.ItemChestManager;
 import com.chantake.MituyaProject.Player.Sign.SignCommandManager;
 import com.chantake.MituyaProject.Player.Sign.SignElevatorManager;
+import com.chantake.MituyaProject.Protocol.Listener.SignSendWrapper;
 import com.chantake.MituyaProject.RSC.RedstoneChips;
 import com.chantake.MituyaProject.Tool.Dynmap.DynmapApiConnecter;
 import com.chantake.MituyaProject.Tool.HiraganaToKanji;
@@ -58,6 +59,8 @@ import com.chantake.MituyaProject.World.WorldManager;
 import com.chantake.mituyaapi.commands.*;
 import com.chantake.mituyaapi.tools.database.DatabaseConnectionManager;
 import com.chantake.mituyaapi.tools.database.JDCConnection;
+import com.comphenix.protocol.ProtocolLibrary;
+import com.comphenix.protocol.ProtocolManager;
 import com.griefcraft.lwc.LWC;
 import com.griefcraft.lwc.LWCPlugin;
 import com.griefcraft.model.Protection;
@@ -154,6 +157,7 @@ public final class MituyaProject extends JavaPlugin {
      * バージョン<br> ＜メジャー・バージョン＞.＜マイナー・バージョン＞.＜リビジョン＞
      */
     private CommandsManager<PlayerInstance> commands;
+    private ProtocolManager protocolManager;
 
     /**
      * プラグインアンロード処理
@@ -175,8 +179,7 @@ public final class MituyaProject extends JavaPlugin {
         try {
             th.start();
             th.join(20L);
-        }
-        catch (InterruptedException ex) {
+        } catch (InterruptedException ex) {
             Logger.getLogger(MituyaProject.class.getName()).log(Level.SEVERE, null, ex);
         }
         this.Log("DBをすべて切断しました。");
@@ -199,8 +202,7 @@ public final class MituyaProject extends JavaPlugin {
             }
             MySqlProcessing.setPlugin(this);
             this.Log("DBに接続しました");
-        }
-        catch (IOException ex) {
+        } catch (IOException ex) {
             Logger.getLogger(MituyaProject.class.getName()).log(Level.SEVERE, null, ex);
         }
         //メンテナンスモード設定
@@ -212,6 +214,10 @@ public final class MituyaProject extends JavaPlugin {
         this.worldManager.LoadWorlds();
         //Vault連携
         setupPermissions();
+        //ProtocolLib
+        protocolManager = ProtocolLibrary.getProtocolManager();
+        //protocolManager.addPacketListener(new ServerPingWrapper(this));
+        protocolManager.addPacketListener(new SignSendWrapper(this));
 
         try {
             final PluginManager pm = getServer().getPluginManager();
@@ -239,16 +245,14 @@ public final class MituyaProject extends JavaPlugin {
             jingleNoteManager = new JingleNoteManager();
             Parameter328.run();
 
-        }
-        catch (final Exception ex) {
+        } catch (final Exception ex) {
             Logger.getLogger(MituyaProject.class.getName()).log(Level.SEVERE, null, ex);
         }
 
         try {
             ManagementFactory.getPlatformMBeanServer().registerMBean(new Server(this), ObjectName.getInstance("328:type=Infomation"));
             ManagementFactory.getPlatformMBeanServer().registerMBean(this.debug, ObjectName.getInstance("328:type=Debug"));
-        }
-        catch (final NullPointerException | InstanceAlreadyExistsException | MBeanRegistrationException | MalformedObjectNameException | NotCompliantMBeanException e) {
+        } catch (final NullPointerException | InstanceAlreadyExistsException | MBeanRegistrationException | MalformedObjectNameException | NotCompliantMBeanException e) {
         }
         Timer();// Timerスタート
         MySqlProcessing.MituyaProject(this);
@@ -326,8 +330,7 @@ public final class MituyaProject extends JavaPlugin {
         try {
             //Twitter
             this.getTwitterManager().init();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             this.ErrLog("twitter : " + e);
         }
     }
@@ -395,7 +398,7 @@ public final class MituyaProject extends JavaPlugin {
      * 範囲ブロードキャストメッセージ
      *
      * @param location Locaiton
-     * @param message メッセージ
+     * @param message  メッセージ
      */
     public void broadcastRangeMessage(Location location, String message) {
         for (Player pr : getRangePlayers(location, Parameter328.ChatRange)) {
@@ -416,7 +419,7 @@ public final class MituyaProject extends JavaPlugin {
      * 範囲内のプレーヤーを取得します
      *
      * @param location 中心座標
-     * @param range 範囲
+     * @param range    範囲
      * @return
      */
     public List<Player> getRangePlayers(Location location, int range) {
@@ -435,20 +438,9 @@ public final class MituyaProject extends JavaPlugin {
     }
 
     /**
-     * Spountを使用してNotificationMessageを送信します
-     *
-     * @param message
-     * @param message1
-     * @param ml
-     */
-    /*
-     * public void broadcastNotificationMessage(String message, String message1, Material ml) { for (SpoutPlayer sp : SpoutManager.getOnlinePlayers()) {
-     * sp.sendNotification(message, message1, ml); } }
-     */
-    /**
      * コマンドを実行します
      *
-     * @param player Player
+     * @param player  Player
      * @param command コマンド
      * @return
      */
@@ -461,7 +453,7 @@ public final class MituyaProject extends JavaPlugin {
      * コマンドを実行します
      *
      * @param player Player
-     * @param split コマンド
+     * @param split  コマンド
      * @return
      */
     public boolean handleCommand(Player player, String[] split) {
@@ -472,8 +464,8 @@ public final class MituyaProject extends JavaPlugin {
     /**
      * コマンドを実行します
      *
-     * @param player Player
-     * @param ins PlayerInstance
+     * @param player  Player
+     * @param ins     PlayerInstance
      * @param command コマンド
      * @return
      */
@@ -485,8 +477,8 @@ public final class MituyaProject extends JavaPlugin {
      * コマンドを実行します
      *
      * @param player Player
-     * @param ins PlayerInstance
-     * @param split コマンド
+     * @param ins    PlayerInstance
+     * @param split  コマンド
      * @return コマンドが正常実行された場合はtrueが返ります
      */
     public boolean handleCommand(Player player, PlayerInstance ins, String[] split) {
@@ -518,35 +510,28 @@ public final class MituyaProject extends JavaPlugin {
                 this.commands.execute(split, ins, this, player, ins);
                 //コマンドログ
                 this.getLogManager().putLog(LogType.Command, player.getName(), split);
-            }
-            catch (CommandPermissionsException e) {
+            } catch (CommandPermissionsException e) {
                 ins.sendAttention("このコマンドを使うための権限がないか、このワールドでは許可されていません。");
                 ins.removeCommandTasks();
                 return false;
-            }
-            catch (MissingNestedCommandException e) {
+            } catch (MissingNestedCommandException e) {
                 ins.sendAttention("コマンドが見つかりません: /" + searchCmd + "  " + e.getUsage());
                 ins.removeCommandTasks();
                 return false;
-            }
-            catch (CommandUsageException e) {
+            } catch (CommandUsageException e) {
                 ins.sendAttention("区切り(引数)が多すぎます  " + e.getUsage());
                 ins.removeCommandTasks();
                 return false;
-            }
-            catch (WrappedCommandException e) {
+            } catch (WrappedCommandException e) {
                 throw e.getCause();
-            }
-            catch (UnhandledCommandException e) {
+            } catch (UnhandledCommandException e) {
                 ins.removeCommandTasks();
                 return false;
-            }
-            catch (CommandException ex) {
+            } catch (CommandException ex) {
                 ins.sendAttention(ex.getMessage());
                 ins.removeCommandTasks();
                 return false;
-            }
-            finally {
+            } finally {
                 if (permission.has(player, "mituya.command.manager")) {
                     long time = System.currentTimeMillis() - start;
                     long second = time / 1000;
@@ -555,28 +540,23 @@ public final class MituyaProject extends JavaPlugin {
                     }
                 }
             }
-        }
-        catch (NumberFormatException e) {
+        } catch (NumberFormatException e) {
             ins.sendAttention("数字を入力してください");
             ins.removeCommandTasks();
             return false;
-        }
-        catch (PlayerNotFoundException e) {
+        } catch (PlayerNotFoundException e) {
             ins.sendAttention("プレーヤー " + ChatColor.YELLOW + e.getPlayerName() + ChatColor.RED + " は見つかりませんでした。");
             ins.removeCommandTasks();
             return false;
-        }
-        catch (PlayerOfflineException e) {
+        } catch (PlayerOfflineException e) {
             ins.sendAttention("プレーヤー " + ChatColor.YELLOW + e.getPlayerName() + ChatColor.RED + " はオフラインです。");
             ins.removeCommandTasks();
             return false;
-        }
-        catch (MituyaProjectException e) {
+        } catch (MituyaProjectException e) {
             ins.sendAttention(e.getMessage());
             ins.removeCommandTasks();
             return false;
-        }
-        catch (Throwable excp) {
+        } catch (Throwable excp) {
             if (ins.hasPermission(Rank.GM)) {
                 ins.sendAttention("エラーが発生しました。コンソールをご確認ください。");
             } else {
@@ -627,8 +607,7 @@ public final class MituyaProject extends JavaPlugin {
         for (final Player pr : this.getServer().getOnlinePlayers()) {
             try {
                 this.getInstanceManager().getInstance(pr).SaveAll();
-            }
-            catch (Exception ex) {
+            } catch (Exception ex) {
                 this.ErrLog("SavePlayerInstance Err:" + pr.getName());
             }
         }
@@ -709,8 +688,7 @@ public final class MituyaProject extends JavaPlugin {
                 FileUtils.deleteDirectory(dir);
                 this.Log("ワールド：" + world + " ディレクトリを削除しました");
                 return true;
-            }
-            catch (IOException e) {
+            } catch (IOException e) {
                 this.ErrLog("ワールドディレクトリを削除できませんでした :" + e);
                 return false;
             }
@@ -728,7 +706,7 @@ public final class MituyaProject extends JavaPlugin {
         if (plugin == null || !(plugin instanceof WorldGuardPlugin)) {
             this.ErrLog("WorldGuardが見つかりません");
         } else {
-            this.worldguard = (WorldGuardPlugin)plugin;
+            this.worldguard = (WorldGuardPlugin) plugin;
             this.Log("WorldGuardが見つかりました");
         }
     }
@@ -739,7 +717,7 @@ public final class MituyaProject extends JavaPlugin {
     private void setLWC() {
         Plugin lwcPlugin = getServer().getPluginManager().getPlugin("LWC");
         if (lwcPlugin != null) {
-            this.lwc = ((LWCPlugin)lwcPlugin).getLWC();
+            this.lwc = ((LWCPlugin) lwcPlugin).getLWC();
             this.Log("LWCが見つかりました");
         } else {
             this.ErrLog("LWCが見つかりませんでした");
@@ -768,7 +746,7 @@ public final class MituyaProject extends JavaPlugin {
      * そのブロックにプレーヤーがアクセスする権限があるかどうかを調べます
      *
      * @param player Player
-     * @param block Block
+     * @param block  Block
      * @return WorldGuardとLWCから検索し、両方でのアクセス許可があった場合のみtrueを返します
      */
     public boolean canBuild(Player player, Block block) {
@@ -795,14 +773,12 @@ public final class MituyaProject extends JavaPlugin {
     }
 
     /**
-     *
      * @param message
      */
     public void sendTwitter(String message) {
         try {
             this.getTwitterManager().send328Tweet(message);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
         }
     }
 
@@ -836,8 +812,7 @@ public final class MituyaProject extends JavaPlugin {
                 }
                 osw.close();
                 this.Log("設定ファイルを作成しました");
-            }
-            catch (IOException e) {
+            } catch (IOException e) {
                 this.Log("設定ファイルを作成できませんでした。デフォルトのファイルを使用してください。");
                 return;
             }
@@ -859,8 +834,7 @@ public final class MituyaProject extends JavaPlugin {
             }
             isr.close();
             this.Log("設定ファイルの読み込みが完了しました");
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             this.Log("設定ファイルが読み込みできませんでした。再起動してください。");
         }
     }
@@ -885,8 +859,7 @@ public final class MituyaProject extends JavaPlugin {
                 try {
 
                     return permission.has(ins.getPlayer(), perm);
-                }
-                catch (PlayerOfflineException ex) {
+                } catch (PlayerOfflineException ex) {
                     System.out.print(ex);
                     return false;
                 }
@@ -894,6 +867,7 @@ public final class MituyaProject extends JavaPlugin {
         };
 
         commands.register(GeneralCommands.class);
+        commands.register(DebuggingCommands.class);
         commands.register(ServerCommands.class);//サーバーコマンド
         commands.register(TeleportCommands.class);//テレポートコマンド
         commands.register(HomeCommands.class);//ホームコマンド
@@ -920,6 +894,10 @@ public final class MituyaProject extends JavaPlugin {
         //commands.register(MoveCommands.class);//移動コマンド
 
         this.Log("コマンドの読み込みが完了しました");
+    }
+
+    public ProtocolManager getProtocolManager() {
+        return protocolManager;
     }
 
     public TwitterManager getTwitterManager() {

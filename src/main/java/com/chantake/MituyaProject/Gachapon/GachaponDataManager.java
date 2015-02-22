@@ -36,7 +36,7 @@ import org.bukkit.inventory.meta.BookMeta;
  * @author ezura573
  */
 public class GachaponDataManager {
-
+    //
     // <editor-fold defaultstate="collapsed" desc="プライベート変数">
     private static MituyaProject plugin;
     private static boolean init_flg = false;                                 // 初期化済フラグ
@@ -209,15 +209,17 @@ public class GachaponDataManager {
      * ガチャ購入ログをDBに記録します。
      *
      * @param playerName　ガチャ購入者名
+     * @param uuid プレイヤーのユニークID
      * @param capsuleID 当選カプセルID
      * @throws SQLException
      */
-    public static void InsertGachaponLog(String playerName, int capsuleID) throws SQLException {
-        String sql = "insert into gachapon_log (player,capsule_id,DTM) values (?,?,now())";
+    public static void InsertGachaponLog(String playerName, String uuid, int capsuleID) throws SQLException {
+        String sql = "insert into gachapon_log (player,uuid,capsule_id,DTM) values (?,?,?,now())";
         try (JDCConnection con = plugin.getConnection()) {
             PreparedStatement ps = con.prepareStatement(sql);
             ps.setString(1, playerName);
-            ps.setInt(2, capsuleID);
+            ps.setString(2,uuid);
+            ps.setInt(3, capsuleID);
 
             //INSERT実行       
             ps.executeUpdate();
@@ -468,83 +470,7 @@ public class GachaponDataManager {
         }
         return ret;
     }
-
-    /**
-     * DBから個人の購入数を取得します。
-     *
-     * @param PlayerName プレイヤー名
-     * @return 購入数
-     * @throws java.sql.SQLException
-     */
-    public static int GetGachaponBuyNumPrivate(String PlayerName) throws SQLException {
-        int ret = 0;
-
-        String sql = "SELECT count(id) as 'cnt' FROM gachapon_log WHERE player = ?";
-        try (JDCConnection con = plugin.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setString(1, PlayerName);
-
-            // レコードセットの取得
-            try ( // SQL実行
-                    ResultSet rs = ps.executeQuery()) {
-                // レコードセットの取得
-                rs.getRow();
-
-                // データ取得
-                while (rs.next()) {
-                    ret = rs.getInt("cnt");
-                    break;
-                }
-            }
-        }
-        return ret;
-    }
-
-    /**
-     * 指定プレイヤーが指定ガチャフェーズのアイテムをコンプリートしたか否かを取得します。
-     *
-     * @param PlayerName プレイヤー名
-     * @param Phase
-     * @return true:コンプリート　false;未コンプリート
-     * @throws SQLException
-     */
-    public static boolean CheckPlayerComplete(String PlayerName, int Phase) throws SQLException {
-        for (GachaponPhaseData Phase1 : Phases) {
-            if (Phase1.GetPhase() == Phase) {
-                return Phase1.CheckPlayerComplete(PlayerName);
-            }
-        }
-        return false;
-    }
-
-    /**
-     * 指定プレイヤーのガチャの出現状態データを取得します。
-     *
-     * @param PlayerName
-     * @return 出現済カプセルIDリスト
-     * @throws SQLException
-     */
-    public static List GetUserEmergeData(String PlayerName) throws SQLException {
-        List ret = new ArrayList<>();
-
-        String sql = "SELECT capsule_id,count(id) FROM gachapon_log WHERE player = ? GROUP BY capsule_id";
-        try (JDCConnection con = plugin.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setString(1, PlayerName);
-
-            // レコードセットの取得
-            try ( // SQL実行
-                    ResultSet rs = ps.executeQuery()) {
-                // レコードセットの取得
-                rs.getRow();
-
-                // データ取得
-                while (rs.next()) {
-                    ret.add(rs.getInt("capsule_id"));
-                }
-            }
-        }
-        return ret;
-    }
-
+    
     /**
      * フェーズの最大値を取得します。
      *

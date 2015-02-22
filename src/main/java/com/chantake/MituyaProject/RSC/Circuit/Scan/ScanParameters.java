@@ -2,17 +2,17 @@ package com.chantake.MituyaProject.RSC.Circuit.Scan;
 
 import com.chantake.MituyaProject.RSC.Circuit.IO.IOBlock;
 import com.chantake.MituyaProject.RSC.RedstoneChips;
-import java.util.ArrayList;
-import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.material.MaterialData;
 import org.bukkit.material.Wool;
+
+import java.util.ArrayList;
+import java.util.EnumMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Used for passing arguments when scanning recursively for chips.

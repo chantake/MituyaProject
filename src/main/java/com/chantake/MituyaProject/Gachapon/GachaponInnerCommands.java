@@ -274,7 +274,8 @@ public class GachaponInnerCommands {
 
                     //ガチャポンログに結果を記録
                     try {
-                        GachaponDataManager.InsertGachaponLog(p.getName(), gcd.GetId());
+                        
+                        GachaponDataManager.InsertGachaponLog(p.getName(), p.getUniqueId().toString(), gcd.GetId());
                     }
                     catch (SQLException ex) {
                         Logger.getLogger(GachaponInnerCommands.class.getName()).log(Level.SEVERE, null, ex);
@@ -303,12 +304,6 @@ public class GachaponInnerCommands {
 
                     //コンプリート処理
                     if (ck) {
-                        try {
-                            gpd.CheckPlayerComplete(p.getName());
-                        }
-                        catch (SQLException ex) {
-                            Logger.getLogger(GachaponInnerCommands.class.getName()).log(Level.SEVERE, null, ex);
-                        }
                         plugin.broadcastMessage(ChatColor.AQUA + "<<<328ガチャインフォメーション>>>");
                         plugin.broadcastMessage(
                                 ChatColor.YELLOW + pi.getName()
@@ -366,14 +361,6 @@ public class GachaponInnerCommands {
                 }
             }
             long num = gpd.GetSaleNum();
-            /*
-             try {
-             num = gpd.GetGachaponBuyNumPublic();
-             }
-             catch (SQLException ex) {
-             Logger.getLogger(GachaponInnerCommands.class.getName()).log(Level.SEVERE, null, ex);
-             }
-             */
             pi.sendMessage("   ⇒　全体購入数：" + Tools.FormatMine(num));
         }
         pi.sendMessage(ChatColor.YELLOW + "===================================================");
@@ -428,14 +415,6 @@ public class GachaponInnerCommands {
         }
         pi.sendMessage(ChatColor.YELLOW + "===================================================");
         long num = gpd.GetSaleNum();
-        /*
-         try {
-         num = gpd.GetGachaponBuyNumPublic();
-         }
-         catch (SQLException ex) {
-         Logger.getLogger(GachaponInnerCommands.class.getName()).log(Level.SEVERE, null, ex);
-         }
-         */
         pi.sendMessage("全体購入数：" + Tools.FormatMine(num));
         pi.sendMessage(ChatColor.YELLOW + "===================================================");
     }
@@ -492,14 +471,6 @@ public class GachaponInnerCommands {
             }
         }
 
-        /*
-         try {
-         lt = GachaponDataManager.GetUserEmergeData(p.getName());
-         }
-         catch (SQLException ex) {                   
-         Logger.getLogger(GachaponInnerCommands.class.getName()).log(Level.SEVERE, null, ex);
-         }
-         */
         pi.sendMessage(ChatColor.YELLOW + "==========328ガチャ・フェーズ[" + gpd.GetPhase() + "] マイリスト==========");
         for (int i = 0; i < gpd.GetCapsuleVarietyNum(); i++) {
             if (gpd.GetCapsules().get(i).GetSecret()) {
@@ -515,15 +486,6 @@ public class GachaponInnerCommands {
             }
         }
         pi.sendMessage(ChatColor.YELLOW + "===================================================");
-
-        /*
-         try {
-         num = gpd.GetGachaponBuyNumPrivate(p.getName());
-         }
-         catch (SQLException ex) {
-         Logger.getLogger(GachaponInnerCommands.class.getName()).log(Level.SEVERE, null, ex);
-         }
-         */
         pi.sendMessage("個人購入数：" + Tools.FormatMine(num));
         pi.sendMessage(ChatColor.YELLOW + "===================================================");
     }
@@ -784,13 +746,13 @@ public class GachaponInnerCommands {
                     + "gachapon_log "
                     + "INNER JOIN gachapon_capsule ON gachapon_log.capsule_id = gachapon_capsule.id "
                     + "WHERE "
-                    + "gachapon_log.player = ? "
+                    + "gachapon_log.uuid = ? "
                     + "GROUP BY "
                     + "gachapon_log.capsule_id "
                     + "ORDER BY "
                     + "gachapon_log.capsule_id ASC";
             try (JDCConnection con = plugin.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
-                ps.setString(1, p.getName());
+                ps.setString(1, p.getUniqueId().toString());
 
                 // レコードセットの取得
                 try ( // SQL実行
@@ -821,12 +783,12 @@ public class GachaponInnerCommands {
                     + "gachapon_capsule "
                     + "INNER JOIN gachapon_log ON gachapon_log.capsule_id = gachapon_capsule.id "
                     + "WHERE "
-                    + "gachapon_log.player = ? "
+                    + "gachapon_log.uuid = ? "
                     + "GROUP BY gachapon_capsule.phase "
                     + "ORDER BY "
                     + "gachapon_capsule.phase ASC";
             try (JDCConnection con = plugin.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
-                ps.setString(1, p.getName());
+                ps.setString(1, p.getUniqueId().toString());
 
                 // レコードセットの取得
                 try ( // SQL実行

@@ -17,37 +17,21 @@
  */
 package com.chantake.MituyaProject.Player;
 
-import com.chantake.MituyaProject.Tool.MituyaModPacket.PluginPacketManager;
 import com.chantake.MituyaProject.Exception.PlayerOfflineException;
 import com.chantake.MituyaProject.Gachapon.GachaponUserPhaseData;
 import com.chantake.MituyaProject.MituyaProject;
 import com.chantake.MituyaProject.Parameter.Parameter328;
 import com.chantake.MituyaProject.Permissions.Rank;
 import com.chantake.MituyaProject.Player.Chat.ChatType;
+import com.chantake.MituyaProject.Player.Points.UserPointData;
+import com.chantake.MituyaProject.Tool.Encrypter;
+import com.chantake.MituyaProject.Tool.HexTool;
+import com.chantake.MituyaProject.Tool.MySqlProcessing;
 import com.chantake.MituyaProject.Tool.Timer.AutoKick;
-import com.chantake.MituyaProject.Tool.Timer.PlayerTeleport;
-import com.chantake.MituyaProject.Tool.*;
 import com.chantake.MituyaProject.Tool.Timer.CancelCheckInstance;
+import com.chantake.MituyaProject.Tool.Timer.PlayerTeleport;
+import com.chantake.MituyaProject.Tool.UUIDUtils;
 import com.chantake.mituyaapi.tools.database.JDCConnection;
-import java.io.IOException;
-import java.lang.management.ManagementFactory;
-import java.sql.*;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.TreeMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.management.InstanceAlreadyExistsException;
-import javax.management.InstanceNotFoundException;
-import javax.management.MBeanRegistrationException;
-import javax.management.MalformedObjectNameException;
-import javax.management.NotCompliantMBeanException;
-import javax.management.ObjectName;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
@@ -57,7 +41,13 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.potion.PotionEffectType;
-import java.util.UUID;
+
+import javax.management.*;
+import java.lang.management.ManagementFactory;
+import java.sql.*;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * プレーヤーごとにインスタンスを持つクラスです
@@ -67,6 +57,12 @@ import java.util.UUID;
  */
 public class PlayerInstance implements PlayerInstanceMBean {
 
+    private final HashMap task = new HashMap();
+    private final TreeMap<Integer, TreeMap<Integer, LocationData>> home_data = new TreeMap<>();
+    private final TreeMap<Integer, Location> spawn = new TreeMap<>();
+    private final LinkedList<Long> chat_log_time = new LinkedList<>();
+    private final LinkedList<Long> cmd_log_time = new LinkedList<>();
+    private final List<GachaponUserPhaseData> GachaponData = new ArrayList<>();
     private MituyaProject plugin;
     private UUID uuid;
     private boolean debug = false;
@@ -75,7 +71,6 @@ public class PlayerInstance implements PlayerInstanceMBean {
     private ChatColor color;
     private Rank rank;
     private int setacctask = 0;
-    private final HashMap task = new HashMap();
     private boolean adminacti;
     private Location savelocation;
     private int tpp = 0;
@@ -87,9 +82,7 @@ public class PlayerInstance implements PlayerInstanceMBean {
     private int mine_id;
     private long mine, mine_log;
     private int id, tax;
-    private final TreeMap<Integer, TreeMap<Integer, LocationData>> home_data = new TreeMap<>();
     private int guildid;
-    private final TreeMap<Integer, Location> spawn = new TreeMap<>();
     private String loginbmessage, deathmessage;
     private String accatt;
     private int level, mp, max_mp;
@@ -123,15 +116,11 @@ public class PlayerInstance implements PlayerInstanceMBean {
     private Runnable check_instance;
     private int check_id;
     private long check_time;
-    private final LinkedList<Long> chat_log_time = new LinkedList<>();
     private long last_chat_time = 0;
-    private final LinkedList<Long> cmd_log_time = new LinkedList<>();
     private long last_cmd_time = 0;
     private List<String> command_tasks = new ArrayList<>(3);
-
     private long GachaponBuyTime = 0;
-    private final List<GachaponUserPhaseData> GachaponData = new ArrayList<>();
-
+    private UserPointData PointData = new UserPointData();
     /**
      * インスタンス作成
      *
@@ -179,22 +168,12 @@ public class PlayerInstance implements PlayerInstanceMBean {
         }
     }
 
-    /**
-     * 表示名を変更する
-     *
-     * @param disname ディスプレイネーム
-     */
-    @Override
-    public void setDisplayName(String disname) {
-        this.disname = disname;
+    public String getMituyaModVersion() {
+        return mituyamodversion;
     }
 
     public void setMituyaModVersion(String ver) {
         mituyamodversion = ver;
-    }
-
-    public String getMituyaModVersion() {
-        return mituyamodversion;
     }
 
     /**
@@ -304,12 +283,12 @@ public class PlayerInstance implements PlayerInstanceMBean {
         name = pr.getName();
     }
 
-    public void setDamagecanncel(boolean i_am_mikki) {
-        this.damagetick = i_am_mikki;
-    }
-
     public boolean getDamagecanncel() {
         return this.damagetick;
+    }
+
+    public void setDamagecanncel(boolean i_am_mikki) {
+        this.damagetick = i_am_mikki;
     }
 
     public boolean Debug() {
@@ -320,12 +299,12 @@ public class PlayerInstance implements PlayerInstanceMBean {
         this.debug = !debug;
     }
 
-    public void setPrivateMessagePlayer(PlayerInstance player) {
-        this.rmp = player;
-    }
-
     public PlayerInstance getPrivateMessagePlayer() {
         return this.rmp;
+    }
+
+    public void setPrivateMessagePlayer(PlayerInstance player) {
+        this.rmp = player;
     }
 
     /**
@@ -438,7 +417,6 @@ public class PlayerInstance implements PlayerInstanceMBean {
      *
      * @param mine_success
      * @param mine
-     * @param tax
      */
     private void gainMineMessage(boolean mine_success, long mine) {
         try {
@@ -483,12 +461,21 @@ public class PlayerInstance implements PlayerInstanceMBean {
         return rank;
     }
 
-    public void setAccTask(int i) {
-        setacctask = i;
+    /**
+     * ランクを変更します
+     *
+     * @param rank Rank 直接使用禁止
+     */
+    public void setRank(Rank rank) {
+        this.rank = rank;
     }
 
     public int getAccTask() {
         return setacctask;
+    }
+
+    public void setAccTask(int i) {
+        setacctask = i;
     }
 
     public HashMap getTask() {
@@ -533,6 +520,10 @@ public class PlayerInstance implements PlayerInstanceMBean {
         return savelocation_use;
     }
 
+    public boolean getSponge() {
+        return this.spongeperm;
+    }
+
     /**
      * spongeperm に代入
      *
@@ -542,10 +533,6 @@ public class PlayerInstance implements PlayerInstanceMBean {
      */
     public void setSponge(boolean perm) {
         this.spongeperm = perm;
-    }
-
-    public boolean getSponge() {
-        return this.spongeperm;
     }
 
     /**
@@ -559,6 +546,10 @@ public class PlayerInstance implements PlayerInstanceMBean {
         savelocation_use = use;
     }
 
+    public int getTpPublic() {
+        return tpp;
+    }
+
     /**
      *
      * @param type パブリックタイプ 0:private　1:public 2:certification
@@ -566,19 +557,6 @@ public class PlayerInstance implements PlayerInstanceMBean {
      */
     public void setTpPublic(int type) {
         tpp = type;
-    }
-
-    public int getTpPublic() {
-        return tpp;
-    }
-
-    /**
-     * ランクを変更します
-     *
-     * @param rank Rank 直接使用禁止
-     */
-    public void setRank(Rank rank) {
-        this.rank = rank;
     }
 
     /**
@@ -715,6 +693,10 @@ public class PlayerInstance implements PlayerInstanceMBean {
         return this.home_id;
     }
 
+    public void setHome_Id(int id) {
+        this.home_id = id;
+    }
+
     public LocationData getHome(World wd, int subid) {
         return this.getHome(plugin.getWorldManager().getWorldData(wd).getId(), subid);
     }
@@ -793,6 +775,16 @@ public class PlayerInstance implements PlayerInstanceMBean {
         return this.disname;
     }
 
+    /**
+     * 表示名を変更する
+     *
+     * @param disname ディスプレイネーム
+     */
+    @Override
+    public void setDisplayName(String disname) {
+        this.disname = disname;
+    }
+
     public String getRawDisplayName() {
         return this.rawdisname;
     }
@@ -837,12 +829,12 @@ public class PlayerInstance implements PlayerInstanceMBean {
         return aa;
     }
 
-    public void setLoginBMessage(String text) {
-        loginbmessage = text;
-    }
-
     public String getLoginBMessage() {
         return loginbmessage;
+    }
+
+    public void setLoginBMessage(String text) {
+        loginbmessage = text;
     }
 
     public String getDeathMessage() {
@@ -865,6 +857,9 @@ public class PlayerInstance implements PlayerInstanceMBean {
         return this.GachaponData;
     }
 
+    public UserPointData GetPointData(){
+        return this.PointData;
+    }
     /**
      * Mineの所持ランキング取得
      *
@@ -1251,6 +1246,8 @@ public class PlayerInstance implements PlayerInstanceMBean {
          */
     }
 
+    // <editor-fold defaultstate="collapsed" desc="新規キャラクタレコードの作成">
+
     /**
      * キャラクターをDBからロードします。見つからない場合は新規レコードを作成します。
      *
@@ -1344,7 +1341,8 @@ public class PlayerInstance implements PlayerInstanceMBean {
         return ret;
     }
 
-    // <editor-fold defaultstate="collapsed" desc="新規キャラクタレコードの作成">
+    // <editor-fold defaultstate="collapsed" desc="新規マイン(所持金)レコードの作成">
+
     /**
      * キャラクターレコードを新規作成します。
      *
@@ -1430,7 +1428,6 @@ public class PlayerInstance implements PlayerInstanceMBean {
         return ret;
     }// </editor-fold>
 
-    // <editor-fold defaultstate="collapsed" desc="新規マイン(所持金)レコードの作成">
     /**
      * マイン(所持金)レコードを新規作成します。
      *
@@ -1770,6 +1767,10 @@ public class PlayerInstance implements PlayerInstanceMBean {
         }
     }
 
+    public MituyaProject getPlugin() {
+        return plugin;
+    }
+
     /**
      * MituyaProjectのインスタンスをセット
      *
@@ -1780,10 +1781,6 @@ public class PlayerInstance implements PlayerInstanceMBean {
      */
     public void setPlugin(MituyaProject plugin) {
         this.plugin = plugin;
-    }
-
-    public MituyaProject getPlugin() {
-        return plugin;
     }
 
     /**
@@ -1908,11 +1905,11 @@ public class PlayerInstance implements PlayerInstanceMBean {
      * @param message
      * @param runnable
      */
-    public void sendYesNo(String message, Runnable runnable) {
+    public void sendYesNo(String message, Runnable runnable, boolean canskip) {
         //インスタンスを登録
         if (this.setCheckInstance(runnable)) {
             //確認をスキップして実行する
-            if (this.isCheckSkip()) {
+            if (this.isCheckSkip() && canskip) {
                 //実行する
                 this.executionCheckInstance();
             } else {//スキップしないで確認メッセージを出す
@@ -1924,6 +1921,14 @@ public class PlayerInstance implements PlayerInstanceMBean {
                 this.sendMessage(Parameter328.Check_Message);
             }
         }
+    }
+    
+    public void sendYesNo(String message, Runnable runnable) {
+        sendYesNo(message, runnable, true);
+    }
+    
+    public void forceSendYesNo(String message, Runnable runnable) {
+        sendYesNo(message, runnable, false);
     }
 
     /**
@@ -1938,7 +1943,7 @@ public class PlayerInstance implements PlayerInstanceMBean {
         if (this.isCheck()) {
             ins.sendAttention(ins.getName() + " は、現在応答できません。");
         } else {
-            this.sendYesNo(message, runnable);
+            this.forceSendYesNo(message, runnable);
         }
     }
 
@@ -1978,16 +1983,6 @@ public class PlayerInstance implements PlayerInstanceMBean {
     /**
      * 変数checkを変更します。
      *
-     * @param check
-     * @since 3.0.2
-     */
-    public void setCheck(boolean check) {
-        this.check = check;
-    }
-
-    /**
-     * 変数checkを変更します。
-     *
      * @since 3.0.2
      */
     public void setCheck() {
@@ -2002,6 +1997,16 @@ public class PlayerInstance implements PlayerInstanceMBean {
      */
     public boolean isCheck() {
         return this.check;
+    }
+
+    /**
+     * 変数checkを変更します。
+     *
+     * @param check
+     * @since 3.0.2
+     */
+    public void setCheck(boolean check) {
+        this.check = check;
     }
 
     /**
@@ -2021,7 +2026,7 @@ public class PlayerInstance implements PlayerInstanceMBean {
      * @see Sign
      */
     public Block getSignTarget() throws PlayerOfflineException {
-        return this.getPlayer().getTargetBlock(null, 25);
+        return this.getPlayer().getTargetBlock((Set) null, 25);
     }
 
     /**
@@ -2032,7 +2037,7 @@ public class PlayerInstance implements PlayerInstanceMBean {
      * @see Sign
      */
     public boolean isSignTarget() throws PlayerOfflineException {
-        if (this.getPlayer().getTargetBlock(null, 25).getState() instanceof Sign) {
+        if (this.getPlayer().getTargetBlock((Set) null, 25).getState() instanceof Sign) {
             return true;
         } else {
             this.sendAttention("看板を選択して下さい。");
@@ -2096,6 +2101,8 @@ public class PlayerInstance implements PlayerInstanceMBean {
         return true;
     }
 
+    // <editor-fold defaultstate="collapsed" desc="sendMessage（プレーヤーにメッセージを表示します。）">
+
     /**
      * 確認後に実行するインスタンスを取得
      *
@@ -2104,8 +2111,10 @@ public class PlayerInstance implements PlayerInstanceMBean {
     private Runnable getCheckInstance() {
         return this.check_instance;
     }
+    // </editor-fold>
 
-    // <editor-fold defaultstate="collapsed" desc="sendMessage（プレーヤーにメッセージを表示します。）">
+    // <editor-fold defaultstate="collapsed" desc="sendInfo（プレーヤーにinfoメッセージを表示します。）">
+
     /**
      * プレーヤーにメッセージを表示します。
      *
@@ -2121,7 +2130,8 @@ public class PlayerInstance implements PlayerInstanceMBean {
     }
     // </editor-fold>
 
-    // <editor-fold defaultstate="collapsed" desc="sendInfo（プレーヤーにinfoメッセージを表示します。）">
+    // <editor-fold defaultstate="collapsed" desc="sendProcessing（プレーヤーに処理中メッセージを表示します。）">
+
     /**
      * プレーヤーにinfoメッセージを表示します。
      *
@@ -2135,7 +2145,8 @@ public class PlayerInstance implements PlayerInstanceMBean {
     }
     // </editor-fold>
 
-    // <editor-fold defaultstate="collapsed" desc="sendProcessing（プレーヤーに処理中メッセージを表示します。）">
+    // <editor-fold defaultstate="collapsed" desc="sendSuccess（プレーヤーに成功メッセージを表示します。）">
+
     /**
      * プレーヤーに処理中メッセージを表示します。
      *
@@ -2148,7 +2159,8 @@ public class PlayerInstance implements PlayerInstanceMBean {
     }
     // </editor-fold>
 
-    // <editor-fold defaultstate="collapsed" desc="sendSuccess（プレーヤーに成功メッセージを表示します。）">
+    // <editor-fold defaultstate="collapsed" desc="sendAttention（プレーヤーに注意メッセージを表示します。）">
+
     /**
      * プレーヤーに成功メッセージを表示します。
      *
@@ -2161,7 +2173,8 @@ public class PlayerInstance implements PlayerInstanceMBean {
     }
     // </editor-fold>
 
-    // <editor-fold defaultstate="collapsed" desc="sendAttention（プレーヤーに注意メッセージを表示します。）">
+    // <editor-fold defaultstate="collapsed" desc="sendWarning（プレーヤーに警告メッセージを表示します。）">
+
     /**
      * プレーヤーに注意メッセージを表示します。
      *
@@ -2174,7 +2187,8 @@ public class PlayerInstance implements PlayerInstanceMBean {
     }
     // </editor-fold>
 
-    // <editor-fold defaultstate="collapsed" desc="sendWarning（プレーヤーに警告メッセージを表示します。）">
+    // <editor-fold defaultstate="collapsed" desc="sendServer（プレーヤーにサーバーメッセージを表示します。）">
+
     /**
      * プレーヤーに警告メッセージを表示します。
      *
@@ -2188,7 +2202,8 @@ public class PlayerInstance implements PlayerInstanceMBean {
     }
     // </editor-fold>
 
-    // <editor-fold defaultstate="collapsed" desc="sendServer（プレーヤーにサーバーメッセージを表示します。）">
+    // <editor-fold defaultstate="collapsed" desc="sendSystem（プレーヤーにシステムメッセージを表示します。）">
+
     /**
      * プレーヤーにサーバーメッセージを表示します。
      *
@@ -2200,8 +2215,8 @@ public class PlayerInstance implements PlayerInstanceMBean {
         this.sendMessage(ChatColor.LIGHT_PURPLE + "[Server] " + message);
     }
     // </editor-fold>
+    // </editor-fold>
 
-    // <editor-fold defaultstate="collapsed" desc="sendSystem（プレーヤーにシステムメッセージを表示します。）">
     /**
      * プレーヤーにシステムメッセージを表示します。
      *
@@ -2212,8 +2227,6 @@ public class PlayerInstance implements PlayerInstanceMBean {
     public void sendSystem(String message) {
         this.sendMessage(ChatColor.LIGHT_PURPLE + "[System] " + ChatColor.WHITE + message);
     }
-    // </editor-fold>
-    // </editor-fold>
 
     @Override
     public String toString() {
@@ -2338,10 +2351,6 @@ public class PlayerInstance implements PlayerInstanceMBean {
         return tp;
     }
 
-    public void setHome_Id(int id) {
-        this.home_id = id;
-    }
-
     public World getLastworld() {
         return lastworld;
     }
@@ -2373,6 +2382,10 @@ public class PlayerInstance implements PlayerInstanceMBean {
         }
     }
 
+    public ChatType getChatType() {
+        return chat_type;
+    }
+
     /*public boolean getMainWorldInvite() {
      return this.world_invite;
      }
@@ -2384,16 +2397,12 @@ public class PlayerInstance implements PlayerInstanceMBean {
         this.chat_type = chat_type;
     }
 
-    public ChatType getChatType() {
-        return chat_type;
+    public int getParty() {
+        return this.party;
     }
 
     public void setParty(int party) {
         this.party = party;
-    }
-
-    public int getParty() {
-        return this.party;
     }
 
     public void Kick(String reason) throws PlayerOfflineException {
@@ -2418,14 +2427,6 @@ public class PlayerInstance implements PlayerInstanceMBean {
 
     public void setLv(int lv) throws PlayerOfflineException {
         this.getPlayer().setLevel(lv);
-    }
-
-    @Override
-    public void setTotalExperience(int te) {
-        try {
-            this.getPlayer().setTotalExperience(te);
-        } catch (PlayerOfflineException ex) {
-        }
     }
 
     public boolean getShowNote() {
@@ -2505,11 +2506,27 @@ public class PlayerInstance implements PlayerInstanceMBean {
     }
 
     @Override
+    public void setPlayerListName(String name) {
+        try {
+            getPlayer().setPlayerListName(name);
+        } catch (PlayerOfflineException ex) {
+        }
+    }
+
+    @Override
     public float getExhaustion() {
         try {
             return getPlayer().getExhaustion();
         } catch (PlayerOfflineException ex) {
             return 0;
+        }
+    }
+
+    @Override
+    public void setExhaustion(float value) {
+        try {
+            getPlayer().setSaturation(value);
+        } catch (PlayerOfflineException ex) {
         }
     }
 
@@ -2523,11 +2540,27 @@ public class PlayerInstance implements PlayerInstanceMBean {
     }
 
     @Override
+    public void setSaturation(float value) {
+        try {
+            getPlayer().setSaturation(value);
+        } catch (PlayerOfflineException ex) {
+        }
+    }
+
+    @Override
     public float getExp() {
         try {
             return getPlayer().getExp();
         } catch (PlayerOfflineException ex) {
             return 0;
+        }
+    }
+
+    @Override
+    public void setExp(float exp) {
+        try {
+            getPlayer().setExp(exp);
+        } catch (PlayerOfflineException ex) {
         }
     }
 
@@ -2541,6 +2574,14 @@ public class PlayerInstance implements PlayerInstanceMBean {
     }
 
     @Override
+    public void setFoodLevel(int value) {
+        try {
+            getPlayer().setFoodLevel(value);
+        } catch (PlayerOfflineException ex) {
+        }
+    }
+
+    @Override
     public int getTotalExperience() {
         try {
             return getPlayer().getTotalExperience();
@@ -2550,49 +2591,17 @@ public class PlayerInstance implements PlayerInstanceMBean {
     }
 
     @Override
+    public void setTotalExperience(int te) {
+        try {
+            this.getPlayer().setTotalExperience(te);
+        } catch (PlayerOfflineException ex) {
+        }
+    }
+
+    @Override
     public void chat(String str) {
         try {
             getPlayer().chat(str);
-        } catch (PlayerOfflineException ex) {
-        }
-    }
-
-    @Override
-    public void setExhaustion(float value) {
-        try {
-            getPlayer().setSaturation(value);
-        } catch (PlayerOfflineException ex) {
-        }
-    }
-
-    @Override
-    public void setExp(float exp) {
-        try {
-            getPlayer().setExp(exp);
-        } catch (PlayerOfflineException ex) {
-        }
-    }
-
-    @Override
-    public void setFoodLevel(int value) {
-        try {
-            getPlayer().setFoodLevel(value);
-        } catch (PlayerOfflineException ex) {
-        }
-    }
-
-    @Override
-    public void setPlayerListName(String name) {
-        try {
-            getPlayer().setPlayerListName(name);
-        } catch (PlayerOfflineException ex) {
-        }
-    }
-
-    @Override
-    public void setSaturation(float value) {
-        try {
-            getPlayer().setSaturation(value);
         } catch (PlayerOfflineException ex) {
         }
     }
@@ -2681,6 +2690,14 @@ public class PlayerInstance implements PlayerInstanceMBean {
     }
 
     @Override
+    public void setHealth(double health) {
+        try {
+            getPlayer().setHealth(health);
+        } catch (PlayerOfflineException ex) {
+        }
+    }
+
+    @Override
     public double getMaxHealth() {
         try {
             return getPlayer().getMaxHealth();
@@ -2699,6 +2716,14 @@ public class PlayerInstance implements PlayerInstanceMBean {
     }
 
     @Override
+    public void setMaximumAir(int ticks) {
+        try {
+            getPlayer().setMaximumAir(ticks);
+        } catch (PlayerOfflineException ex) {
+        }
+    }
+
+    @Override
     public int getRemainingAir() {
         try {
             return getPlayer().getRemainingAir();
@@ -2708,33 +2733,17 @@ public class PlayerInstance implements PlayerInstanceMBean {
     }
 
     @Override
-    public void damage(int amount) {
-        try {
-            getPlayer().damage(amount);
-        } catch (PlayerOfflineException ex) {
-        }
-    }
-
-    @Override
-    public void setHealth(double health) {
-        try {
-            getPlayer().setHealth(health);
-        } catch (PlayerOfflineException ex) {
-        }
-    }
-
-    @Override
-    public void setMaximumAir(int ticks) {
-        try {
-            getPlayer().setMaximumAir(ticks);
-        } catch (PlayerOfflineException ex) {
-        }
-    }
-
-    @Override
     public void setRemainingAir(int ticks) {
         try {
             getPlayer().setRemainingAir(ticks);
+        } catch (PlayerOfflineException ex) {
+        }
+    }
+
+    @Override
+    public void damage(int amount) {
+        try {
+            getPlayer().damage(amount);
         } catch (PlayerOfflineException ex) {
         }
     }

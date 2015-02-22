@@ -20,6 +20,8 @@ package com.chantake.MituyaProject.Tool;
 import java.util.Objects;
 import java.util.TreeMap;
 
+import static java.util.regex.Pattern.quote;
+
 /**
  *
  * @author chantake
@@ -31,10 +33,10 @@ public class RomaToJapanese {
 
     public RomaToJapanese() {
         //etc
-        put("//?", "？");
+        put(quote("?"), "？");
         put("!", "！");
         put(",", "、");
-        put("/.", "。");
+        put(quote("."), "。");
         put("-", "ー");
         put("~", "～");
         //あ行
@@ -89,6 +91,7 @@ public class RomaToJapanese {
         put("thu", "てゅ");
         put("tho", "てょ");
         //にゃ
+        put("nn", "ん");
         put("nya", "にゃ");
         put("nyu", "にゅ");
         put("nyo", "にょ");
@@ -143,7 +146,6 @@ public class RomaToJapanese {
         put("te", "て");
         put("to", "と");
         //な行
-        put("nn", "ん");
         put("na", "な");
         put("ni", "に");
         put("nu", "ぬ");
@@ -236,9 +238,14 @@ public class RomaToJapanese {
     }
 
     private void put(String oldtext, String newtext) {
+        if (!map.containsKey(oldtext))
         map.put(oldtext, newtext);
-        if (oldtext.length() > 1 && oldtext.charAt(0) != oldtext.charAt(1)) {
-            map.put(oldtext.charAt(0) + oldtext, "っ" + newtext);
+        if (oldtext.charAt(0) != 'n') {
+            if (!map.containsKey(oldtext.charAt(0) + oldtext)) {
+                if (oldtext.length() > 1 && oldtext.charAt(0) != oldtext.charAt(1)) {
+                map.put(oldtext.charAt(0) + oldtext, "っ" + newtext);
+                }
+            }
         }
     }
 

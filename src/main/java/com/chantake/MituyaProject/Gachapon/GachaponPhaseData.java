@@ -344,6 +344,8 @@ public class GachaponPhaseData {
                 return Enchantment.WATER_WORKER;
             case 7:
                 return Enchantment.THORNS;
+            case 8:
+                return Enchantment.DEPTH_STRIDER;
             case 16:
                 return Enchantment.DAMAGE_ALL;
             case 17:
@@ -372,8 +374,14 @@ public class GachaponPhaseData {
                 return Enchantment.ARROW_FIRE;
             case 51:
                 return Enchantment.ARROW_INFINITE;
+            case 61:
+                return Enchantment.LUCK;
+            case 62:
+                return Enchantment.LURE;
+            default:
+                return Enchantment.DURABILITY;
         }
-        return null;
+        //return null;
     }
     // </editor-fold>
 
@@ -423,131 +431,5 @@ public class GachaponPhaseData {
     public GachaponCapsuleData GetLotteryCapsule() {
         int rnd = (int)(Math.random() * LotteryTable.size());
         return Capsules.get((int)LotteryTable.get(rnd));
-    }
-
-    /**
-     * 指定プレイヤーが現在のガチャフェーズのアイテムをコンプリートしたか否かを取得します。
-     *
-     * @param PlayerName プレイヤー名
-     * @return true:コンプリート　false;未コンプリート
-     * @throws SQLException
-     */
-    public boolean CheckPlayerComplete(String PlayerName) throws SQLException {
-        String sql = "SELECT capsule_id FROM gachapon_log WHERE player = ? GROUP BY capsule_id";
-        int cnt;
-        try (JDCConnection con = plugin.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setString(1, PlayerName);
-            try (ResultSet rs = ps.executeQuery()) {
-                rs.getRow();
-                cnt = 0;
-                while (rs.next()) {
-                    int id = rs.getInt("capsule_id");
-                    if (IDList.contains(id)) {
-                        cnt++;
-                    }
-                }
-            }
-        }
-        if (cnt == Capsules.size()) {
-            return !CheckAndInsertCompletePlayer(PlayerName);
-        }
-        return false;
-    }
-
-    /**
-     * 指定プレイヤーの現在のガチャフェーズがコンプリートリストに入っているかチェックし、 入っていない場合は追加します。
-     *
-     * @param PlayerName　プレイヤー名
-     * @return true:入っていた場合 false:入っていなかった場合
-     * @throws SQLException
-     */
-    private boolean CheckAndInsertCompletePlayer(String PlayerName) throws SQLException {
-        String sql = "SELECT count(player) as 'cnt' FROM gachapon_complete_player WHERE player = ? AND phase = ?";
-
-        int cnt = 0;
-        try (JDCConnection con = plugin.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setString(1, PlayerName);
-            ps.setInt(2, this.phase);
-
-            // レコードセットの取得
-            try ( // SQL実行
-                    ResultSet rs = ps.executeQuery()) {
-                // レコードセットの取得
-                rs.getRow();
-
-                // データ取得
-                while (rs.next()) {
-                    cnt = rs.getInt("cnt");
-                    break;
-                }
-            }
-        }
-        return false;
-    }
-
-    /**
-     * DBからこのフェーズの全体の購入数を取得します。
-     *
-     * @return 購入数
-     * @throws java.sql.SQLException
-     */
-    public long GetGachaponBuyNumPublic() throws SQLException {
-        long ret = 0;
-
-        String sql = "SELECT Count(gachapon_log.id) AS cnt FROM gachapon_log "
-                + "INNER JOIN gachapon_capsule ON gachapon_log.capsule_id = gachapon_capsule.id "
-                + "WHERE gachapon_capsule.phase = ?";
-
-        try (JDCConnection con = plugin.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setInt(1, this.phase);
-
-            // レコードセットの取得
-            try ( // SQL実行
-                    ResultSet rs = ps.executeQuery()) {
-                // レコードセットの取得
-                rs.getRow();
-
-                // データ取得
-                while (rs.next()) {
-                    ret = rs.getLong("cnt");
-                    break;
-                }
-            }
-        }
-        return ret;
-    }
-
-    /**
-     * DBからこのフェーズの個人の購入数を取得します。
-     *
-     * @param PlayerName プレイヤー名
-     * @return 購入数
-     * @throws java.sql.SQLException
-     */
-    public long GetGachaponBuyNumPrivate(String PlayerName) throws SQLException {
-        long ret = 0;
-
-        String sql = "SELECT Count(gachapon_log.id) AS cnt FROM gachapon_log "
-                + "INNER JOIN gachapon_capsule ON gachapon_log.capsule_id = gachapon_capsule.id "
-                + "WHERE gachapon_capsule.phase = ? AND gachapon_log.player = ?";
-
-        try (JDCConnection con = plugin.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setInt(1, this.phase);
-            ps.setString(2, PlayerName);
-
-            // レコードセットの取得
-            try ( // SQL実行
-                    ResultSet rs = ps.executeQuery()) {
-                // レコードセットの取得
-                rs.getRow();
-
-                // データ取得
-                while (rs.next()) {
-                    ret = rs.getLong("cnt");
-                    break;
-                }
-            }
-        }
-        return ret;
     }
 }

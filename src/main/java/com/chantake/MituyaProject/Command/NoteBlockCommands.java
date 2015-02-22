@@ -21,8 +21,6 @@ import com.chantake.MituyaProject.Bukkit.NoteBlockNote;
 import com.chantake.MituyaProject.Exception.PlayerOfflineException;
 import com.chantake.MituyaProject.MituyaProject;
 import com.chantake.MituyaProject.Player.PlayerInstance;
-import org.bukkit.block.Block;
-import org.bukkit.entity.Player;
 import com.chantake.MituyaProject.Tool.Tools;
 import com.chantake.mituyaapi.commands.Command;
 import com.chantake.mituyaapi.commands.CommandContext;
@@ -31,7 +29,11 @@ import com.chantake.mituyaapi.commands.CommandPermissions;
 import org.bukkit.ChatColor;
 import org.bukkit.Instrument;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.block.NoteBlock;
+import org.bukkit.entity.Player;
+
+import java.util.Set;
 
 /**
  * 音ブロック(NoteBlock)操作用コマンドクラス
@@ -61,7 +63,7 @@ public class NoteBlockCommands {
                 }
                 player.sendInfo(ChatColor.GREEN + "NoteBlock", ChatColor.YELLOW + "音ブロッククリック時の音階表示を " + Tools.ReturnColorOnOff(player.getShowNote()) + ChatColor.YELLOW + " に設定しました ");
             } else {
-                Block block = players.getTargetBlock(null, 25);
+                Block block = players.getTargetBlock((Set) null, 25);
                 if (block != null && block.getType() == Material.NOTE_BLOCK) {
                     if (message.getString(0).equals("info")) {
                         NoteBlock nb = (NoteBlock)block.getState();
