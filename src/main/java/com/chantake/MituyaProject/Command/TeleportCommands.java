@@ -28,12 +28,14 @@ import com.chantake.mituyaapi.commands.Command;
 import com.chantake.mituyaapi.commands.CommandContext;
 import com.chantake.mituyaapi.commands.CommandException;
 import com.chantake.mituyaapi.commands.CommandPermissions;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.bukkit.ChatColor;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
+
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -109,6 +111,14 @@ public class TeleportCommands {
                         throw new PlayerOfflineException(ins.getName());
                     } else if (cp.getWorld() != players.getWorld() && !player.hasPermission(Rank.GM)) {
                         player.sendAttention("プレーヤー " + ChatColor.YELLOW + ins.getName() + ChatColor.RED + " は他のワールド(" + cp.getWorld().getName() + ")にいます。");
+                    } else if (cp.isFlying()) {
+                        player.sendAttention("プレーヤー " + ChatColor.YELLOW + ins.getName() + ChatColor.RED + " は現在テレポートできない状態です。");
+                        if (player.hasPermission(Rank.Admin)) {
+                            player.sendAttention(ChatColor.YELLOW + " Admin権限でCreativeモードに変更したうえでテレポートします");
+                            player.getPlayer().setGameMode(GameMode.CREATIVE);
+                            player.teleport(cp.getLocation());
+                            player.setTp();
+                        }
                     } else if (ins.getTpPublic() == 0) {
                         String ms = ChatColor.RED + "プレーヤー " + ChatColor.YELLOW + ins.getName() + ChatColor.RED + " はテレポートをパブリックにしていません";
                         if (player.hasPermission(Rank.Moderator)) {
