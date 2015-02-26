@@ -410,6 +410,9 @@ public class MituyaProjectPlayerListener implements Listener {
         plugin.jingleNoteManager.stop(player);
         //Notificationメッセージ
         //plugin.broadcastNotificationMessage(event.getPlayer().getName(), "has quit the game.", Parameter328.Icon_Quit);
+        if (plugin.getServer().getOnlinePlayers().size() == 0) {
+            System.gc();//0人になったら好機とみてFullGCを走らせてみる
+        }
     }
 
     /**
