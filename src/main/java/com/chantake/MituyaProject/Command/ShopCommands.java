@@ -17,15 +17,18 @@
  */
 package com.chantake.MituyaProject.Command;
 
+import com.chantake.MituyaProject.Exception.PlayerOfflineException;
 import com.chantake.MituyaProject.MituyaProject;
 import com.chantake.MituyaProject.Player.PlayerInstance;
-import com.chantake.mituyaapi.commands.Command;
-import com.chantake.mituyaapi.commands.CommandContext;
-import com.chantake.mituyaapi.commands.NestedCommand;
+import com.chantake.mituyaapi.commands.*;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.SkullMeta;
+
+import java.util.Objects;
 
 /**
- *
  * @author chantake
  */
 public class ShopCommands {
@@ -33,6 +36,88 @@ public class ShopCommands {
     @Command(aliases = {"shop", "sp", "しょｐ", "ショップ"}, desc = "shop commands", help = "コマンドショップコマンド")
     @NestedCommand({CommandShopCommands.class})
     public static void shop(CommandContext message, final MituyaProject plugin, final Player players, final PlayerInstance player) {
+    }
+
+    @Command(aliases = {"buyhead"},
+            usage = "", desc = "",
+            flags = "", min = 1, max = 2)
+    //@CommandPermissions({"mituya.server.buyhead"})
+    @CommandPermissions({"mituya.shop.buyhead"})
+    public static void buyhead(CommandContext message, MituyaProject plugin, Player players, PlayerInstance player) throws CommandException, PlayerOfflineException {
+        ItemStack is = new ItemStack(Material.SKULL_ITEM);
+        is.setDurability((short) 3);
+        SkullMeta itemMeta = (SkullMeta) is.getItemMeta();
+        itemMeta.setOwner(message.getString(0));
+        is.setItemMeta(itemMeta);//no need?
+        switch (message.getString(0)) {
+            case "chantake":
+            case "fumitti":
+                if (player.checkMine(-1000) && player.gainItem(is)) {
+                    player.gainMine(-1000);
+                    player.sendSuccess(message.getString(0) + "の頭を購入しました。");
+                }
+                break;
+            case "MHF_Alex":
+            case "MHF_Blaze":
+            case "MHF_CaveSpider":
+            case "MHF_Chicken":
+            case "MHF_Cow":
+            case "MHF_Creeper":
+            case "MHF_Enderman":
+            case "MHF_Ghast":
+            case "MHF_Golem":
+            case "MHF_Herobrine":
+            case "MHF_LavaSlime":
+            case "MHF_MushroomCow":
+            case "MHF_Ocelot":
+            case "MHF_Pig":
+            case "MHF_PigZombie":
+            case "MHF_Sheep":
+            case "MHF_Skeleton":
+            case "MHF_Slime":
+            case "MHF_Spider":
+            case "MHF_Squid":
+            case "MHF_Steve":
+            case "MHF_Villager":
+            case "MHF_WSkeleton":
+            case "MHF_Zombie":
+            case "MHF_Cactus":
+            case "MHF_Cake":
+            case "MHF_Chest":
+            case "MHF_CoconutB":
+            case "MHF_CoconutG":
+            case "MHF_Melon":
+            case "MHF_OakLog":
+            case "MHF_Present1":
+            case "MHF_Present2":
+            case "MHF_Pumpkin":
+            case "MHF_TNT":
+            case "MHF_TNT2":
+            case "MHF_ArrowUp":
+            case "MHF_ArrowDown":
+            case "MHF_ArrowLeft":
+            case "MHF_ArrowRight":
+            case "MHF_Exclamation":
+            case "MHF_Question":
+                if (player.checkMine(-3000) && player.gainItem(is)) {
+                    player.gainMine(-3000);
+                    player.sendSuccess(message.getString(0) + "の頭を購入しました。");
+                }
+                break;
+            default:
+                if (Objects.equals(player.getPlayer().getName(), message.getString(0))) {
+                    if (player.checkMine(-5000) && player.gainItem(is)) {
+                        player.gainMine(-5000);
+                        player.sendSuccess("自分の頭を購入しました。");
+                    }
+                } else {
+                    if (player.checkMine(-50000) && player.gainItem(is)) {
+                        player.gainMine(-50000);
+                        player.sendSuccess(message.getString(0) + "様の頭を購入しました。");
+                    }
+                }
+                break;
+        }
     }
 
     /*
