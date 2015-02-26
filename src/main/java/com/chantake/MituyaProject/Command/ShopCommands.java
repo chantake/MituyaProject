@@ -52,10 +52,19 @@ public class ShopCommands {
         switch (message.getString(0)) {
             case "chantake":
             case "fumitti":
-                if (player.checkMine(-1000) && player.gainItem(is)) {
-                    player.gainMine(-1000);
-                    player.sendSuccess(message.getString(0) + "の頭を購入しました。");
-                }
+                player.sendYesNo(message.getString(0) + "の頭を 1000 Mineで購入します。よろしいですか？", new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            if (player.checkMine(-1000) && player.gainItem(is)) {
+                                player.gainMine(-1000);
+                                player.sendSuccess(message.getString(0) + "の頭を購入しました。");
+                            }
+                        } catch (PlayerOfflineException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
                 break;
             case "MHF_Alex":
             case "MHF_Blaze":
@@ -99,23 +108,42 @@ public class ShopCommands {
             case "MHF_ArrowRight":
             case "MHF_Exclamation":
             case "MHF_Question":
-                if (player.checkMine(-3000) && player.gainItem(is)) {
-                    player.gainMine(-3000);
-                    player.sendSuccess(message.getString(0) + "の頭を購入しました。");
-                }
+                player.sendYesNo(message.getString(0) + "の頭を 3000 Mineで購入します。よろしいですか？", () -> {
+                    try {
+                        if (player.checkMine(-3000) && player.gainItem(is)) {
+                            player.gainMine(-3000);
+                            player.sendSuccess(message.getString(0) + "の頭を購入しました。");
+                        }
+                    } catch (PlayerOfflineException e) {
+                        e.printStackTrace();
+                    }
+                });
                 break;
             default:
                 if (Objects.equals(player.getPlayer().getName(), message.getString(0))) {
-                    if (player.checkMine(-5000) && player.gainItem(is)) {
-                        player.gainMine(-5000);
-                        player.sendSuccess("自分の頭を購入しました。");
-                    }
+                    player.sendYesNo("自分の頭を 5000 Mineで購入します。よろしいですか？", () -> {
+                        try {
+                            if (player.checkMine(-5000) && player.gainItem(is)) {
+                                player.gainMine(-5000);
+                                player.sendSuccess("自分の頭を購入しました。");
+                            }
+                        } catch (PlayerOfflineException e) {
+                            e.printStackTrace();
+                        }
+                    });
                 } else {
-                    if (player.checkMine(-50000) && player.gainItem(is)) {
-                        player.gainMine(-50000);
-                        player.sendSuccess(message.getString(0) + "様の頭を購入しました。");
-                    }
+                    player.sendYesNo(message.getString(0) + "様の頭を 50000 Mineで購入します。よろしいですか？", () -> {
+                        try {
+                            if (player.checkMine(-50000) && player.gainItem(is)) {
+                                player.gainMine(-50000);
+                                player.sendSuccess(message.getString(0) + "様の頭を購入しました。");
+                            }
+                        } catch (PlayerOfflineException e) {
+                            e.printStackTrace();
+                        }
+                    });
                 }
+
                 break;
         }
     }
