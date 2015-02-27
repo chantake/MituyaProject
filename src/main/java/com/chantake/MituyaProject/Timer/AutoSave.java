@@ -20,7 +20,6 @@ package com.chantake.MituyaProject.Timer;
 import com.chantake.MituyaProject.MituyaProject;
 import com.chantake.MituyaProject.Util.MySqlProcessing;
 import org.bukkit.ChatColor;
-import org.bukkit.entity.Player;
 
 /**
  * オートセーブ
@@ -49,16 +48,14 @@ public class AutoSave implements Runnable {
         /*
          * オートヒール
          */
-        for (final Player pr : plugin.getServer().getOnlinePlayers()) {
-            //死んでる人以外
-            if (pr.getHealth() > 0) {
-                if (pr.getHealth() > pr.getMaxHealth() - 2) {
-                    pr.setHealth(pr.getMaxHealth());
-                } else {
-                    pr.setHealth(pr.getHealth() + 2);
-                }
+        //死んでる人以外
+        plugin.getServer().getOnlinePlayers().stream().filter(pr -> pr.getHealth() > 0).forEach(pr -> {
+            if (pr.getHealth() > pr.getMaxHealth() - 2) {
+                pr.setHealth(pr.getMaxHealth());
+            } else {
+                pr.setHealth(pr.getHealth() + 2);
             }
-        }
+        });
         plugin.broadcastMessage(ChatColor.LIGHT_PURPLE + "[Server] **オートセーブ完了**");
         plugin.Log("AutoSaveComplete.");
     }
