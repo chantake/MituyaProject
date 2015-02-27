@@ -167,8 +167,7 @@ public class Util {
      * @param rest
      * @return
      */
-    @SafeVarargs
-    public static <T> T[] concat(T[] first, T[]
+    public static <T> T[] concat(T[] first, T[]  
         ... rest) {
 
         //Read rest

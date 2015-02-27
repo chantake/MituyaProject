@@ -30,6 +30,7 @@ import org.bukkit.WorldType;
 import org.bukkit.generator.ChunkGenerator;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -202,8 +203,10 @@ public class WorldManager {
      */
     public void saveWorlds() {
         //iteratorを生成
+        Iterator<World> iterator = this.getWorlds().iterator();
         //ループ
-        for (World wd : this.getWorlds()) {
+        while (iterator.hasNext()) {
+            World wd = iterator.next();
             //セーブ
             wd.save();
         }
