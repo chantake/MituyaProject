@@ -143,7 +143,8 @@ public class MituyaProjectBlockListener implements Listener {
         /*
          * if (line.indexOf("deposit items") != -1) { e.setLine(0,
          * "This command cannot be used. "); } else
-         */ if (line.equalsIgnoreCase(Parameter328.Sign_Command) || line.equalsIgnoreCase(Parameter328.Sign_Command_Japanese)) {
+         */
+        if (line.equalsIgnoreCase(Parameter328.Sign_Command) || line.equalsIgnoreCase(Parameter328.Sign_Command_Japanese)) {
             plugin.getInstanceManager().getInstance(e.getPlayer()).sendSuccess("サインコマンドを作成しました");
         } else {
             for (int i = 0; i < 4; i++) {

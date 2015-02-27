@@ -20,8 +20,6 @@ package com.chantake.MituyaProject.Tool;
 import java.util.Objects;
 import java.util.TreeMap;
 
-import static java.util.regex.Pattern.quote;
-
 /**
  *
  * @author chantake
@@ -33,10 +31,10 @@ public class RomaToJapanese {
 
     public RomaToJapanese() {
         //etc
-        put(quote("?"), "？");
+        //put("\\?", "？");
         put("!", "！");
-        put(",", "、");
-        put(quote("."), "。");
+        //put(",", "、");
+        //("\\\\.", "。");
         put("-", "ー");
         put("~", "～");
         //あ行

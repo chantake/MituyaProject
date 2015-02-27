@@ -176,7 +176,7 @@ public class MobSpawnerCommands {
      * @see Sign
      */
     private static Block getTarget(Player player) {
-        return player.getTargetBlock((Set) null, 5);
+        return player.getTargetBlock((Set<Material>) null, 5);
     }
 
     /**
