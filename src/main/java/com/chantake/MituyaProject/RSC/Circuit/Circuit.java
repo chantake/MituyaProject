@@ -1,25 +1,18 @@
 package com.chantake.MituyaProject.RSC.Circuit;
 
-import com.chantake.MituyaProject.RSC.BitSet.BitSet7;
-import com.chantake.MituyaProject.RSC.BitSet.BitSetUtils;
-import com.chantake.MituyaProject.RSC.Circuit.IO.InputPin;
-import com.chantake.MituyaProject.RSC.Circuit.IO.InterfaceBlock;
-import com.chantake.MituyaProject.RSC.Circuit.IO.OutputPin;
+import com.chantake.MituyaProject.RSC.Chip.Chip;
+import com.chantake.MituyaProject.RSC.Chip.IO.IOWriter;
+import com.chantake.MituyaProject.RSC.RCPrefs;
 import com.chantake.MituyaProject.RSC.RedstoneChips;
-import com.chantake.MituyaProject.RSC.Wireless.Wireless;
-import com.chantake.MituyaProject.Tool.ChunkLocation;
-import java.util.ArrayList;
+import com.chantake.MituyaProject.RSC.Util.BooleanArrays;
+import com.chantake.MituyaProject.RSC.Util.BooleanSubset;
+import org.bukkit.command.CommandSender;
+
+import java.util.BitSet;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.World;
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockState;
-import org.bukkit.block.Sign;
-import org.bukkit.command.CommandSender;
+
 
 /**
  * Represents a RedstoneChips circuit.
@@ -27,193 +20,85 @@ import org.bukkit.command.CommandSender;
  * @author Tal Eisenberg
  */
 public abstract class Circuit {
-
+    private final Map<String, Object> metadata = new HashMap<>();
+    /**
+     * The chip containing this circuit.
+     */
+    public Chip chip;
+    /**
+     * The object responsible for writing output states. Usually the chip.
+     */
+    public IOWriter outWriter;
     /**
      * Reference to the core plugin instance.
      */
-    protected RedstoneChips redstoneChips;
+    public RedstoneChips rc;
     /**
-     * Circuit sign arguments. Any word found on the circuit sign from line 2 onward.
+     * Stores the current state of each input pin. Should only be used for monitoring.
      */
-    public String[] args;
+    public boolean[] inputs;
     /**
-     * Ordered list of input pins.
+     * Stores the current state of each output pin. Should only be used for monitoring.
      */
-    public InputPin[] inputs;
+    public boolean[] outputs;
     /**
-     * Ordered list of output pins.
+     * Number of input pins.
      */
-    public OutputPin[] outputs;
+    public int inputlen;
     /**
-     * Contains the location of any block that is part of this circuit. When any block in this array is broken the circuit is destroyed. This includes the sign
-     * block, chip blocks, input blocks, output blocks and output lever blocks.
+     * Number of output pins.
      */
-    public Location[] structure;
+    public int outputlen;
     /**
-     * Ordered list of interface blocks. Used for interaction points with the "physical" world.
+     * The recipient of info() and error() messages. This is null for most of the circuit life-cycle. Usually only set when running the init method.
      */
-    public InterfaceBlock[] interfaceBlocks;
-    /**
-     * The location of the sign block that was used to activate the circuit.
-     */
-    public Location activationBlock;
-    /**
-     * Reference to the minecraft World this circuit was built in.
-     */
-    public World world;
-    /**
-     * List of circuit listeners that receive events from this circuit.
-     */
-    private List<CircuitListener> listeners;
-    /**
-     * The current state of each input bit. Should be used only for monitoring. Do not change its value.
-     */
-    protected BitSet7 inputBits;
-    /**
-     * The current state of each output bit. Should be used only for monitoring. Do not change its value.
-     */
-    protected BitSet7 outputBits;
-    /**
-     * When set to true any input changes will be ignored.
-     */
-    public boolean disabled = false;
-    /**
-     * The circuit id. Set by CircuitManager.
-     */
-    public int id = -1;
-    /**
-     * An optional circuit instance name.
-     */
-    public String name = null;
-    /**
-     * Set to the chunk coordinates of the circuit's activation block
-     */
-    public ChunkLocation[] circuitChunks;
+    public CommandSender activator = null;
 
     /**
-     * Initializes the circuit. Updates input pin values according to source blocks. Refreshes the output pins according to input states if the circuit is
-     * stateless.
+     * Initalizes the circuit by calling the init() method, possibly recursively
+     * in case init() returns a different circuit.
      *
-     * @param sender The sender that activated the circuit. Used for sending error or status messages after activation.
-     * @param rc
-     * @return result of call to abstract Circuit.init() method.
+     * @param circuit   The circuit to initialize.
+     * @param activator Circuit activator.
+     * @param args      Sign arguments to activate with.
+     * @return The final circuit object.
      */
-    public final boolean initCircuit(CommandSender sender, RedstoneChips rc) {
-        this.redstoneChips = rc;
+    public static Circuit initalizeCircuit(Circuit circuit, CommandSender activator, String[] args) {
+        if (circuit == null) return null;
 
-        listeners = new ArrayList<>();
-        inputBits = new BitSet7(inputs.length);
-        if (outputBits == null) {
-            outputBits = new BitSet7(outputs.length);
-        }
+        circuit.activator = activator;
+        Circuit initalizedCircuit = circuit.init(args);
+        circuit.activator = null;
 
-        updateInputBits();
-
-        // circuit class speicifc initialization.
-        boolean result = init(sender, args);
-
-        if (disabled) {
-            disable();
-        } else if (result != false && isStateless()) {
-            runInputLogic();
-        }
-
-        return result;
-    }
-
-    /**
-     * Called by the plugin whenever an input pin changes state. If the new state is different from the previous state stored in inputBits the inputBits value
-     * is updated and the inputChange(idx, newVal) method is called.
-     *
-     * @param idx The changed input pin index.
-     * @param newVal true if the current is greater than 0.
-     */
-    public void stateChange(int idx, boolean newVal) {
-        if (disabled) {
-            return;
-        }
-
-        if (inputBits.get(idx) == newVal) {
-            return;
-        }
-
-        inputBits.set(idx, newVal);
-
-        for (CircuitListener l : listeners) {
-            l.inputChanged(this, idx, newVal);
-        }
-
-        inputChange(idx, newVal);
-    }
-
-    /**
-     * Resets outputs, calls circuitShutdown() and circuitDestroyed().
-     *
-     * @param destroyer
-     */
-    public void destroyCircuit(CommandSender destroyer) {
-        shutdownCircuit();
-
-        for (OutputPin o : outputs) {
-            o.setState(false);
-        }
-
-        circuitDestroyed();
-
-        for (CircuitListener l : listeners) {
-            l.circuitDestroyed(this, destroyer);
-        }
-
-    }
-
-    /**
-     * Shuts down the circuit and any Wireless classes associated with it and informs all CircuitListeners. Additional shut down code can be inserted by
-     * overriding Circuit.circuitShutdown().
-     */
-    public void shutdownCircuit() {
-        circuitShutdown();
-
-        for (CircuitListener l : listeners) {
-            l.circuitShutdown(this);
-        }
-
-        List<Wireless> wireless = redstoneChips.getChannelManager().getCircuitWireless(this);
-        for (Wireless w : wireless) {
-            w.shutdown();
-        }
+        if (circuit != initalizedCircuit) return Circuit.initalizeCircuit(initalizedCircuit, activator, args);
+        else return circuit;
     }
 
     /**
      * Called when an input pin state is changed.
      *
-     * @param inIdx index of changed input pin.
      * @param state The new state of the input pin.
+     * @param inIdx index of changed input pin.
      */
-    public abstract void inputChange(int inIdx, boolean state);
+    public abstract void input(boolean state, int inIdx);
 
     /**
      * Called after the chip is activated by a user or after the chip is loaded from file.
      *
-     * @param sender The command sender that activated the chip, or null if called on startup.
      * @param args Any words on the sign after the circuit type.
-     * @return true if the init was successful, false if an error occurred.
+     * @return The circuit if the init was successful, null if an error occurred.
      */
-    protected abstract boolean init(CommandSender sender, String[] args);
+    public abstract Circuit init(String[] args);
 
     /**
-     * Called when the plugin needs to save the circuits state to disk or when using /rcinfo. The circuit should return a map containing any data needed to
-     * bring the circuit back to its current state after a server restart.
+     * Called when the plugin needs to save the circuit state to disk or when using /rcinfo.
+     * The circuit should return a map containing any data needed to bring the circuit back to its current state
+     * after a server restart.
      *
      * @return Map containing state data.
      */
     public Map<String, String> getInternalState() {
         return new HashMap<>();
-    }
-
-    /**
-     * Called whenever the plugin is requested to save its data.
-     */
-    public void save() {
     }
 
     /**
@@ -225,7 +110,14 @@ public abstract class Circuit {
     }
 
     /**
-     * Called before the plugin resets the circuit. The circuit should return a map containing any data that may not be available on a reset condition.
+     * Called whenever the plugin is requested to save its data.
+     */
+    public void save() {
+    }
+
+    /**
+     * Called before the plugin resets the circuit.
+     * The circuit should return a map containing any data that may not be available on a reset condition.
      *
      * @return Map containing reset data.
      */
@@ -236,450 +128,272 @@ public abstract class Circuit {
     /**
      * Called after the plugin resets the circuit.
      *
-     * @param data
+     * @param data Map containing reset data to be restored. The map should hold the same data that was returned by getResetData()
      */
     public void setResetData(Map<String, Object> data) {
     }
 
     /**
-     * Called when the circuit is physically destroyed. Put here any necessary cleanups.
+     * Called when the circuit is physically destroyed.
+     * Put here any necessary cleanups.
      */
-    public void circuitDestroyed() {
+    public void destroyed() {
     }
 
     /**
-     * Called when the circuit is shutdown. Typically when the server shutsdown or the plugin is disabled and before a circuit is destroyed.
+     * Called when the circuit is shutdown. Typically when the server shuts down or the plugin is disabled and before a circuit is
+     * destroyed.
      */
-    protected void circuitShutdown() {
+    public void shutdown() {
     }
 
     /**
-     * Sets the physical state of one of the outputs.
+     * Called when the chip is disabled.
+     */
+    public void disable() {
+    }
+
+    /**
+     * Called when the chip is enabled.
+     */
+    public void enable() {
+    }
+
+    /**
+     * Returns true. A stateless circuit is a circuit that will always output the same values
+     * given a set of input values.
+     * A logical gate is an example of a stateless circuit while a counter is not stateless.
      *
-     * @param outIdx Output index. First output is 0.
+     * @return True if the circuit is stateless.
+     */
+    public boolean isStateless() {
+        return true;
+    }
+
+    /**
+     * {@link #constructWith(com.chantake.MituyaProject.RSC.Chip.Chip, com.chantake.MituyaProject.RSC.Chip.IO.IOWriter, int, int) constructWith}
+     * using inputlen and outputlen and IOWriter reflecting the chip IO configuration.
+     */
+    public Circuit constructWith(Chip chip) {
+        return constructWith(chip, chip, chip.inputPins.length, chip.outputPins.length);
+    }
+
+    /**
+     * Configure the circuit IO.
+     *
+     * @param chip      Containing chip.
+     * @param writer    Object responsible for writing circuit output states.
+     * @param inputlen  Number of circuit inputs.
+     * @param outputlen Number of circuit outputs.
+     * @return The circuit.
+     */
+    public Circuit constructWith(Chip chip, IOWriter writer, int inputlen, int outputlen) {
+        this.chip = chip;
+        this.outWriter = writer;
+
+        rc = RedstoneChips.inst();
+
+        this.inputlen = inputlen;
+        this.outputlen = outputlen;
+
+        inputs = new boolean[inputlen];
+        outputs = new boolean[outputlen];
+
+        return this;
+    }
+
+    /**
+     * Sets the state of one of the outputs. Updates outputs[] and uses outWriter
+     * To output the new state.
+     *
+     * @param index Output index. First output is 0.
      * @param state The new state of the output.
      */
-    protected void sendOutput(int outIdx, boolean state) {
-        outputBits.set(outIdx, state);
-
-        for (CircuitListener l : listeners) {
-            l.outputChanged(this, outIdx, state);
-        }
-        outputs[outIdx].setState(state);
+    public void write(boolean state, int index) {
+        outputs[index] = state;
+        outWriter.writeOut(this, state, index);
     }
 
     /**
-     * Send an integer through a set of outputs. First converts to BitSet by calling intToBitSet(), then calls sendBitSet().
+     * Write a long integer over a set of outputs.
+     * First converts to boolean[] by calling BooleanArrays.fromInt, then calls writeBits().
      *
-     * @param startOutIdx output index of first output (LSB).
-     * @param length number of bits/outputs to write to.
-     * @param value The integer value to send out.
+     * @param firstOutput output index of first output (LSB).
+     * @param length      number of outputs to write to.
+     * @param value       The integer value to send out.
      */
-    protected void sendInt(int startOutIdx, int length, int value) {
-        BitSet7 bits = BitSetUtils.intToBitSet(value, length);
-        sendBitSet(startOutIdx, length, bits);
+    public void writeInt(long value, int firstOutput, int length) {
+        boolean[] bits = BooleanArrays.fromInt(value, length);
+        writeBits(bits, firstOutput, length);
     }
 
     /**
-     * Sends a BitSet object to the circuit outputs.
+     * Write a bunch of bits over a set of outputs.
      *
-     * @param startOutIdx First output pin that will be set.
-     * @param length Number of bits to set.
-     * @param bits The BitSet object to send out. Any excessive bits in the BitSet are ignored.
+     * @param bits        The bits array to write.
+     * @param firstOutput Start writing from this output index.
+     * @param length      Number of outputs to write to.
      */
-    protected void sendBitSet(int startOutIdx, int length, BitSet7 bits) {
+    public void writeBits(boolean[] bits, int firstOutput, int length) {
+        for (int i = 0; i < length; i++)
+            write(bits[i], firstOutput + i);
+    }
+
+    /**
+     * Write a bunch of bits over a set of outputs. Writes from firstOutput
+     * to the end of the array.
+     *
+     * @param bits        The bits array to write.
+     * @param firstOutput Start writing from this output index.
+     */
+    public void writeBits(boolean[] bits, int firstOutput) {
+        writeBits(bits, firstOutput, bits.length);
+    }
+
+    /**
+     * Write a bunch of bits over a set of outputs. Starting from the 1st
+     * output until the end of the array.
+     *
+     * @param bits The bits array to write.
+     */
+    public void writeBits(boolean[] bits) {
+        writeBits(bits, 0, bits.length);
+    }
+
+    /**
+     * Write a {@link com.chantake.MituyaProject.RSC.Util.BooleanSubset} over a set of outputs.
+     *
+     * @param bits        The BooleanSubset to write.
+     * @param firstOutput Start writing from this output index.
+     * @param length      Number of outputs to write to.
+     */
+    public void writeBooleanSubset(BooleanSubset bits, int firstOutput, int length) {
+        for (int i = 0; i < length; i++)
+            write(bits.get(i), firstOutput + i);
+    }
+
+    /**
+     * Write a {@link com.chantake.MituyaProject.RSC.Util.BooleanSubset} over a set of outputs.
+     * Writes from firstOutput to the end of the array.
+     *
+     * @param bits        The BooleanSubset to write.
+     * @param firstOutput Start writing from this output index.
+     */
+    public void writeBooleanSubset(BooleanSubset bits, int firstOutput) {
+        writeBooleanSubset(bits, firstOutput, bits.length());
+    }
+
+    /**
+     * Write a {@link java.util.BitSet} over a set of outputs.
+     *
+     * @param bits        The BitSet object to write.
+     * @param firstOutput Start writing from this output index.
+     * @param length      Number of outputs to write to.
+     */
+    public void writeBitSet(BitSet bits, int firstOutput, int length) {
         for (int i = 0; i < length; i++) {
             boolean b = bits.get(i);
-            sendOutput(startOutIdx + i, b);
+            write(b, firstOutput + i);
         }
     }
 
     /**
-     * Sends a BitSet object to the circuit outputs. Sends a bit to each circuit output, starting from output 0.
+     * Write a {@link java.util.BitSet} over a set of outputs. All circuit outputs
+     * are updated starting from the first.
      *
-     * @param bits BitSet object to send out.
+     * @param bits The BitSet object to write.
      */
-    protected void sendBitSet(BitSet7 bits) {
-        sendBitSet(0, outputs.length, bits);
+    public void writeBitSet(BitSet bits) {
+        writeBitSet(bits, 0, outputlen);
     }
 
     /**
-     * Useful method for posting error messages. Sends an error message to the requested command sender using the error chat color as set in the preferences
-     * file. If sender is null the message is sent to the console logger as a warning.
+     * Convenience method for posting error messages. Sends an error message to the chip activator using the error chat color as
+     * set in the preferences file. If activator is currently null the message is sent to the console logger as a warning.
      *
-     * @param sender The command sender to send the message to.
+     * @param message The error message.
+     * @return Always null.
+     */
+    public Circuit error(String message) {
+        errorForSender(activator, message);
+        return null;
+    }
+
+    /**
+     * Convenience method for posting error messages. Sends an error message to sender using the error chat color as
+     * set in the preferences file. If sender is null the message is sent to the console logger as a warning.
+     *
+     * @param sender  Error message recipient.
      * @param message The error message.
      */
-    public void error(CommandSender sender, String message) {
-        if (sender != null) {
-            sender.sendMessage(redstoneChips.getPrefs().getErrorColor() + message);
-        } else {
-            redstoneChips.log(Level.WARNING, this.getClass().getSimpleName() + "> " + message);
-        }
+    public void errorForSender(CommandSender sender, String message) {
+        if (sender != null) sender.sendMessage(RCPrefs.getErrorColor() + message);
+        else rc.log(Level.WARNING, chip + "> " + message);
     }
 
     /**
-     * Useful method for posting info messages. Sends an info message to the requested command sender using the info chat color as set in the preferences file.
-     * If sender is null the message is simply ignored.
+     * Convenience method for posting info messages. Sends an info message to the current command sender using the info chat color as
+     * set in the preferences file.
      *
-     * @param sender The CommandSender to send the message to.
      * @param message The error message.
      */
-    public void info(CommandSender sender, String message) {
-        if (sender != null) {
-            sender.sendMessage(redstoneChips.getPrefs().getInfoColor() + message);
-        }
+    public void info(String message) {
+        infoForSender(activator, message);
     }
 
     /**
-     * Sends a debug message to all debugging players of this circuit, using the debug chat color preferences key. Please check that hasDebuggers() returns true
-     * before processing any debug messages.
+     * Convenience method for posting info messages. Sends an info message to sender using the info chat color as
+     * set in the preferences file.
+     *
+     * @param sender  Info message recipient.
+     * @param message The error message.
+     */
+    public void infoForSender(CommandSender sender, String message) {
+        if (sender != null) sender.sendMessage(RCPrefs.getInfoColor() + message);
+    }
+
+    // -- metadata --
+
+    /**
+     * Sends a debug message to all listeners of the chip, using the debug chat color preferences key.
+     * If the circuit has an activator it will receive this message as well.
+     * Please check that hasListeners() returns true before processing any debug messages.
      *
      * @param message The error message.
      */
     public void debug(String message) {
-        for (CircuitListener l : listeners) {
-            l.circuitMessage(this, message);
-        }
-    }
+        if (activator != null) info(message);
 
-    /**
-     * Adds a circuit listener.
-     *
-     * @param l The listener.
-     */
-    public void addListener(CircuitListener l) {
-        if (!listeners.contains(l)) {
-            listeners.add(l);
-        }
-    }
-
-    /**
-     * Removes a circuit listener.
-     *
-     * @param l The listener.
-     * @return true if the listener was found.
-     */
-    public boolean removeListener(CircuitListener l) {
-        return listeners.remove(l);
-    }
-
-    /**
-     *
-     * @return The circuit listeners list.
-     */
-    public List<CircuitListener> getListeners() {
-        return listeners;
-    }
-
-    /**
-     * Checks if the circuit has any listeners. This method should be used before processing any debug messages to avoid wasting cpu when no one is listening.
-     *
-     * @return True if the circuit has any listeners.
-     */
-    public boolean hasListeners() {
-        return !listeners.isEmpty();
-    }
-
-    @Deprecated
-    public boolean hasDebuggers() {
-        return hasListeners();
-    }
-
-    /**
-     *
-     * @return a clone of the outputBits field.
-     * @throws java.lang.CloneNotSupportedException
-     */
-    public BitSet7 getOutputBits() throws CloneNotSupportedException {
-        return (BitSet7)outputBits.clone();
-    }
-
-    /**
-     *
-     * @return a clone of the inputBits field.
-     * @throws java.lang.CloneNotSupportedException
-     */
-    public BitSet7 getInputBits() throws CloneNotSupportedException {
-        return (BitSet7)inputBits.clone();
-    }
-
-    /**
-     *
-     * @return The name of this circuit class, as it should be typed on the chip sign.
-     */
-    public String getCircuitClass() {
-        return this.getClass().getSimpleName();
-    }
-
-    /**
-     *
-     * @return The name of the circuit class and chip id and name.
-     */
-    public String getChipString() {
-        return getCircuitClass() + " (" + (name != null ? name + "/" : "") + id + ")";
-    }
-
-    /**
-     *
-     * @param outputIdx The required output pin number.
-     * @return The output block (gold block by default) of the specific output index.
-     */
-    protected Block getOutputBlock(int outputIdx) {
-        Location l = outputs[outputIdx].getLocation();
-        return world.getBlockAt(l);
-    }
-
-    /**
-     * @param inputIdx The required input pin number.
-     * @return The input block (iron block by default) of the specific input index.
-     */
-    protected Block getInputBlock(int inputIdx) {
-        Location l = inputs[inputIdx].getLocation();
-        return world.getBlockAt(l);
-    }
-
-    /**
-     * Called when any of the circuit's chunks has loaded. Causes the circuit to update the state of its output levers according to the current values in
-     * outputBits.
-     */
-    public void circuitChunkLoaded() {
-        for (InputPin i : inputs) {
-            i.refreshSourceBlocks();
-        }
-
-        for (int i = 0; i < outputs.length; i++) {
-            outputs[i].setState(outputBits.get(i));
-        }
-    }
-
-    /**
-     * Update the inputBits BitSet according to the current input pin values.
-     */
-    public void updateInputBits() {
-        for (int i = 0; i < inputs.length; i++) {
-            inputs[i].refreshSourceBlocks();
-            inputBits.set(i, inputs[i].getPinValue());
-        }
-    }
-
-    /**
-     * Returns true. A stateless circuit is a circuit that will always output the same values for a set of input values. A logical gate is an example of a
-     * stateless circuit while a counter is not stateless.
-     *
-     * @return True if the circuit is stateless.
-     */
-    protected boolean isStateless() {
-        return true;
-    }
-
-    /**
-     * Disables or enables the chip according to the parameter.
-     *
-     * @param d true to disable or false to enable.
-     */
-    public void setDisabled(Boolean d) {
-        if (d) {
-            disable();
-        } else {
-            enable();
-        }
-    }
-
-    /**
-     * Forces the circuit to stop processing input changes.
-     */
-    public void disable() {
-        disabled = true;
-        updateCircuitSign(true);
-        for (CircuitListener l : listeners) {
-            l.circuitDisabled(this);
-        }
-    }
-
-    /**
-     * Enables the chip, allowing it to process input changes.
-     */
-    public void enable() {
-        disabled = false;
-        updateCircuitSign(true);
-        for (CircuitListener l : listeners) {
-            l.circuitDisabled(this);
-        }
-
-    }
-
-    /**
-     *
-     * @return true if the circuit's inputs are disabled.
-     */
-    public boolean isDisabled() {
-        return disabled;
-    }
-
-    /**
-     * Replaces the chip input, output and interface block materials to the currently set materials in the preferences.
-     *
-     * @return The number of blocks that were replaced.
-     */
-    public int fixIOBlocks() {
-        int blockCount = 0;
-
-        int inputType = redstoneChips.getPrefs().getInputBlockType().getItemTypeId();
-        byte inputData = redstoneChips.getPrefs().getInputBlockType().getData();
-
-        int outputType = redstoneChips.getPrefs().getOutputBlockType().getItemTypeId();
-        byte outputData = redstoneChips.getPrefs().getOutputBlockType().getData();
-
-        int interfaceType = redstoneChips.getPrefs().getInterfaceBlockType().getItemTypeId();
-        byte interfaceData = redstoneChips.getPrefs().getInterfaceBlockType().getData();
-
-        List<ChunkLocation> chunksToUnload = new ArrayList<>();
-        for (ChunkLocation chunk : circuitChunks) {
-            if (!chunk.isChunkLoaded()) {
-                chunksToUnload.add(chunk);
-                redstoneChips.getCircuitManager().workOnChunk(chunk);
-            }
-
-        }
-
-        for (InputPin i : inputs) {
-            Block input = i.getLocation().getBlock();
-
-            if (input.getTypeId() != inputType || input.getData() != inputData) {
-                input.setTypeIdAndData(inputType, inputData, false);
-                blockCount++;
-            }
-        }
-
-        for (OutputPin o : outputs) {
-            Block output = o.getLocation().getBlock();
-
-            if (output.getTypeId() != outputType || output.getData() != outputData) {
-                output.setTypeIdAndData(outputType, outputData, false);
-                blockCount++;
-            }
-        }
-
-        for (InterfaceBlock t : interfaceBlocks) {
-            Block tb = t.getLocation().getBlock();
-
-            if (tb.getTypeId() != interfaceType || tb.getData() != interfaceData) {
-                tb.setTypeIdAndData(interfaceType, interfaceData, false);
-                blockCount++;
-            }
-        }
-
-        for (ChunkLocation chunk : chunksToUnload) {
-            redstoneChips.getCircuitManager().releaseChunk(chunk);
-        }
-
-        return blockCount;
-    }
-
-    /**
-     * Updates the text and color of the 1st line of the circuit activation sign.
-     *
-     * @param activated When true the class name is colored in the selected signColor preference key. When false the color is removed.
-     */
-    public void updateCircuitSign(boolean activated) {
-        if (!ChunkLocation.fromLocation(activationBlock).isChunkLoaded()) {
-            return;
-        }
-
-        BlockState state = activationBlock.getBlock().getState();
-        if (!(state instanceof Sign)) {
-            return;
-        }
-
-        final Sign sign = (Sign)state;
-        String line;
-        if (activated) {
-            String signColor;
-            if (isDisabled()) {
-                signColor = "8";
-            } else {
-                signColor = redstoneChips.getPrefs().getSignColor();
-            }
-            line = (char)167 + signColor + this.getCircuitClass();
-        } else {
-            line = this.getCircuitClass();
-        }
-
-        try {
-            if (!line.equals(sign.getLine(0))) {
-                sign.setLine(0, line);
-
-                redstoneChips.getServer().getScheduler().scheduleSyncDelayedTask(redstoneChips.getPlugin(), new Runnable() {
-
-                    @Override
-                    public void run() {
-                        sign.update();
-                    }
-                });
-            }
-        }
-        catch (NullPointerException ne) {
-        }
-    }
-
-    private void runInputLogic() {
-        for (int i = 0; i < inputs.length; i++) {
-            this.inputChange(i, inputBits.get(i));
-        }
-    }
-
-    /**
-     * Checks whether all of the circuit's blocks are in place. Makes sure that each output lever block of lever material, checks that the activation sign is in
-     * place and that none of the circuit's structure blocks are air.
-     *
-     * @return True if the test passed.
-     */
-    public boolean checkIntegrity() {
-        if (world.getBlockTypeIdAt(activationBlock) != Material.WALL_SIGN.getId()) {
-            redstoneChips.log(Level.WARNING, "Circuit " + id + ": Sign is missing at " + activationBlock.getBlockX() + "," + activationBlock.getBlockY() + ", " + activationBlock.getBlockZ() + ".");
-            return false;
-        }
-
-        for (Location s : structure) {
-            if (!s.equals(activationBlock)) {
-                if (world.getBlockTypeIdAt(s) == Material.AIR.getId()) {
-                    redstoneChips.log(Level.WARNING, "Circuit " + id + ": Chip block is missing at " + s.getBlockX() + "," + s.getBlockY() + ", " + s.getBlockZ() + ".");
-                    return false;
-                }
-            }
-        }
-
-        return true;
+        if (chip != null) chip.notifyCircuitMessage(message);
     }
 
     /**
      * Turns off all outputs.
      */
-    public void resetOutputs() {
-        for (OutputPin o : outputs) {
-            o.setState(false);
-        }
+    protected void clearOutputs() {
+        for (int i = 0; i < outputlen; i++)
+            write(false, i);
     }
 
     /**
+     * Store a value in the metadata map.
      *
-     * @return an instance of the RedstoneChips plugin.
+     * @param key
+     * @param val
      */
-    public RedstoneChips getPlugin() {
-        return redstoneChips;
+    public void putMeta(String key, Object val) {
+        metadata.put(key, val);
     }
 
+    // -- static --
+
     /**
-     * Initializes the output buffer. Can only be used before calling initCircuit().
+     * Retreive a value from the metadata map.
      *
-     * @param bits
+     * @param key
+     * @return corresponding value or null if key was not found.
      */
-    public void setOutputBits(BitSet7 bits) {
-        if (outputBits == null) {
-            outputBits = bits;
-        } else {
-            throw new RuntimeException("Trying to set outputBits while it's already set.");
-        }
+    public Object getMeta(String key) {
+        return metadata.get(key);
     }
 }

@@ -1,13 +1,16 @@
 package com.chantake.MituyaProject.RSC.Memory;
 
-import com.chantake.MituyaProject.RSC.BitSet.BitSet7Constructor;
-import com.chantake.MituyaProject.RSC.BitSet.BitSet7Representer;
+import com.chantake.MituyaProject.RSC.Util.BitSetConstructor;
+import com.chantake.MituyaProject.RSC.Util.BitSetRepresenter;
+import org.yaml.snakeyaml.DumperOptions;
+import org.yaml.snakeyaml.Yaml;
+
 import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Pattern;
-import org.yaml.snakeyaml.DumperOptions;
-import org.yaml.snakeyaml.Yaml;
 
 /**
  * Represents an abstract memory that can be saved to file.
@@ -17,86 +20,78 @@ import org.yaml.snakeyaml.Yaml;
 public abstract class Memory {
 
     /**
-     * The folder to which memory files are saved.
-     */
-    public static File memoryFolder;
-
-    /**
      * Default name for the memory folder.
      */
     public static final String memoryFolderName = "memory";
-
-    /**
-     * Old memory folder name.
-     */
-    public static final String oldMemoryFolderName = "sram";
-
     /**
      * Regex pattern for a valid memory id
      */
     public static final Pattern MemIDPattern = Pattern.compile("^[a-zA-Z_][a-zA-Z0-9_]*$");
-
     /**
      * A map containing all loaded memories indexed by their id
      */
-    public static Map<String, Memory> memories = new HashMap<>();
-
+    public static final Map<String, Memory> memories = new HashMap<>();
+    /**
+     * The folder to which memory files are saved.
+     */
+    public static File memoryFolder;
     /**
      * Memory id string.
      */
     private String id;
-
     private int allocatorsCount;
 
     /**
-     * Initializes the memory and adds it to the memory list.
+     * Retrieves the Memory object for this id or creates and configures a new one if it's not used. If the
+     * memory file exists data is loaded from it.
      *
-     * @param id The memory id of this Memory.
+     * @param memId The memory id.
+     * @param type  Memory class (Ram.class for ex.). Ignored when the memory already exists.
+     * @return A Memory object
+     * @throws IOException
      */
-    public void init(String id) {
-        this.id = id;
-        memories.put(id, this);
+    public static Memory getMemory(String memId, Class<? extends Memory> type) throws IOException, IllegalArgumentException {
+        if (!isValidId(memId)) throw new IllegalArgumentException("Invalid memory id: " + memId);
+
+        if (!Memory.memories.containsKey(memId)) {
+            Memory memory;
+            try {
+                memory = type.newInstance();
+            } catch (InstantiationException | IllegalAccessException ex) {
+                return null;
+            }
+            memory.init(memId);
+
+            File file = Memory.getMemoryFile(memId);
+
+            if (file.exists()) {
+                memory.load(file);
+            } else {
+                file.createNewFile();
+            }
+
+            memory.alloc();
+            return memory;
+        } else {
+            Memory m = Memory.memories.get(memId);
+            m.alloc();
+            return m;
+        }
+
     }
 
     /**
-     * Returns the memory id string
+     * Creates a new memory using an unused id.
      *
-     * @return
+     * @param type Memory class (Ram.class for ex.).
+     * @return A Memory object
+     * @throws IOException
      */
-    public String getId() {
-        return id;
+    public static Memory getAnonymousMemory(Class<? extends Memory> type) throws IOException {
+        return Memory.getMemory("anon" + getFreeMemId(), type);
     }
 
     /**
-     * Saves the data in this memory. Any data returned by getData() is stored.
-     *
-     * @param file The file to save to.
-     * @throws IOException When an error occurs wile saving the file.
-     */
-    public void store(File file) throws IOException {
-        DumperOptions options = new DumperOptions();
-        options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
-        Yaml yaml = new Yaml(new BitSet7Representer(), options);
-        yaml.dump(getData(), new FileWriter(file));
-    }
-
-    /**
-     * Loads and update memory data from a file.
-     *
-     * @param file The file to read from.
-     * @throws FileNotFoundException When the file is not found.
-     */
-    public void load(File file) throws FileNotFoundException {
-        Yaml yaml = new Yaml(new BitSet7Constructor());
-        setData((Map)yaml.load(new FileInputStream(file)));
-    }
-
-    protected abstract Map getData();
-
-    protected abstract void setData(Map data);
-
-    /**
-     *
      * @param id Memory id to test.
      * @return true if the id string is valid according to MemIDPattern.
      */
@@ -131,57 +126,59 @@ public abstract class Memory {
      *
      * @param pluginFolder The plugin data folder.
      * @return true if the folder was created.
+     * @throws java.io.IOException
      */
-    public static boolean setupDataFolder(File pluginFolder) {
-        boolean res;
+    public static boolean setupDataFolder(File pluginFolder) throws IOException {
         memoryFolder = new File(pluginFolder, memoryFolderName);
         if (!memoryFolder.exists()) {
-            if (!memoryFolder.mkdirs()) {
-                throw new RuntimeException("Can't make folder " + memoryFolder.getAbsolutePath());
-            }
-            res = true;
-        } else {
-            res = false;
-        }
-
-        // move any sram files in rc data folder.
-/*        if (pluginFolder.listFiles()!=null) {
-         for (File f : pluginFolder.listFiles()) {
-         if (isMemoryFile(f))
-         f.renameTo(new File(memoryFolder, renameMem(f)));                
-         }
-         }*/
-        // move any sram files from old sram folder.
-        File oldFolder = new File(pluginFolder, oldMemoryFolderName);
-        if (oldFolder.listFiles() != null) {
-            for (File f : oldFolder.listFiles()) {
-                if (isMemoryFile(f)) {
-                    f.renameTo(new File(memoryFolder, renameMem(f)));
-                }
-            }
-        }
-
-        return res;
-
+            if (!memoryFolder.mkdirs())
+                throw new IOException("Can't make folder " + memoryFolder.getAbsolutePath());
+            return true;
+        } else return false;
     }
 
-    private static String renameMem(File f) {
-        String name = f.getName();
-        if (name.startsWith("sram-") && name.endsWith(".data")) {
-            String id = name.substring(5, name.length() - 5);
-            return id + ".mem";
-        } else {
-            return f.getName();
-        }
-
+    /**
+     * Returns the memory id string
+     *
+     * @return
+     */
+    public String getId() {
+        return id;
     }
 
-    private static boolean isMemoryFile(File f) {
-        if (!f.isFile()) {
-            return false;
-        }
-        return (f.getName().startsWith("sram-") && f.getName().endsWith(".data")) || f.getName().endsWith(".mem");
+    // -- Static Part --
 
+    /**
+     * Saves this memory to its memory file (according to its id).
+     *
+     * @throws IOException
+     */
+    public void store() throws IOException {
+        store(getMemoryFile(getId()));
+    }
+
+    /**
+     * Saves the data in this memory. Any data returned by getData() is stored.
+     *
+     * @param file The file to save to.
+     * @throws IOException When an error occurs wile saving the file.
+     */
+    public void store(File file) throws IOException {
+        DumperOptions options = new DumperOptions();
+        options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
+        Yaml yaml = new Yaml(new BitSetRepresenter(), options);
+        yaml.dump(getData(), new FileWriter(file));
+    }
+
+    /**
+     * Loads and update memory data from a file.
+     *
+     * @param file The file to read from.
+     * @throws FileNotFoundException When the file is not found.
+     */
+    public void load(File file) throws FileNotFoundException {
+        Yaml yaml = new Yaml(new BitSetConstructor());
+        setData((Map) yaml.load(new FileInputStream(file)));
     }
 
     /**
@@ -201,91 +198,42 @@ public abstract class Memory {
     }
 
     /**
-     * Saves this memory to its memory file (according to its id).
-     *
-     * @throws IOException
+     * Decreases the allocators count by 1 and release it once the count reaches 0.
+     * Once there are no more allocators, data is stored in the memory file and all data is cleared for garbage collection.
      */
-    public void save() throws IOException {
-        store(getMemoryFile(getId()));
-    }
-
-    /**
-     * Retrieves the Memory object for this id or creates and configures a new one if it's not used. If the memory file exists data is loaded from it.
-     *
-     * @param memId The memory id.
-     * @param type Memory class (Ram.class for ex.). Ignored when the memory already exists.
-     * @return A Memory object
-     * @throws IOException
-     */
-    public static Memory getMemory(String memId, Class<? extends Memory> type) throws IOException {
-        if (!isValidId(memId)) {
-            throw new IllegalArgumentException("Invalid memory id: " + memId);
-        }
-
-        if (!Memory.memories.containsKey(memId)) {
-            Memory memory;
+    public void release() {
+        if (allocatorsCount > 0) allocatorsCount--;
+        else {
+            allocatorsCount = 0;
             try {
-                memory = type.newInstance();
+                store();
+            } catch (IOException ex) {
+                Logger.getLogger(Memory.class.getName()).log(Level.SEVERE, null, "While storing memory: " + ex.getMessage());
             }
-            catch (InstantiationException | IllegalAccessException ex) {
-                return null;
-            }
-            memory.init(memId);
-
-            File file = Memory.getMemoryFile(memId);
-
-            if (file.exists()) {
-                memory.load(file);
-            } else {
-                file.createNewFile();
-            }
-
-            memory.alloc();
-            return memory;
-        } else {
-            Memory m = Memory.memories.get(memId);
-            m.alloc();
-            return m;
+            Map data = getData();
+            if (data != null) data.clear();
+            if (id != null) Memory.memories.remove(id);
         }
-
     }
 
     /**
-     * Creates a new memory using an unused id.
+     * Initializes the memory and adds it to the memory list.
      *
-     * @param type Memory class (Ram.class for ex.).
-     * @return A Memory object
-     * @throws IOException
+     * @param id The memory id of this Memory.
      */
-    public static Memory getMemory(Class<? extends Memory> type) throws IOException {
-        return Memory.getMemory(getFreeMemId(), type);
+    protected void init(String id) {
+        this.id = id;
+        memories.put(id, this);
     }
 
     /**
      * Increases the alloc count of this memory by 1.
      */
-    public void alloc() {
+    private void alloc() {
         allocatorsCount++;
     }
 
-    /**
-     * Decreases the alloc count of this memory by 1 and release it when the count reaches 0.
-     */
-    public void release() {
-        if (allocatorsCount > 0) {
-            allocatorsCount--;
-        } else {
-            allocatorsCount = 0;
-        }
+    protected abstract Map getData();
 
-        if (allocatorsCount == 0) {
-            Map data = getData();
-            if (data != null) {
-                data.clear();
-            }
-            if (id != null) {
-                Memory.memories.remove(id);
-            }
-        }
-    }
+    protected abstract void setData(Map data);
 }

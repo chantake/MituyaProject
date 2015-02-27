@@ -8,7 +8,6 @@ import com.chantake.MituyaProject.RSC.RedstoneChips;
  * @author Tal Eisenberg
  */
 public interface CircuitIndex {
-
     /**
      * Called by the RedstoneChips plugin. Every circuit class in the class array is added to the circuit class pool.
      *
@@ -24,13 +23,11 @@ public interface CircuitIndex {
     public void onRedstoneChipsEnable(RedstoneChips instance);
 
     /**
-     *
      * @return the index name
      */
     public String getIndexName();
 
     /**
-     *
      * @return the index version
      */
     public String getVersion();

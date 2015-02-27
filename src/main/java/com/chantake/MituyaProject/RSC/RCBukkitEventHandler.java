@@ -1,13 +1,11 @@
 package com.chantake.MituyaProject.RSC;
 
-import com.chantake.MituyaProject.RSC.Circuit.Circuit;
-import com.chantake.MituyaProject.RSC.Circuit.IO.OutputPin;
-import com.chantake.MituyaProject.RSC.Circuit.Scan.ScanParameters;
-import com.chantake.MituyaProject.RSC.Session.UserSession;
-import com.chantake.MituyaProject.Tool.ChunkLocation;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import com.chantake.MituyaProject.RSC.Chip.Chip;
+import com.chantake.MituyaProject.RSC.Chip.ChipFactory;
+import com.chantake.MituyaProject.RSC.Chip.ChipManager;
+import com.chantake.MituyaProject.RSC.Chip.IO.OutputPin;
+import com.chantake.MituyaProject.RSC.User.UserSession;
+import com.chantake.MituyaProject.RSC.Util.ChunkLocation;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -25,36 +23,69 @@ import org.bukkit.event.world.WorldSaveEvent;
 import org.bukkit.event.world.WorldUnloadEvent;
 import org.bukkit.material.Attachable;
 
+import java.util.List;
+
 /**
+ * Main plugin event handler. Routes events to other objects, adding some logic
+ * on the way.
  *
  * @author Tal Eisenberg
  */
 public class RCBukkitEventHandler implements Listener {
-
     RedstoneChips rc;
+    ChipManager cm;
 
     public RCBukkitEventHandler(RedstoneChips rc) {
         this.rc = rc;
-    }
-
-    @EventHandler(priority = EventPriority.MONITOR)
-    public void onBlockRedstoneChange(BlockRedstoneEvent event) {
-        rc.getCircuitManager().onBlockRedstoneChange(event.getBlock(), event.getNewCurrent(), event.getOldCurrent());
+        this.cm = rc.chipManager();
     }
 
     /**
-     * Deactivate a circuit if one of its structure blocks was broken. Refresh an input put if one of its power blocks was broken.
+     * Pass redstone change events over to the chip manager. Also keeps Redstone lamps ON.
+     *
+     * @param event
+     */
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onBlockRedstoneChange(BlockRedstoneEvent event) {
+        Block b = event.getBlock();
+
+        if (b.getType() == Material.REDSTONE_LAMP_OFF || b.getType() == Material.REDSTONE_LAMP_ON) {
+            List<OutputPin> pins = cm.getAllChips().getOutputPinByOutputBlock(b.getLocation());
+            if (pins != null) {
+                for (OutputPin p : pins) {
+                    Material m = p.getState() ? Material.REDSTONE_LAMP_ON : Material.REDSTONE_LAMP_OFF;
+                    b.setType(m);
+                    if (p.getState()) {
+                        event.setNewCurrent(100);
+                        break;
+                    }
+                }
+            }
+        } else if (b.getType() == Material.REDSTONE_WIRE) {
+            List<OutputPin> pins = cm.getAllChips().getOutputPinByOutputBlock(b.getLocation());
+            if (pins != null) {
+                for (OutputPin p : pins) {
+                    event.setNewCurrent(p.getState() ? 15 : 0);
+                }
+            }
+        }
+
+        cm.redstoneStateChanged(event.getBlock(), event.getNewCurrent(), event.getOldCurrent());
+    }
+
+    /**
+     * Deactivate a circuit if one of its structure blocks was broken.
+     * Refresh an input put if one of its power blocks was broken.
      *
      * @param event
      */
     @EventHandler(priority = EventPriority.MONITOR)
     public void onBlockBreak(BlockBreakEvent event) {
         if (!event.isCancelled()) {
-            if (!rc.getCircuitManager().checkCircuitDestroyed(event.getBlock(), event.getPlayer())) {
+            if (!cm.maybeChipDestroyed(event.getBlock(), event.getPlayer()))
                 event.setCancelled(true);
-            }
 
-            rc.getCircuitManager().checkCircuitInputBlockChanged(event.getBlock(), event.getPlayer(), true);
+            cm.maybeChipInputBlockChanged(event.getBlock(), event.getPlayer(), true);
         }
     }
 
@@ -66,22 +97,20 @@ public class RCBukkitEventHandler implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void onBlockPlace(BlockPlaceEvent event) {
         if (!event.isCancelled()) {
-            CircuitManager cm = rc.getCircuitManager();
-            if (!cm.checkCircuitInputBlockChanged(event.getBlock(), event.getPlayer(), false)) {
-                cm.checkCircuitOutputBlockPlaced(event.getBlock(), event.getPlayer());
-            }
+            if (!cm.maybeChipInputBlockChanged(event.getBlock(), event.getPlayer(), false))
+                cm.maybeChipOutputBlockPlaced(event.getBlock(), event.getPlayer());
         }
     }
 
     /**
-     * Break circuit if it's burning.
+     * Breaks a chip if it's burning.
      *
      * @param event
      */
     @EventHandler(priority = EventPriority.MONITOR)
     public void onBlockBurn(BlockBurnEvent event) {
         if (!event.isCancelled()) {
-            rc.getCircuitManager().checkCircuitDestroyed(event.getBlock(), null);
+            cm.maybeChipDestroyed(event.getBlock(), null);
         }
     }
 
@@ -93,14 +122,13 @@ public class RCBukkitEventHandler implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void onEntityExplode(EntityExplodeEvent event) {
         if (!event.isCancelled()) {
-            for (Block b : event.blockList()) {
-                rc.getCircuitManager().checkCircuitDestroyed(b, null);
-            }
+            for (Block b : event.blockList())
+                cm.maybeChipDestroyed(b, null);
         }
     }
 
     /**
-     * Forces output redstone torches to stay at the right state.
+     * Forces output redstone torches and lamps to stay at the right state.
      *
      * @param event
      */
@@ -109,43 +137,42 @@ public class RCBukkitEventHandler implements Listener {
         Block b = event.getBlock();
         if (b.getType() == Material.REDSTONE_TORCH_ON || b.getType() == Material.REDSTONE_TORCH_OFF) {
             // check if its an output device of a chip:
-            List<OutputPin> pins = rc.getCircuitManager().getOutputPinByOutputBlock(b.getLocation());
-            if (pins == null) {
-                return;
-            }
+            List<OutputPin> pins = cm.getAllChips().getOutputPinByOutputBlock(b.getLocation());
+            if (pins == null) return;
 
-            Attachable a = (Attachable)b.getState().getData();
+            Attachable a = (Attachable) b.getState().getData();
             BlockFace f = a.getAttachedFace();
-            if (f == null) {
-                return;
-            }
+            if (f == null) return;
 
             Block attached = b.getRelative(f);
 
             for (OutputPin o : pins) {
                 if (attached.getLocation().equals(o.getLocation())) {
-                    try {
-                        Material m = o.getState() ? Material.REDSTONE_TORCH_ON : Material.REDSTONE_TORCH_OFF;
-                        b.setTypeIdAndData(m.getId(), b.getData(), false);
-                        event.setCancelled(true);
-                    }
-                    catch (CloneNotSupportedException ex) {
-                        Logger.getLogger(RCBukkitEventHandler.class.getName()).log(Level.SEVERE, null, ex);
-                    }
+                    Material m = o.getState() ? Material.REDSTONE_TORCH_ON : Material.REDSTONE_TORCH_OFF;
+                    b.setTypeIdAndData(m.getId(), b.getData(), false);
+                    event.setCancelled(true);
                 }
             }
         }
     }
 
+    /**
+     * Notify the players UserSession that he quit the server.
+     *
+     * @param event
+     */
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerQuit(PlayerQuitEvent event) {
         UserSession s = rc.getUserSession(event.getPlayer(), false);
-        if (s != null) {
-            s.playerQuit();
-        }
+        if (s != null) s.playerQuit();
 
     }
 
+    /**
+     * Load UserSession file for the new player if one exists.
+     *
+     * @param event
+     */
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerJoin(PlayerJoinEvent event) {
         if (UserSession.getPlayerFileFor(event.getPlayer(), rc.getDataFolder()).exists()) {
@@ -154,40 +181,35 @@ public class RCBukkitEventHandler implements Listener {
         }
     }
 
+    /**
+     * Handle right-click actions: chip activation, selection or defining cuboids.
+     *
+     * @param event
+     */
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerInteract(PlayerInteractEvent event) {
-        if (event.isCancelled()) {
-            return;
-        }
+        if (event.isCancelled()) return;
 
         if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
             UserSession session = rc.getUserSession(event.getPlayer(), false);
-            if (session != null && session.useToolInHand(event.getClickedBlock())) {
-                event.setCancelled(true);
-            } else {
-                ScanParameters params = ScanParameters.generateDefaultParams(event.getClickedBlock(), rc);
-                if (params != null) {
-                    int result = rc.getCircuitManager().checkForCircuit(params, event.getPlayer());
-                    if (result == -2 || result >= 0) {
-                        event.setCancelled(true);
-                    }
-                } else if (session != null) {
-                    if (session.getMode() == UserSession.Mode.SELECTION) {
-                        Circuit c = rc.getCircuitManager().getCircuitByStructureBlock(event.getClickedBlock().getLocation());
-                        if (c != null) {
-                            session.selectChip(c);
-                            event.setCancelled(true);
-                        }
-                    } else if (session.getMode() == UserSession.Mode.CUBOID_DEFINE) {
-                        if (!event.getPlayer().getItemInHand().getType().isBlock()) {
-                            session.addCuboidLocation(event.getClickedBlock().getLocation());
-                            event.setCancelled(true);
-                        }
-                    }
 
+            if (session != null && session.useToolInHand(event.getClickedBlock()))
+                event.setCancelled(true); // use session tool
+            else if (session != null && session.getMode() == UserSession.Mode.SELECTION) { // in chip selection mode
+                Chip c = cm.getAllChips().getByStructureBlock(event.getClickedBlock().getLocation());
+                if (c != null) {
+                    session.selectChip(c);
+                    event.setCancelled(true);
                 }
+            } else if (session != null && session.getMode() == UserSession.Mode.CUBOID_DEFINE) { // in cuboid define mode
+                if (!event.getPlayer().getItemInHand().getType().isBlock()) {
+                    session.addCuboidLocation(event.getClickedBlock().getLocation());
+                    event.setCancelled(true);
+                }
+            } else {
+                ChipFactory.MaybeChip mChip = cm.maybeCreateAndActivateChip(event.getClickedBlock(), event.getPlayer(), -1);
+                if (mChip != ChipFactory.MaybeChip.NotAChip) event.setCancelled(true);
             }
-
         }
     }
 
@@ -198,7 +220,7 @@ public class RCBukkitEventHandler implements Listener {
      */
     @EventHandler(priority = EventPriority.MONITOR)
     public void onChunkLoad(ChunkLoadEvent event) {
-        rc.getCircuitManager().updateOnChunkLoad(ChunkLocation.fromChunk(event.getChunk()));
+        rc.chipManager().maybeChipChunkLoaded(ChunkLocation.fromChunk(event.getChunk()));
     }
 
     /**
@@ -208,7 +230,7 @@ public class RCBukkitEventHandler implements Listener {
      */
     @EventHandler(priority = EventPriority.MONITOR)
     public void onWorldUnload(WorldUnloadEvent event) {
-        rc.getCircuitPersistence().setUnloadedWorld(event.getWorld());
+        WorldsObserver.setUnloadingWorld(event.getWorld());
     }
 
     /**
@@ -218,18 +240,19 @@ public class RCBukkitEventHandler implements Listener {
      */
     @EventHandler(priority = EventPriority.MONITOR)
     public void onWorldSave(WorldSaveEvent event) {
-        if (rc.getCircuitPersistence().isWorldUnloading(event.getWorld())) {
-            rc.getCircuitPersistence().saveCircuits(event.getWorld());
+        if (WorldsObserver.isWorldUnloading(event.getWorld())) {
+            RCPersistence.saveChipsOf(event.getWorld());
+            WorldsObserver.removeUnloadingWorld();
         }
     }
 
     /**
-     * Loads circuits from the world's circuits file.
+     * Loads circuits from the world circuits file.
      *
      * @param event
      */
     @EventHandler(priority = EventPriority.MONITOR)
     public void onWorldLoad(WorldLoadEvent event) {
-        rc.getCircuitPersistence().loadCircuits(event.getWorld());
+        RCPersistence.loadChipsOf(event.getWorld());
     }
 }

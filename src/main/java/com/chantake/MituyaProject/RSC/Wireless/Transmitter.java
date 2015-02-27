@@ -1,7 +1,7 @@
 package com.chantake.MituyaProject.RSC.Wireless;
 
-import com.chantake.MituyaProject.RSC.BitSet.BitSet7;
-import com.chantake.MituyaProject.RSC.BitSet.BitSetUtils;
+import com.chantake.MituyaProject.RSC.Util.BooleanArrays;
+import com.chantake.MituyaProject.RSC.Util.BooleanSubset;
 
 /**
  * A Wireless transmitter.
@@ -13,10 +13,10 @@ public class Transmitter extends Wireless {
     /**
      * Transmit a BitSet over the transmitter channel.
      *
-     * @param bits BitSet to send.
+     * @param bits   BitSet to send.
      * @param length Transmission bit length.
      */
-    public void transmit(BitSet7 bits, int length) {
+    public void transmit(boolean[] bits, int length) {
         getChannel().transmit(bits, startBit, length);
     }
 
@@ -30,47 +30,33 @@ public class Transmitter extends Wireless {
     }
 
     /**
-     * Transmit a BitSet over the transmitter channel.
+     * Transmit a {@link com.chantake.MituyaProject.RSC.Util.BooleanSubset BooleanSubset} over the channel.
      *
-     * @param bits BitSet to send.
-     * @param offset A bit offset that's added to the transmitter start bit.
-     * @param length Transmission bit length.
+     * @param transmission
      */
-    public void send(BitSet7 bits, int offset, int length) {
-        getChannel().transmit(bits, startBit + offset, length);
+    public void transmitSubset(BooleanSubset transmission) {
+        getChannel().transmitSubset(transmission, startBit);
     }
 
     /**
-     * Transmit an integer over the transmitter channel.
+     * Transmit a long integer over the transmitter channel.
      *
-     * @param value Integer to send.
+     * @param value  Transmitted value.
      * @param offset A bit offset that's added to the transmitter start bit.
      * @param length Transmission bit length.
      */
-    public void send(int value, int offset, int length) {
-        BitSet7 bits = BitSetUtils.intToBitSet(value, length);
+    public void transmit(long value, int offset, int length) {
+        boolean[] bits = BooleanArrays.fromInt(value, length);
         getChannel().transmit(bits, startBit + offset, length);
     }
 
     /**
      * Transmit one bit over one of the channel bits.
      *
-     * @param state A bit state.
+     * @param state  A bit state.
      * @param offset The channel bit to transmit on.
      */
-    public void send(boolean state, int offset) {
+    public void transmit(boolean state, int offset) {
         getChannel().transmit(state, startBit + offset);
-    }
-
-    /**
-     * Transmit a boolean bit array over the transmitter channel.
-     *
-     * @param bits A boolean bit array.
-     * @param offset A bit offset that's added to the transmitter start bit.
-     * @param length Transmission bit length.
-     */
-    public void send(boolean[] bits, int offset, int length) {
-        BitSet7 bitset = BitSetUtils.boolToBitSet(bits, 0, length);
-        getChannel().transmit(bitset, startBit + offset, length);
     }
 }

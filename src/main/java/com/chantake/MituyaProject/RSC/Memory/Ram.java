@@ -1,12 +1,10 @@
 package com.chantake.MituyaProject.RSC.Memory;
 
-import com.chantake.MituyaProject.RSC.BitSet.BitSet7;
-import com.chantake.MituyaProject.RSC.BitSet.BitSetUtils;
+import com.chantake.MituyaProject.RSC.Util.BitSetUtils;
+import com.chantake.MituyaProject.RSC.Util.BooleanArrays;
+
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Random access memory implementation.
@@ -14,8 +12,7 @@ import java.util.Map;
  * @author Tal Eisenberg
  */
 public class Ram extends Memory {
-
-    private Map<BitSet7, BitSet7> words;
+    private final Map<Long, boolean[]> words = new HashMap<>(); // actual data storage.
     private final List<RamListener> listeners = new ArrayList<>();
 
     /**
@@ -24,108 +21,100 @@ public class Ram extends Memory {
      * @param address Address to read from.
      * @return The data at the specified address.
      */
-    public BitSet7 read(BitSet7 address) {
-        BitSet7 data = words.get(address);
-        if (data == null) {
-            data = new BitSet7();
-        }
-        return data;
+    public boolean[] read(long address) {
+        boolean[] b = words.get(address);
+        if (b == null) return BooleanArrays.zero;
+        else return b;
     }
 
-    /**
-     * Read data from memory.
-     *
-     * @param address Address to read from.
-     * @return The data at the specified address.
-     */
-    public BitSet7 read(int address) {
-        BitSet7 data = words.get(BitSetUtils.intToBitSet(address, 32));
-        if (data == null) {
-            data = new BitSet7();
-        }
-        return data;
+    public long readInt(long address) {
+        return BooleanArrays.toUnsignedInt(read(address));
     }
 
     /**
      * Write a BitSet to the specified address.
      *
      * @param address Memory address.
-     * @param data Bits to write.
+     * @param data    Bits to write.
      */
-    public void write(BitSet7 address, BitSet7 data) {
-        if (address == null || data == null) {
-            throw new IllegalArgumentException("Can't write memory. Data or address is null.");
-        }
+    public void write(long address, boolean[] data) {
+        if (data == null) data = BooleanArrays.zero;
         words.put(address, data);
 
-        for (RamListener l : listeners) {
-            l.dataChanged(this, address, data);
-        }
-    }
-
-    /**
-     * Writes a BitSet to the specified address.
-     *
-     * @param address Memory address.
-     * @param data Bits to write.
-     */
-    public void write(long address, BitSet7 data) {
-        write(BitSet7.valueOf(new long[]{address}), data);
+        for (RamListener l : listeners) l.dataChanged(this, address, data);
     }
 
     /**
      * Writes a long integer to the specified address.
      *
      * @param address Memory address.
-     * @param data long value to write.
+     * @param data    long value to write.
      */
-    public void write(long address, long data) {
-        write(address, BitSet7.valueOf(new long[]{data}));
+    public void write(long address, int data) {
+        write(address, BooleanArrays.fromInt(data));
     }
+
+    // -- Overrides for Serialization --
 
     /**
      * Writes a BigInteger to the specified address.
      *
      * @param address Memory address.
-     * @param data BigInteger value to write.
+     * @param data    BigInteger value to write.
      */
-    public void write(BigInteger address, BigInteger data) {
-        write(BitSetUtils.bigIntToBitSet(address), BitSetUtils.bigIntToBitSet(data));
-    }
-
-    @Override
-    public void init(String id) {
-        super.init(id);
-        words = new HashMap<>();
+    public void write(long address, BigInteger data) {
+        write(address, BooleanArrays.fromBigInt(data));
     }
 
     /**
-     *
      * @return a Map<BitSet, BitSet> containing all memory data.
      */
     @Override
     protected Map getData() {
-        return words;
+        Map<BitSet, BitSet> data = new HashMap<>();
+        for (Long address : words.keySet()) {
+            BitSet a = BitSet.valueOf(new long[]{address});
+            BitSet d = BooleanArrays.toBitSet(words.get(address));
+            if (!d.isEmpty())
+                data.put(a, d);
+        }
+        return data;
     }
 
     /**
-     * Replace the memory data with a data Map. Tries to convert non BitSet Map values.
+     * Replace the memory data with a data Map. Tries to convert non BitSet Map values or keys.
      *
      * @param data New memory data.
      */
     @Override
     protected void setData(Map data) {
         words.clear();
-        if (data == null) {
-            return;
-        }
+        if (data == null) return;
         for (Object key : data.keySet()) {
             Object value = data.get(key);
 
-            BitSet7 address = convert(key);
-            BitSet7 word = convert(value);
+            long address = convertToLong(key);
+            boolean[] word = convert(value);
             words.put(address, word);
         }
+    }
+
+    private long convertToLong(Object obj) {
+        if (obj instanceof boolean[]) return BooleanArrays.toUnsignedInt((boolean[]) obj);
+        else if (obj instanceof BitSet)
+            return BitSetUtils.bitSetToUnsignedInt((BitSet) obj, 0, ((BitSet) obj).length());
+        else if (obj instanceof BigInteger) return ((BigInteger) obj).longValue();
+        else return (Long) obj;
+    }
+
+    // -- Ram Listener Mechanics --
+
+    private boolean[] convert(Object obj) {
+        if (obj instanceof boolean[]) return (boolean[]) obj;
+        else if (obj instanceof BitSet) return BooleanArrays.fromBitSet((BitSet) obj);
+        else if (obj instanceof Integer) return BooleanArrays.fromInt((Integer) obj, 32);
+        else if (obj instanceof BigInteger) return BooleanArrays.fromBigInt((BigInteger) obj);
+        else throw new IllegalArgumentException("Unsupported memory data class: " + obj.getClass().getCanonicalName());
     }
 
     /**
@@ -134,9 +123,7 @@ public class Ram extends Memory {
      * @param l Ram listener.
      */
     public void addListener(RamListener l) {
-        if (!listeners.contains(l)) {
-            listeners.add(l);
-        }
+        if (!listeners.contains(l)) listeners.add(l);
     }
 
     /**
@@ -146,15 +133,5 @@ public class Ram extends Memory {
         return listeners;
     }
 
-    private BitSet7 convert(Object obj) {
-        if (obj instanceof BitSet7) {
-            return (BitSet7)obj;
-        } else if (obj instanceof Integer) {
-            return BitSetUtils.intToBitSet((Integer)obj, 32);
-        } else if (obj instanceof BigInteger) {
-            return BitSetUtils.bigIntToBitSet((BigInteger)obj);
-        } else {
-            throw new IllegalArgumentException("Unsupported memory data class: " + obj.getClass().getCanonicalName());
-        }
-    }
 }
+

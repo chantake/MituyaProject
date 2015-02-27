@@ -1,20 +1,15 @@
 package com.chantake.MituyaProject.RSC.Circuit;
 
 import com.chantake.MituyaProject.RSC.RedstoneChips;
-import java.util.logging.Logger;
 import org.bukkit.plugin.java.JavaPlugin;
 
 /**
- * A JavaPlugin implementation for circuit libraries. Provides invisible inter-plugin communication with RedstoneChips and, by implementing the CircuitIndex
- * interface provides a mechanism to register new circuit classes.
+ * A JavaPlugin implementation for circuit libraries. Provides invisible inter-plugin communication with RedstoneChips and,
+ * by implementing the CircuitIndex interface provides a mechanism to register new circuit classes.
  *
  * @author Tal Eisenberg
  */
 public abstract class CircuitLibrary extends JavaPlugin implements CircuitIndex {
-
-    @Deprecated
-    public static final Logger logger = Logger.getLogger("Minecraft");
-
     /**
      * Registers the library with RedstoneChips.
      */
@@ -24,15 +19,6 @@ public abstract class CircuitLibrary extends JavaPlugin implements CircuitIndex 
 
     @Override
     public void onRedstoneChipsEnable(RedstoneChips instance) {
-    }
-
-    @Override
-    public void onEnable() {
-    }
-
-    @Override
-    public void onDisable() {
-
     }
 
     @Override

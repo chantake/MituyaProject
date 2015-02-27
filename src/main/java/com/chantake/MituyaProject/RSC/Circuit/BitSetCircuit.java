@@ -1,16 +1,13 @@
 package com.chantake.MituyaProject.RSC.Circuit;
 
-import com.chantake.MituyaProject.RSC.BitSet.BitSet7;
-import org.bukkit.command.CommandSender;
-
 /**
- * A Redstone Circuit that treats its inputs as multiple bit sets. The word length of each set is determined by the number of output bits.
+ * A Redstone Circuit that treats its inputs as multiple bit sets.
+ * The word length of each set is determined by the number of output bits.
  *
  * @author Tal Eisenberg
  */
 public abstract class BitSetCircuit extends Circuit {
-
-    protected BitSet7[] inputBitSets;
+    protected boolean[][] inputBitSets;
 
     /**
      * The word length the circuit will deal with.
@@ -18,14 +15,14 @@ public abstract class BitSetCircuit extends Circuit {
     protected int wordlength;
 
     @Override
-    public void inputChange(int inIdx, boolean newLevel) {
+    public void input(boolean state, int inIdx) {
         // determine which input bitset was changed
 
         // index in bitset
         int idxInBitSet = inIdx % wordlength;
         int bitSetIdx = (inIdx - idxInBitSet) / wordlength;
-        BitSet7 changed = inputBitSets[bitSetIdx];
-        changed.set(idxInBitSet, newLevel);
+        boolean[] changed = inputBitSets[bitSetIdx];
+        changed[idxInBitSet] = state;
         bitSetChanged(bitSetIdx, changed);
     }
 
@@ -33,33 +30,23 @@ public abstract class BitSetCircuit extends Circuit {
      * Called when the value of one input bit set has changed.
      *
      * @param bitSetIdx The index of the changed input bit set.
-     * @param set The changed bit set.
+     * @param set       The changed bit set.
      */
-    protected abstract void bitSetChanged(int bitSetIdx, BitSet7 set);
+    protected abstract void bitSetChanged(int bitSetIdx, boolean[] set);
 
     @Override
-    public boolean init(CommandSender sender, String[] args) {
+    public Circuit init(String[] args) {
         // number of inputs must be an integer multiple of num of outputs
-        if (outputs.length == 0) {
-            error(sender, "Expecting at least 1 output pin.");
-            return false;
-        }
+        if (outputlen == 0) return error("Expecting at least 1 output pin.");
 
-        if ((inputs.length % outputs.length) == 0) {
-            int inBitSetCount = inputs.length / outputs.length;
-            wordlength = outputs.length;
-            info(sender, "Activating " + this.getCircuitClass() + " with " + inBitSetCount + " input(s) of " + wordlength + " bits each.");
-            inputBitSets = new BitSet7[inBitSetCount];
-            for (int i = 0; i < inBitSetCount; i++) {
-                inputBitSets[i] = new BitSet7(wordlength);
-                inputBitSets[i].clear();
-            }
-
-            return true;
+        if ((inputlen % outputlen) == 0) {
+            int inBitSetCount = inputlen / outputlen;
+            wordlength = outputlen;
+            info("Activating " + chip.getType() + " with " + inBitSetCount + " input(s) of " + wordlength + " bits each.");
+            inputBitSets = new boolean[inBitSetCount][wordlength];
+            return this;
         } else {
-            error(sender, "Invalid number of inputs (" + inputs.length + "). Number of inputs must be a multiple of the number of outputs.");
-            return false;
+            return error("Invalid number of inputs (" + inputlen + "). Number of inputs must be a multiple of the number of outputs.");
         }
-
     }
 }

@@ -20,14 +20,21 @@ package com.chantake.MituyaProject.Command;
 import com.chantake.MituyaProject.Exception.PlayerOfflineException;
 import com.chantake.MituyaProject.MituyaProject;
 import com.chantake.MituyaProject.Player.PlayerInstance;
+import com.chantake.MituyaProject.Tool.Map.ImageRenderer;
+import com.chantake.MituyaProject.Tool.Map.RenderUtils;
 import com.chantake.mituyaapi.commands.Command;
 import com.chantake.mituyaapi.commands.CommandContext;
 import com.chantake.mituyaapi.commands.CommandException;
 import com.chantake.mituyaapi.commands.CommandPermissions;
-import java.util.Calendar;
 import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.bukkit.map.MapView;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.util.Calendar;
 
 /**
  *
@@ -173,5 +180,28 @@ public class DebuggingCommands {
                 + second
                 + " Uptime"
                 + (System.currentTimeMillis() - plugin.uptime_start));
+    }
+
+    @Command(aliases = {"maptest"},
+            usage = "", desc = "maptest",
+            flags = "ls", min = 0, max = 1)
+    @CommandPermissions({"mituyaproject.rank.admin"})
+    public static void maptest(CommandContext message, MituyaProject plugin, Player players, PlayerInstance player) {
+        MapView viewport = plugin.getServer().getMap(players.getItemInHand().getDurability());
+        //MapView viewport = plugin.getServer().createMap(players.getWorld());
+        ImageRenderer renderer;
+
+        try {
+            URL toDraw = message.hasFlag('l') ? new File(plugin.getDataFolder().getPath() + "img/", message.getString(0)).toURL() : new URL(message.getString(0));
+            renderer = new ImageRenderer(toDraw);
+            RenderUtils.removeRenderers(viewport);
+            viewport.addRenderer(renderer);
+            players.sendMap(viewport);
+
+            players.sendMessage(ChatColor.AQUA + "[Map] Rendering " + message.getString(0) + "!");
+        } catch (IOException e) {
+            player.sendMessage("Encountered error while grabbing the image.");
+            e.printStackTrace();
+        }
     }
 }

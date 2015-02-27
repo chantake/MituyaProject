@@ -1,6 +1,6 @@
 package com.chantake.MituyaProject.RSC.Wireless;
 
-import com.chantake.MituyaProject.RSC.BitSet.BitSet7;
+import com.chantake.MituyaProject.RSC.Util.BooleanSubset;
 
 /**
  * A Wireless Receiver.
@@ -14,5 +14,6 @@ public abstract class Receiver extends Wireless {
      *
      * @param bits Transmitted bits.
      */
-    public abstract void receive(BitSet7 bits);
+    public abstract void receive(BooleanSubset bits);
+
 }
