@@ -31,6 +31,7 @@ import com.chantake.mituyaapi.commands.Command;
 import com.chantake.mituyaapi.commands.CommandContext;
 import com.chantake.mituyaapi.commands.CommandException;
 import com.chantake.mituyaapi.commands.CommandPermissions;
+import com.sk89q.commandbook.CommandBook;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -41,8 +42,8 @@ import org.bukkit.util.Vector;
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.MidiUnavailableException;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Random;
 
 /**
  *
@@ -130,78 +131,67 @@ public class GeneralCommands {
     @Command(aliases = {"midi", "intro"}, usage = "", desc = "midi",
             flags = "ap", min = 0, max = -1)
     @CommandPermissions({"mituya.player.midi"})
-    public static void midi(CommandContext args, MituyaProject plugin, Player players, PlayerInstance player) throws CommandException {
+    public static void midi(CommandContext args, MituyaProject plugin, Player players, PlayerInstance player) throws CommandException, PlayerOfflineException {
         switch (args.getCommand()) {
             case "midi":
-                if (args.argsLength() == 0) {
-                    plugin.jingleNoteManager.stop(players);
-                    players.sendMessage(ChatColor.YELLOW + "All music stopped.");
-                    return;
-                }
-                boolean all = false,
-                 selpart = false;
-                int selparts = -1;
+                Player target = players;
                 if (args.hasFlag('p')) {
-                    selpart = true;
-                    selparts = args.getInteger(1);
+                    target = plugin.getInstanceManager().getInstance(args.getFlag('p')).getPlayer();
                 }
-                if (args.hasFlag('a')) {
-                    all = true;
+
+                if (args.argsLength() == 0) {
+                    if (plugin.jingleNoteManager.stop(target.getName())) {
+                        target.sendMessage(ChatColor.YELLOW + "All music stopped.");
+                    }
                 }
                 String filename = args.getString(0);
-                File file = null;
-                if (filename.equals("random")) {
-                    File[] listFiles = new File(plugin.getDataFolder().getPath() + "midi/").listFiles();
-                    file = listFiles[new Random().nextInt(listFiles.length)];
-                } else {
-                    /*
-                     * if (!filename.matches("^[A-Za-z0-9 ぁ-ヶ ^\\x01-\\x7E \\-_\\.~\\[\\]\\(\\$),]+$")) { throw new CommandException("Invalid filename specified!");
-                     * }
-                     */
 
-                    File[] trialPaths = {
-                        new File(plugin.getDataFolder(), "midi/" + filename),
-                        new File(plugin.getDataFolder(), "midi/" + filename + ".mid"),
-                        new File(plugin.getDataFolder(), "midi/" + filename + ".midi"),
+                if (!filename.matches("^[A-Za-z0-9 \\-_\\.~\\[\\]\\(\\$),]+$")) {
+                    throw new CommandException("Invalid filename specified!");
+                }
+
+                File[] trialPaths = {
+                        new File(CommandBook.inst().getDataFolder(), "midi/" + filename),
+                        new File(CommandBook.inst().getDataFolder(), "midi/" + filename + ".mid"),
+                        new File(CommandBook.inst().getDataFolder(), "midi/" + filename + ".midi"),
                         new File("midi", filename),
                         new File("midi", filename + ".mid"),
-                        new File("midi", filename + ".midi"),};
+                        new File("midi", filename + ".midi"),
+                };
 
-                    for (File f : trialPaths) {
-                        if (f.exists()) {
-                            file = f;
-                            break;
-                        }
-                    }
+                File file = null;
 
-                    if (file == null) {
-                        throw new CommandException("The specified MIDI file was not found.");
+                for (File f : trialPaths) {
+                    if (f.exists()) {
+                        file = f;
+                        break;
                     }
                 }
+
+                if (file == null) {
+                    throw new CommandException("The specified MIDI file was not found.");
+                }
+
                 try {
-                    MidiJingleSequencer sequencer = new MidiJingleSequencer(file);
-                    if (selpart) {
-                        plugin.jingleNoteManager.play(players, sequencer, 0, plugin, all, selparts);
-                    } else {
-                        plugin.jingleNoteManager.play(players, sequencer, 0, plugin, all);
-                    }
-                    players.sendMessage(ChatColor.YELLOW + "Playing " + file.getName()
-                            + "... Use '/midi' to stop.");
-                }
-                catch (MidiUnavailableException e) {
+                    MidiJingleSequencer sequencer = new MidiJingleSequencer(file, false);
+                    plugin.jingleNoteManager.play(target.getName(), sequencer);
+                    target.sendMessage(ChatColor.YELLOW + "Playing " + file.getName() + "... Use '/midi' to stop.");
+                } catch (MidiUnavailableException e) {
                     throw new CommandException("Failed to access MIDI: "
                             + e.getMessage());
-                }
-                catch (InvalidMidiDataException | IOException e) {
+                } catch (InvalidMidiDataException e) {
+                    throw new CommandException("Failed to read intro MIDI file: "
+                            + e.getMessage());
+                } catch (FileNotFoundException e) {
+                    throw new CommandException("The specified MIDI file was not found.");
+                } catch (IOException e) {
                     throw new CommandException("Failed to read intro MIDI file: "
                             + e.getMessage());
                 }
-                break;
             case "intro":
                 try {
-                    MidiJingleSequencer sequencer = new MidiJingleSequencer(
-                            new File(plugin.getDataFolder(), "intro.mid"));
-                    plugin.jingleNoteManager.play(players, sequencer, 0, plugin);
+                    MidiJingleSequencer sequencer = new MidiJingleSequencer(new File(plugin.getDataFolder(), "intro.mid"), false);
+                    plugin.jingleNoteManager.play(player.getPlayer().getName(), sequencer);
                     players.sendMessage(ChatColor.YELLOW + "Playing intro.midi...");
                 }
                 catch (MidiUnavailableException e) {

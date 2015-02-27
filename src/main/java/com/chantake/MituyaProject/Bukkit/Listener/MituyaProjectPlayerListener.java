@@ -407,7 +407,7 @@ public class MituyaProjectPlayerListener implements Listener {
         }
         event.setQuitMessage(ChatColor.DARK_GRAY + name + " 様がログアウトしました");
         //Midiストップ
-        plugin.jingleNoteManager.stop(player);
+        plugin.jingleNoteManager.stop(player.getName());
         //Notificationメッセージ
         //plugin.broadcastNotificationMessage(event.getPlayer().getName(), "has quit the game.", Parameter328.Icon_Quit);
         if (plugin.getServer().getOnlinePlayers().size() == 0) {
@@ -500,8 +500,8 @@ public class MituyaProjectPlayerListener implements Listener {
      */
     private void sendIntro(Player pr) {
         try {
-            MidiJingleSequencer sequencer = new MidiJingleSequencer(new File(plugin.getDataFolder(), "intro.mid"));
-            plugin.jingleNoteManager.play(pr, sequencer, 2000, plugin);
+            MidiJingleSequencer sequencer = new MidiJingleSequencer(new File(plugin.getDataFolder(), "intro.mid"), false);
+            plugin.jingleNoteManager.play(pr.getName(), sequencer);
         }
         catch (IOException | InvalidMidiDataException | MidiUnavailableException e) {
         }

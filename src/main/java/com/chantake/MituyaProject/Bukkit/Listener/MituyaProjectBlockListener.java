@@ -104,13 +104,6 @@ public class MituyaProjectBlockListener implements Listener {
                 ins.sendInfo(ChatColor.RED + "Shop", ChatColor.YELLOW + "チェストショップを削除しました。");
             }
         } else if (block.getType() == Material.NOTE_BLOCK) {//ﾉｰﾄブロック
-            if (plugin.jingleNoteManager.JiggleNoteCheck(event.getBlock().getLocation()))//JiggleNoteで再生しているﾉｰﾄブロックか確認
-            {
-                //ﾉｰﾄブロックを削除
-                plugin.jingleNoteManager.stop(event.getBlock().getLocation());
-                //キャンセル
-                event.setCancelled(true);
-            }
         } else if (block.getType() == Material.SPONGE) {//スポンジ
             event.getBlock().setType(Material.AIR);
         } else {
