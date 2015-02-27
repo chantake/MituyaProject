@@ -21,11 +21,9 @@ import com.chantake.MituyaProject.Exception.PlayerOfflineException;
 import com.chantake.MituyaProject.MituyaProject;
 import com.chantake.MituyaProject.Parameter.Parameter328;
 import com.chantake.MituyaProject.Player.PlayerInstance;
-import com.chantake.MituyaProject.Tool.Timer.DamageTeleportCancel;
-import com.chantake.MituyaProject.Tool.Timer.TimerManager;
+import com.chantake.MituyaProject.Timer.DamageTeleportCancel;
+import com.chantake.MituyaProject.Timer.TimerManager;
 import com.chantake.MituyaProject.World.WorldData;
-import java.util.HashMap;
-import java.util.Map;
 import org.bukkit.ChatColor;
 import org.bukkit.World.Environment;
 import org.bukkit.entity.*;
@@ -33,6 +31,9 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.*;
 import org.bukkit.projectiles.ProjectileSource;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * MituyaProject Entity listener
@@ -42,9 +43,9 @@ import org.bukkit.projectiles.ProjectileSource;
 public class MituyaProjectEntityListener implements Listener {
 
     private final MituyaProject plugin;
-    private ChatColor color;
     private final Map<Entity, Player> prdg = new HashMap<>();
     private final Map<Player, Player> prpg = new HashMap<>();
+    private ChatColor color;
 
     public MituyaProjectEntityListener(final MituyaProject plugin) {
         this.plugin = plugin;

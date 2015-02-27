@@ -17,16 +17,15 @@
  */
 package com.chantake.MituyaProject.World.Shop;
 
-import com.chantake.MituyaProject.Data.ChestShopData;
 import com.chantake.MituyaProject.Bukkit.ItemName;
+import com.chantake.MituyaProject.Data.ChestShopData;
 import com.chantake.MituyaProject.Exception.PlayerOfflineException;
 import com.chantake.MituyaProject.MituyaManager;
 import com.chantake.MituyaProject.MituyaProject;
 import com.chantake.MituyaProject.Permissions.Rank;
 import com.chantake.MituyaProject.Player.PlayerInstance;
-import com.chantake.MituyaProject.Tool.MySqlProcessing;
-import com.chantake.MituyaProject.Tool.Tools;
-import java.util.*;
+import com.chantake.MituyaProject.Util.MySqlProcessing;
+import com.chantake.MituyaProject.Util.Tools;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -37,18 +36,20 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.material.MaterialData;
 
+import java.util.*;
+
 /**
  *
  * @author chantake
  */
 public class ChestShopManager extends MituyaManager {
 
+    private static final BlockFace[] chestFaces = {BlockFace.EAST, BlockFace.NORTH, BlockFace.WEST, BlockFace.SOUTH};
+    private static final BlockFace[] shopFaces = {BlockFace.SELF, BlockFace.DOWN, BlockFace.UP, BlockFace.EAST, BlockFace.NORTH, BlockFace.WEST, BlockFace.SOUTH};
     private final HashMap<String, ChestShopData> shops = new HashMap<>();
     private final ChestShopListener listener = new ChestShopListener(this);
     private final HashMap<MaterialData, ArrayList<ChestShopData>> buy = new HashMap<>();
     private final HashMap<MaterialData, ArrayList<ChestShopData>> sell = new HashMap<>();
-    private static final BlockFace[] chestFaces = {BlockFace.EAST, BlockFace.NORTH, BlockFace.WEST, BlockFace.SOUTH};
-    private static final BlockFace[] shopFaces = {BlockFace.SELF, BlockFace.DOWN, BlockFace.UP, BlockFace.EAST, BlockFace.NORTH, BlockFace.WEST, BlockFace.SOUTH};
 
     public ChestShopManager(MituyaProject plugin) {
         super(plugin);
@@ -690,7 +691,7 @@ public class ChestShopManager extends MituyaManager {
             //アイテム名
             String itemname = ChatColor.BLUE + ItemName.getItemName(item) + "(" + amount + ")" + ChatColor.AQUA;
             //プレーヤーにMineを送金
-            ins.gainMine((int)(cmdsell), false);
+            ins.gainMine(cmdsell, false);
             //購買完了したというメッセージを送る
             //ins.sendInfo(ChatColor.RED + "Shop", ChatColor.AQUA + owner.getName() + ChatColor.WHITE + " 様に、" + itemname + ChatColor.WHITE + " を売りました。");
             //オーナーにもメッセージを送る（オンラインの場合）

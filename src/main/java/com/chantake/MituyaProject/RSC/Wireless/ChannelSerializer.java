@@ -2,7 +2,7 @@ package com.chantake.MituyaProject.RSC.Wireless;
 
 import com.chantake.MituyaProject.RSC.RedstoneChips;
 import com.chantake.MituyaProject.RSC.Serializer;
-import com.chantake.MituyaProject.RSC.Util.BooleanArrays;
+import com.chantake.MituyaProject.Util.BooleanArrays;
 
 import java.util.HashMap;
 import java.util.List;

@@ -1,7 +1,7 @@
 package com.chantake.MituyaProject.RSC;
 
 import com.chantake.MituyaProject.RSC.Chip.IO.IOBlock;
-import com.chantake.MituyaProject.RSC.Util.BooleanArrays;
+import com.chantake.MituyaProject.Util.BooleanArrays;
 import org.bukkit.Location;
 
 import java.util.ArrayList;

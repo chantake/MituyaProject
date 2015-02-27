@@ -3,7 +3,7 @@ package com.chantake.MituyaProject.RSC.Chip.IO;
 import com.chantake.MituyaProject.RSC.Chip.Chip;
 import com.chantake.MituyaProject.RSC.Chip.IO.InputPin.SourceType;
 import com.chantake.MituyaProject.RSC.RedstoneChips;
-import com.chantake.MituyaProject.RSC.Util.ChunkLocation;
+import com.chantake.MituyaProject.Util.ChunkLocation;
 import org.bukkit.Effect;
 import org.bukkit.Location;
 import org.bukkit.Material;

@@ -1,6 +1,6 @@
 package com.chantake.MituyaProject.RSC.Wireless;
 
-import com.chantake.MituyaProject.RSC.Util.BooleanSubset;
+import com.chantake.MituyaProject.Util.BooleanSubset;
 
 /**
  * A Wireless Receiver.

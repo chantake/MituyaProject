@@ -23,9 +23,9 @@ import com.chantake.MituyaProject.Exception.PlayerOfflineException;
 import com.chantake.MituyaProject.MituyaProject;
 import com.chantake.MituyaProject.Parameter.Parameter328;
 import com.chantake.MituyaProject.Player.PlayerInstance;
-import com.chantake.MituyaProject.Tool.PerfomanceCheck;
-import com.chantake.MituyaProject.Tool.Timer.AutoStop;
-import com.chantake.MituyaProject.Tool.Tools;
+import com.chantake.MituyaProject.Timer.AutoStop;
+import com.chantake.MituyaProject.Util.PerfomanceCheck;
+import com.chantake.MituyaProject.Util.Tools;
 import com.chantake.mituyaapi.commands.Command;
 import com.chantake.mituyaapi.commands.CommandContext;
 import com.chantake.mituyaapi.commands.CommandException;
@@ -35,12 +35,8 @@ import com.sk89q.worldguard.protection.flags.DefaultFlag;
 import com.sk89q.worldguard.protection.flags.StateFlag;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
-import org.bukkit.ChatColor;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.World;
-import org.bukkit.entity.*;
+import org.bukkit.*;
+import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitScheduler;
 
 /**

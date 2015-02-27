@@ -17,7 +17,7 @@
  */
 package com.chantake.MituyaProject.Parameter;
 
-import com.chantake.MituyaProject.Tool.Tools;
+import com.chantake.MituyaProject.Util.Tools;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Entity;

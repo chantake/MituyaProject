@@ -77,12 +77,7 @@ public class RedstoneChips extends JavaPlugin {
         for (CircuitIndex lib : CircuitLoader.getCircuitLibraries()) lib.onRedstoneChipsEnable(this);
 
         // delay some tasks until after the server startup is complete.
-        getServer().getScheduler().runTaskLater(this, new Runnable() {
-            @Override
-            public void run() {
-                postStartup();
-            }
-        }, 1);
+        getServer().getScheduler().runTaskLater(this, () -> postStartup(), 1);
     }
 
     private void postStartup() {

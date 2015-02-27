@@ -24,9 +24,8 @@ import com.chantake.MituyaProject.Parameter.Parameter328;
 import com.chantake.MituyaProject.Player.Party.PartyData;
 import com.chantake.MituyaProject.Player.Party.PartyManager;
 import com.chantake.MituyaProject.Player.PlayerInstance;
-import com.chantake.MituyaProject.Tool.RomaToJapanese;
-import com.chantake.MituyaProject.Tool.Tools;
-
+import com.chantake.MituyaProject.Util.RomaToJapanese;
+import com.chantake.MituyaProject.Util.Tools;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
@@ -133,7 +132,7 @@ public class ChatManager {
      * チャットの先頭部分
      *
      * @param player Player
-     * @param head String
+    //* @param head String
      * @param headcolor ChatColor
      * @return StringBuilder
      */

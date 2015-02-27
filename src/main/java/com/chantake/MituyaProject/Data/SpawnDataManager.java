@@ -17,9 +17,8 @@
  */
 package com.chantake.MituyaProject.Data;
 
+import com.chantake.MituyaProject.Util.MySqlProcessing;
 import org.bukkit.Location;
-
-import com.chantake.MituyaProject.Tool.MySqlProcessing;
 
 /**
  *
@@ -54,34 +53,63 @@ public class SpawnDataManager {
     }
     // <editor-fold defaultstate="collapsed" desc="[Ownername]">
 
+    /**
+     * Location型のMinecraft内位置情報を取得します。
+     *
+     * @param value Minecraft内位置情報
+     */
+    public void setLocation(Location value) {
+        location = value;
+    }
+    // <editor-fold defaultstate="collapsed" desc="[Recodeid]">
+
     public String getOwnername() {
         return ownername;
     }// </editor-fold>
-    // <editor-fold defaultstate="collapsed" desc="[Recodeid]">
+    // <editor-fold defaultstate="collapsed" desc="[Spawn_id]">
+
+    public void setOwnername(String ownername) {
+        this.ownername = ownername;
+    }
+    // <editor-fold defaultstate="collapsed" desc="[Spawn_world]">
 
     public int getRecodeid() {
         return recodeid;
     }// </editor-fold>
-    // <editor-fold defaultstate="collapsed" desc="[Spawn_id]">
+    // <editor-fold defaultstate="collapsed" desc="[Useflag]">
+
+    public void setRecodeid(int recodeid) {
+        this.recodeid = recodeid;
+    }
 
     public int getSpawn_id() {
         return spawn_id;
     }// </editor-fold>
-    // <editor-fold defaultstate="collapsed" desc="[Spawn_world]">
+
+    public void setSpawn_id(int spawn_id) {
+        this.spawn_id = spawn_id;
+    }
 
     public int getSpawn_world() {
         return spawn_world;
     }// </editor-fold>
-    // <editor-fold defaultstate="collapsed" desc="[Useflag]">
+
+    public void setSpawn_world(int spawn_world) {
+        this.spawn_world = spawn_world;
+    }
 
     public boolean isUseflag() {
         return useflag;
     }// </editor-fold>
 
+    public void setUseflag(boolean useflag) {
+        this.useflag = useflag;
+    }
+
     /**
      * データベースに接続して、指定されたプレイヤーのスポーン情報を取得します。
      *
-     * @param name プレイヤー名
+     * @param name        プレイヤー名
      * @param perfectflag 完全一致検索フラグ(true:完全一致検索　/ false:前方一致検索)
      * @return 読み込みの成功したか失敗したか
      */
@@ -126,34 +154,5 @@ public class SpawnDataManager {
             ret = false;
         }
         return ret;
-    }
-
-    /**
-     * Location型のMinecraft内位置情報を取得します。
-     *
-     * @param value Minecraft内位置情報
-     */
-    public void setLocation(Location value) {
-        location = value;
-    }
-
-    public void setOwnername(String ownername) {
-        this.ownername = ownername;
-    }
-
-    public void setRecodeid(int recodeid) {
-        this.recodeid = recodeid;
-    }
-
-    public void setSpawn_id(int spawn_id) {
-        this.spawn_id = spawn_id;
-    }
-
-    public void setSpawn_world(int spawn_world) {
-        this.spawn_world = spawn_world;
-    }
-
-    public void setUseflag(boolean useflag) {
-        this.useflag = useflag;
     }
 }

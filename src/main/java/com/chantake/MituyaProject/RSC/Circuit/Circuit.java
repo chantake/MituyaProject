@@ -4,8 +4,8 @@ import com.chantake.MituyaProject.RSC.Chip.Chip;
 import com.chantake.MituyaProject.RSC.Chip.IO.IOWriter;
 import com.chantake.MituyaProject.RSC.RCPrefs;
 import com.chantake.MituyaProject.RSC.RedstoneChips;
-import com.chantake.MituyaProject.RSC.Util.BooleanArrays;
-import com.chantake.MituyaProject.RSC.Util.BooleanSubset;
+import com.chantake.MituyaProject.Util.BooleanArrays;
+import com.chantake.MituyaProject.Util.BooleanSubset;
 import org.bukkit.command.CommandSender;
 
 import java.util.BitSet;
@@ -261,7 +261,7 @@ public abstract class Circuit {
     }
 
     /**
-     * Write a {@link com.chantake.MituyaProject.RSC.Util.BooleanSubset} over a set of outputs.
+     * Write a {@link com.chantake.MituyaProject.Util.BooleanSubset} over a set of outputs.
      *
      * @param bits        The BooleanSubset to write.
      * @param firstOutput Start writing from this output index.
@@ -273,7 +273,7 @@ public abstract class Circuit {
     }
 
     /**
-     * Write a {@link com.chantake.MituyaProject.RSC.Util.BooleanSubset} over a set of outputs.
+     * Write a {@link com.chantake.MituyaProject.Util.BooleanSubset} over a set of outputs.
      * Writes from firstOutput to the end of the array.
      *
      * @param bits        The BooleanSubset to write.

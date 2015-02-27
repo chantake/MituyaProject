@@ -26,24 +26,23 @@ import com.chantake.MituyaProject.Parameter.Parameter328;
 import com.chantake.MituyaProject.Permissions.Rank;
 import com.chantake.MituyaProject.Player.HideManager;
 import com.chantake.MituyaProject.Player.PlayerInstance;
-import com.chantake.MituyaProject.Tool.Timer.ArrowRain;
-import com.chantake.MituyaProject.Tool.Tools;
+import com.chantake.MituyaProject.Util.Tools;
 import com.chantake.mituyaapi.commands.Command;
 import com.chantake.mituyaapi.commands.CommandContext;
 import com.chantake.mituyaapi.commands.CommandException;
 import com.chantake.mituyaapi.commands.CommandPermissions;
-import java.io.File;
-import java.io.IOException;
-import java.util.Random;
-import javax.sound.midi.InvalidMidiDataException;
-import javax.sound.midi.MidiUnavailableException;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
-
 import org.bukkit.entity.*;
 import org.bukkit.inventory.BeaconInventory;
 import org.bukkit.util.Vector;
+
+import javax.sound.midi.InvalidMidiDataException;
+import javax.sound.midi.MidiUnavailableException;
+import java.io.File;
+import java.io.IOException;
+import java.util.Random;
 
 /**
  *
@@ -391,32 +390,6 @@ public class GeneralCommands {
         } else {
             player.sendAttention("/account pass");
         }
-    }
-// </editor-fold>
-
-// <editor-fold defaultstate="collapsed" desc="arrowrain">
-    @Command(aliases = {"arrowrain"}, usage = "[-pr] [player] [time]", desc = "",
-            flags = "pr", min = 0, max = -1)
-    @CommandPermissions({"mituyaproject.rank.gm"})
-    public static void arrowrain(CommandContext args, MituyaProject plugin, Player players, PlayerInstance player) throws CommandException, PlayerOfflineException {
-        int times;
-        int mode = 0;
-        if (args.hasFlag('p')) {
-            player = plugin.getInstanceManager().matchSingleInstance(args.getString(0));
-            times = args.getInteger(1);
-        } else {
-            try {
-                times = args.getInteger(0);
-            }
-            catch (NumberFormatException e) {
-                times = 2;
-            }
-        }
-        if (args.hasFlag('r')) {
-            mode = 1;
-        }
-        ArrowRain arrowRain = new ArrowRain(player.getPlayer(), mode, times);
-        plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, arrowRain, 250 * 2L, 250 * 2L);
     }
 // </editor-fold>
 

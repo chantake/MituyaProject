@@ -2,8 +2,8 @@ package com.chantake.MituyaProject.RSC.Chip;
 
 import com.chantake.MituyaProject.RSC.Chip.IO.InputPin;
 import com.chantake.MituyaProject.RSC.Chip.IO.OutputPin;
-import com.chantake.MituyaProject.RSC.Parsing.Parsing;
-import com.chantake.MituyaProject.RSC.Util.ChunkLocation;
+import com.chantake.MituyaProject.Util.ChunkLocation;
+import com.chantake.MituyaProject.Util.Parsing.Parsing;
 import org.bukkit.Location;
 import org.bukkit.World;
 

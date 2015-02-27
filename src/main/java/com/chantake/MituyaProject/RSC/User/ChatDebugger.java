@@ -2,7 +2,7 @@ package com.chantake.MituyaProject.RSC.User;
 
 import com.chantake.MituyaProject.RSC.Chip.Chip;
 import com.chantake.MituyaProject.RSC.RCPrefs;
-import com.chantake.MituyaProject.RSC.Util.BooleanArrays;
+import com.chantake.MituyaProject.Util.BooleanArrays;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;

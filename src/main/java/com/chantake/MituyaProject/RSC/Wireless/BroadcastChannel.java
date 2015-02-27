@@ -1,7 +1,7 @@
 package com.chantake.MituyaProject.RSC.Wireless;
 
-import com.chantake.MituyaProject.RSC.Util.BooleanArrays;
-import com.chantake.MituyaProject.RSC.Util.BooleanSubset;
+import com.chantake.MituyaProject.Util.BooleanArrays;
+import com.chantake.MituyaProject.Util.BooleanSubset;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -134,7 +134,7 @@ public class BroadcastChannel {
     }
 
     /**
-     * Transmit a {@link com.chantake.MituyaProject.RSC.Util.BooleanSubset BooleanSubset} over this channel to all receivers.
+     * Transmit a {@link com.chantake.MituyaProject.Util.BooleanSubset BooleanSubset} over this channel to all receivers.
      *
      * @param subset The subset to transmit.
      * @param start  The index of the first channel bit that will be modified.

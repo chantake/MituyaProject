@@ -5,7 +5,7 @@ import com.chantake.MituyaProject.RSC.Chip.ChipFactory;
 import com.chantake.MituyaProject.RSC.Chip.ChipManager;
 import com.chantake.MituyaProject.RSC.Chip.IO.OutputPin;
 import com.chantake.MituyaProject.RSC.User.UserSession;
-import com.chantake.MituyaProject.RSC.Util.ChunkLocation;
+import com.chantake.MituyaProject.Util.ChunkLocation;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;

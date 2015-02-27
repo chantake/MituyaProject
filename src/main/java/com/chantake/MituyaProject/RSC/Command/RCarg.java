@@ -2,7 +2,7 @@ package com.chantake.MituyaProject.RSC.Command;
 
 import com.chantake.MituyaProject.RSC.Chip.Chip;
 import com.chantake.MituyaProject.RSC.RCPrefs;
-import com.chantake.MituyaProject.RSC.Util.Signs;
+import com.chantake.MituyaProject.Util.Signs;
 import org.bukkit.block.Sign;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;

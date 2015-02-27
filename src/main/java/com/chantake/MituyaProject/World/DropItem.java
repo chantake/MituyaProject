@@ -22,7 +22,7 @@ import com.chantake.MituyaProject.Exception.PlayerOfflineException;
 import com.chantake.MituyaProject.MituyaProject;
 import com.chantake.MituyaProject.Parameter.Parameter328;
 import com.chantake.MituyaProject.Player.PlayerInstance;
-import com.chantake.MituyaProject.Tool.MySqlProcessing;
+import com.chantake.MituyaProject.Util.MySqlProcessing;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;

@@ -4,7 +4,7 @@ import com.chantake.MituyaProject.RSC.Chip.ChipFactory.MaybeChip;
 import com.chantake.MituyaProject.RSC.Chip.Scan.ChipParameters;
 import com.chantake.MituyaProject.RSC.RedstoneChips;
 import com.chantake.MituyaProject.RSC.Serializer;
-import com.chantake.MituyaProject.RSC.Util.BooleanArrays;
+import com.chantake.MituyaProject.Util.BooleanArrays;
 import org.bukkit.Location;
 import org.bukkit.Server;
 import org.bukkit.World;

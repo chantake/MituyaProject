@@ -1,6 +1,6 @@
 package com.chantake.MituyaProject.RSC.Chip.Scan;
 
-import com.chantake.MituyaProject.RSC.Util.Locations;
+import com.chantake.MituyaProject.Util.Locations;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;

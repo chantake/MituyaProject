@@ -1,8 +1,8 @@
 package com.chantake.MituyaProject.RSC.Command;
 
-import com.chantake.MituyaProject.RSC.Paging.ArrayLineSource;
-import com.chantake.MituyaProject.RSC.Paging.Pager;
 import com.chantake.MituyaProject.RSC.RCPrefs;
+import com.chantake.MituyaProject.Util.Paging.ArrayLineSource;
+import com.chantake.MituyaProject.Util.Paging.Pager;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
