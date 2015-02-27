@@ -94,14 +94,11 @@ public class MobSpawnerCommands {
                                     player.sendAttention("保護がかかっています");
                                 } else {
                                     if (player.checkMine(-cp2.getPrice(), true)) {
-                                        player.sendMineYesNo(cp2.getPrice(), new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                player.gainMine(-cp2.getPrice());
-                                                cs.setSpawnedType(cp2.getType());
-                                                player.sendInfo(ChatColor.DARK_GRAY + "MobSpawner", ChatColor.YELLOW + "スポーンブロックのモンスターを変更いたしました。");
-                                                player.sendInfo(ChatColor.DARK_GRAY + "MobSpawner", "スポーンブロック：" + cs.getCreatureTypeName());
-                                            }
+                                        player.sendMineYesNo(cp2.getPrice(), () -> {
+                                            player.gainMine(-cp2.getPrice());
+                                            cs.setSpawnedType(cp2.getType());
+                                            player.sendInfo(ChatColor.DARK_GRAY + "MobSpawner", ChatColor.YELLOW + "スポーンブロックのモンスターを変更いたしました。");
+                                            player.sendInfo(ChatColor.DARK_GRAY + "MobSpawner", "スポーンブロック：" + cs.getCreatureTypeName());
                                         });
                                     }
                                 }

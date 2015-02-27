@@ -18,14 +18,15 @@
 package com.chantake.MituyaProject.Player;
 
 import com.chantake.MituyaProject.MituyaProject;
-import com.chantake.MituyaProject.Tool.MySqlProcessing;
-import com.chantake.MituyaProject.Tool.UUIDUtils;
+import com.chantake.MituyaProject.Util.MySqlProcessing;
+import com.chantake.MituyaProject.Util.UUIDUtils;
+import org.bukkit.entity.Player;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import org.bukkit.entity.Player;
 
 /**
  * PlayerInstanceを検索して呼び出すクラスです
@@ -68,7 +69,7 @@ public class InstanceManager {
      * @param player
      * @return PlayerInstance ログイン時のみ（Player!=null)時のみ使用してください。
      * @see org.bukkit.entity.Player
-     * @see com.bukkit.chantake.MituyaProject.Player.PlayerInstance
+     * @see com.chantake.MituyaProject.Player.PlayerInstance
      * @author chantake
      * @since 2013/02/06
      */
@@ -88,7 +89,7 @@ public class InstanceManager {
      * @param uuid UUID
      * @return PlayerInstance ログイン時のみ（Player!=null)時のみ使用してください。
      * @see org.bukkit.entity.Player
-     * @see com.bukkit.chantake.MituyaProject.Player.PlayerInstance
+     * @see com.chantake.MituyaProject.Player.PlayerInstance
      * @author fumitti
      * @since 2014/05/15
      */
@@ -127,7 +128,7 @@ public class InstanceManager {
      * @param name プレーヤー名、前方のみでもok
      * @return keyが一致した場合 PlayerInstance を返し、見つからなければSQLでも検索し、それでも見つからない場合はnullを返します。
      * @see org.bukkit.entity.Player
-     * @see com.bukkit.chantake.MituyaProject.Player.PlayerInstance
+     * @see com.chantake.MituyaProject.Player.PlayerInstance
      * @author chantake
      */
     public PlayerInstance matchSingleInstance(String name) {

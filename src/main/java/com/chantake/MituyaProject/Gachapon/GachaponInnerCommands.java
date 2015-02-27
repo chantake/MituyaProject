@@ -21,12 +21,17 @@ import com.chantake.MituyaProject.Exception.PlayerOfflineException;
 import com.chantake.MituyaProject.MituyaProject;
 import com.chantake.MituyaProject.Permissions.Rank;
 import com.chantake.MituyaProject.Player.PlayerInstance;
-import com.chantake.MituyaProject.Tool.Tools;
+import com.chantake.MituyaProject.Util.Tools;
 import com.chantake.mituyaapi.commands.Command;
 import com.chantake.mituyaapi.commands.CommandContext;
 import com.chantake.mituyaapi.commands.CommandException;
 import com.chantake.mituyaapi.commands.CommandPermissions;
 import com.chantake.mituyaapi.tools.database.JDCConnection;
+import org.bukkit.ChatColor;
+import org.bukkit.Sound;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -34,10 +39,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.bukkit.ChatColor;
-import org.bukkit.Sound;
-import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 
 /**
  *
@@ -237,97 +238,92 @@ public class GachaponInnerCommands {
         }
 
         pi.sendMessage(ChatColor.LIGHT_PURPLE + "328ガチャ・フェーズ[" + gpd.GetPhase() + "]を購入します。");
-        pi.sendMineYesNo(gpd.GetPrice(), new Runnable() {
-            @Override
-            public void run() {
-                if (pi.gainMine(-gpd.GetPrice())) {
-                    //ガチャの音っぽいピストンの音を再生
-                    p.playSound(p.getLocation(), Sound.PISTON_EXTEND, 1.0f, 1.0f);
+        pi.sendMineYesNo(gpd.GetPrice(), () -> {
+            if (pi.gainMine(-gpd.GetPrice())) {
+                //ガチャの音っぽいピストンの音を再生
+                p.playSound(p.getLocation(), Sound.PISTON_EXTEND, 1.0f, 1.0f);
 
-                    //抽選処理
-                    GachaponCapsuleData gcd = gpd.GetLotteryCapsule();
+                //抽選処理
+                GachaponCapsuleData gcd = gpd.GetLotteryCapsule();
 
-                    //カプセルの中身をプレイヤーに追加
-                    try {
-                        PlayerInventoryAddGachaponItem(plugin, pi, gcd);
-                    }
-                    catch (PlayerOfflineException ex) {
-                        Logger.getLogger(GachaponInnerCommands.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-
-                    //プレイヤーインスタンスの取得済みリストにIDを追加
-                    boolean ck = false;
-                    for (int i = 0; i < pi.GetGachaponData().size(); i++) {
-                        if (pi.GetGachaponData().get(i).GetPhase() == gpd.GetPhase()) {
-                            pi.GetGachaponData().get(i).IncBuyNum();
-                            if (!pi.GetGachaponData().get(i).GetList().contains(gcd.GetId())) {
-                                pi.GetGachaponData().get(i).GetList().add(gcd.GetId());
-                                if (pi.GetGachaponData().get(i).GetList().size() == gpd.GetCapsules().size()) {
-                                    ck = true;
-                                }
-                            }
-                            break;
-                        }
-                    }
-                    //フェーズデータの販売数加算
-                    gpd.IncSaleNum();
-
-                    //ガチャポンログに結果を記録
-                    try {
-                        
-                        GachaponDataManager.InsertGachaponLog(p.getName(), p.getUniqueId().toString(), gcd.GetId());
-                    }
-                    catch (SQLException ex) {
-                        Logger.getLogger(GachaponInnerCommands.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-
-                    //結果メッセージ送信
-                    String name = gcd.GetName();
-                    if (gcd.GetPublishFlg()) {
-                        //大当たり用
-                        pi.sendAttention(ChatColor.LIGHT_PURPLE + "[No." + String.format("%1$03d", gcd.GetId()) + "]" + ChatColor.AQUA + "  「" + ChatColor.GOLD + name + ChatColor.AQUA + "」が当たりました。");
-                        plugin.broadcastMessage(ChatColor.AQUA + "<<<328ガチャインフォメーション>>>");
-
-                        plugin.broadcastMessage(ChatColor.AQUA + "328ガチャ・フェーズ[" + gpd.GetPhase() + "]で、"
-                                + ChatColor.YELLOW + pi.getName()
-                                + ChatColor.AQUA + "さんに"
-                                + "[No." + String.format("%1$03d", gcd.GetId())
-                                + "]  " + ChatColor.GOLD + "「"
-                                + name
-                                + "」" + ChatColor.AQUA + "が当たりました。");
-                        plugin.broadcastMessage(ChatColor.AQUA + "おめでとうございます！！");
-
-                    } else {
-                        //小当り用
-                        pi.sendAttention(ChatColor.LIGHT_PURPLE + "[No." + String.format("%1$03d", gcd.GetId()) + "]" + ChatColor.AQUA + "  「" + ChatColor.GOLD + name + ChatColor.AQUA + "」が当たりました。");
-                    }
-
-                    //コンプリート処理
-                    if (ck) {
-                        plugin.broadcastMessage(ChatColor.AQUA + "<<<328ガチャインフォメーション>>>");
-                        plugin.broadcastMessage(
-                                ChatColor.YELLOW + pi.getName()
-                                + ChatColor.AQUA + "さんが"
-                                + "328ガチャ フェーズ[" + gpd.GetPhase() + "]"
-                                + "を" + ChatColor.GOLD + "コンプリート" + ChatColor.AQUA + "しました。");
-                        plugin.broadcastMessage(ChatColor.AQUA + "おめでとうございます！！");
-                    }
-
-                    //シークレット解禁処理
-                    if (gcd.GetSecret()) {
-                        gcd.SetSecret(false);
-                        plugin.broadcastMessage(ChatColor.AQUA + "<<<328ガチャインフォメーション>>>");
-                        plugin.broadcastMessage(ChatColor.AQUA
-                                + "328ガチャ・フェーズ[" + gpd.GetPhase() + "]リストで[No."
-                                + String.format("%1$03d", gcd.GetId()) + "]  "
-                                + ChatColor.GOLD + "「" + gcd.GetName() + "」"
-                                + ChatColor.AQUA + "の表示が解禁されました。");
-                    }
-
-                    pi.SetGachaponBuyTime(System.currentTimeMillis());
-                } else {
-                    pi.sendAttention("Mineが不足しているため３２８ガチャを購入出来ませんでした。");
+                //カプセルの中身をプレイヤーに追加
+                try {
+                    PlayerInventoryAddGachaponItem(plugin, pi, gcd);
+                } catch (PlayerOfflineException ex) {
+                    Logger.getLogger(GachaponInnerCommands.class.getName()).log(Level.SEVERE, null, ex);
                 }
+
+                //プレイヤーインスタンスの取得済みリストにIDを追加
+                boolean ck = false;
+                for (int i = 0; i < pi.GetGachaponData().size(); i++) {
+                    if (pi.GetGachaponData().get(i).GetPhase() == gpd.GetPhase()) {
+                        pi.GetGachaponData().get(i).IncBuyNum();
+                        if (!pi.GetGachaponData().get(i).GetList().contains(gcd.GetId())) {
+                            pi.GetGachaponData().get(i).GetList().add(gcd.GetId());
+                            if (pi.GetGachaponData().get(i).GetList().size() == gpd.GetCapsules().size()) {
+                                ck = true;
+                            }
+                        }
+                        break;
+                    }
+                }
+                //フェーズデータの販売数加算
+                gpd.IncSaleNum();
+
+                //ガチャポンログに結果を記録
+                try {
+
+                    GachaponDataManager.InsertGachaponLog(p.getName(), p.getUniqueId().toString(), gcd.GetId());
+                } catch (SQLException ex) {
+                    Logger.getLogger(GachaponInnerCommands.class.getName()).log(Level.SEVERE, null, ex);
+                }
+
+                //結果メッセージ送信
+                String name = gcd.GetName();
+                if (gcd.GetPublishFlg()) {
+                    //大当たり用
+                    pi.sendAttention(ChatColor.LIGHT_PURPLE + "[No." + String.format("%1$03d", gcd.GetId()) + "]" + ChatColor.AQUA + "  「" + ChatColor.GOLD + name + ChatColor.AQUA + "」が当たりました。");
+                    plugin.broadcastMessage(ChatColor.AQUA + "<<<328ガチャインフォメーション>>>");
+
+                    plugin.broadcastMessage(ChatColor.AQUA + "328ガチャ・フェーズ[" + gpd.GetPhase() + "]で、"
+                            + ChatColor.YELLOW + pi.getName()
+                            + ChatColor.AQUA + "さんに"
+                            + "[No." + String.format("%1$03d", gcd.GetId())
+                            + "]  " + ChatColor.GOLD + "「"
+                            + name
+                            + "」" + ChatColor.AQUA + "が当たりました。");
+                    plugin.broadcastMessage(ChatColor.AQUA + "おめでとうございます！！");
+
+                } else {
+                    //小当り用
+                    pi.sendAttention(ChatColor.LIGHT_PURPLE + "[No." + String.format("%1$03d", gcd.GetId()) + "]" + ChatColor.AQUA + "  「" + ChatColor.GOLD + name + ChatColor.AQUA + "」が当たりました。");
+                }
+
+                //コンプリート処理
+                if (ck) {
+                    plugin.broadcastMessage(ChatColor.AQUA + "<<<328ガチャインフォメーション>>>");
+                    plugin.broadcastMessage(
+                            ChatColor.YELLOW + pi.getName()
+                                    + ChatColor.AQUA + "さんが"
+                                    + "328ガチャ フェーズ[" + gpd.GetPhase() + "]"
+                                    + "を" + ChatColor.GOLD + "コンプリート" + ChatColor.AQUA + "しました。");
+                    plugin.broadcastMessage(ChatColor.AQUA + "おめでとうございます！！");
+                }
+
+                //シークレット解禁処理
+                if (gcd.GetSecret()) {
+                    gcd.SetSecret(false);
+                    plugin.broadcastMessage(ChatColor.AQUA + "<<<328ガチャインフォメーション>>>");
+                    plugin.broadcastMessage(ChatColor.AQUA
+                            + "328ガチャ・フェーズ[" + gpd.GetPhase() + "]リストで[No."
+                            + String.format("%1$03d", gcd.GetId()) + "]  "
+                            + ChatColor.GOLD + "「" + gcd.GetName() + "」"
+                            + ChatColor.AQUA + "の表示が解禁されました。");
+                }
+
+                pi.SetGachaponBuyTime(System.currentTimeMillis());
+            } else {
+                pi.sendAttention("Mineが不足しているため３２８ガチャを購入出来ませんでした。");
             }
         });
     }

@@ -52,17 +52,14 @@ public class ShopCommands {
         switch (message.getString(0)) {
             case "chantake":
             case "fumitti":
-                player.sendYesNo(message.getString(0) + "の頭を 1000 Mineで購入します。よろしいですか？", new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            if (player.checkMine(-1000) && player.gainItem(is)) {
-                                player.gainMine(-1000);
-                                player.sendSuccess(message.getString(0) + "の頭を購入しました。");
-                            }
-                        } catch (PlayerOfflineException e) {
-                            e.printStackTrace();
+                player.sendYesNo(message.getString(0) + "の頭を 1000 Mineで購入します。よろしいですか？", () -> {
+                    try {
+                        if (player.checkMine(-1000) && player.gainItem(is)) {
+                            player.gainMine(-1000);
+                            player.sendSuccess(message.getString(0) + "の頭を購入しました。");
                         }
+                    } catch (PlayerOfflineException e) {
+                        e.printStackTrace();
                     }
                 });
                 break;

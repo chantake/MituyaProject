@@ -19,18 +19,19 @@ package com.chantake.MituyaProject.Event;
 
 import com.chantake.MituyaProject.MituyaProject;
 import com.chantake.MituyaProject.Parameter.Parameter328;
-import com.chantake.MituyaProject.Tool.Timer.TimerManager;
-import com.chantake.MituyaProject.Tool.Tools;
-import java.util.Properties;
-import java.util.concurrent.ScheduledFuture;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.script.Invocable;
-import javax.script.ScriptException;
+import com.chantake.MituyaProject.Timer.TimerManager;
+import com.chantake.MituyaProject.Util.Tools;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.EntityType;
+
+import javax.script.Invocable;
+import javax.script.ScriptException;
+import java.util.Properties;
+import java.util.concurrent.ScheduledFuture;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -105,32 +106,23 @@ public class EventManager {
 
     public void schedule(final String methodName, long delay) {
         plugin.getServer().getScheduler().scheduleAsyncDelayedTask(plugin,
-                new Runnable() {
-
-                    @Override
-                    public void run() {
-                        try {
-                            iv.invokeFunction(methodName, (Object)null);
-                        }
-                        catch (ScriptException | NoSuchMethodException ex) {
-                            Logger.getLogger(EventManager.class.getName()).log(Level.SEVERE, null, ex);
-                        }
-                    }
-                }, delay);
-    }
-
-    public ScheduledFuture<?> scheduleAtTimestamp(final String methodName, long timestamp) {
-        return TimerManager.getInstance().scheduleAtTimestamp(new Runnable() {
-
-            @Override
-            public void run() {
-                synchronized (plugin.getServer()) {
+                () -> {
                     try {
                         iv.invokeFunction(methodName, (Object)null);
                     }
                     catch (ScriptException | NoSuchMethodException ex) {
                         Logger.getLogger(EventManager.class.getName()).log(Level.SEVERE, null, ex);
                     }
+                }, delay);
+    }
+
+    public ScheduledFuture<?> scheduleAtTimestamp(final String methodName, long timestamp) {
+        return TimerManager.getInstance().scheduleAtTimestamp(() -> {
+            synchronized (plugin.getServer()) {
+                try {
+                    iv.invokeFunction(methodName, (Object) null);
+                } catch (ScriptException | NoSuchMethodException ex) {
+                    Logger.getLogger(EventManager.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
         }, timestamp);

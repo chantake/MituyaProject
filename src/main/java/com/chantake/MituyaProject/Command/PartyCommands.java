@@ -50,11 +50,10 @@ public class PartyCommands {
                     sb.append("[").append(ChatColor.GREEN).append("Party").append(ChatColor.WHITE).append("]");
                     sb.append(" リーダー:").append(pd.getPartyReader().getName()).append(" メンバー:");
 
-                    for (PlayerInstance ins : pd.getPartyMembers()) {
-                        if (!ins.equals(player)) {//リーダー以外
-                            sb.append(ins.getName()).append(" ");
-                        }
-                    }
+                    //リーダー以外
+                    pd.getPartyMembers().stream().filter(ins -> !ins.equals(player)).forEach(ins -> {//リーダー以外
+                        sb.append(ins.getName()).append(" ");
+                    });
                 } else if (message.getString(0).equals("addmember") || message.getString(0).equals("am")) {
                     if (message.argsLength() > 1) {
                         if (pd.getPartyReader().equals(player)) {//パーティリーダーだった場合
@@ -62,16 +61,12 @@ public class PartyCommands {
                             if (ins == null) {
                                 throw new PlayerNotFoundException(message.getString(1));
                             } else {
-                                ins.sendYesNoFromPlayer("パーティーの誘いがきています。参加しますか？", player, new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        try {
-                                            pd.addMember(ins);
-                                            player.sendSuccess("プレーヤー " + ins.getName() + " をパーティに追加しました。");
-                                            pd.sendPartyMessage(ins.getName() + " がパーティに追加されました");
-                                        }
-                                        catch (PlayerOfflineException ex) {
-                                        }
+                                ins.sendYesNoFromPlayer("パーティーの誘いがきています。参加しますか？", player, () -> {
+                                    try {
+                                        pd.addMember(ins);
+                                        player.sendSuccess("プレーヤー " + ins.getName() + " をパーティに追加しました。");
+                                        pd.sendPartyMessage(ins.getName() + " がパーティに追加されました");
+                                    } catch (PlayerOfflineException ex) {
                                     }
                                 });
                             }
@@ -85,20 +80,16 @@ public class PartyCommands {
                  * * 退席コマンド **
                  */
                 if (message.getString(0).equals("leave") || message.getString(0).equals("退席") || message.getString(0).equals("ぇあヴぇ") || message.getString(0).equals("taiseki")) {
-                    player.sendYesNo("パーティーから退席します。よろしいですか？", new Runnable() {
-                        @Override
-                        public void run() {
-                            pd.removeMember(player);//プレーヤーをパーティーから離脱させる
-                            player.sendAttention("パーティーから退席しました。");
-                            for (PlayerInstance ins : pd.getPartyMembers())//パーティーメンバーの全員に報告
-                            {
-                                try {
-                                    if (ins.getPlayer() != null && ins.getPlayer().isOnline()) {
-                                        ins.sendAttention(player.getName() + "さんがパーティーから退席しました。");
-                                    }
+                    player.sendYesNo("パーティーから退席します。よろしいですか？", () -> {
+                        pd.removeMember(player);//プレーヤーをパーティーから離脱させる
+                        player.sendAttention("パーティーから退席しました。");
+                        for (PlayerInstance ins : pd.getPartyMembers())//パーティーメンバーの全員に報告
+                        {
+                            try {
+                                if (ins.getPlayer() != null && ins.getPlayer().isOnline()) {
+                                    ins.sendAttention(player.getName() + "さんがパーティーから退席しました。");
                                 }
-                                catch (PlayerOfflineException ex) {
-                                }
+                            } catch (PlayerOfflineException ex) {
                             }
                         }
                     });
@@ -109,15 +100,11 @@ public class PartyCommands {
                                 if (player != ins) {
                                     Player pr = ins.getPlayer();
                                     if (pr != null && pr.isOnline()) {
-                                        ins.sendYesNoFromPlayer("パーティーリーダーが呼びました。飛びますか？", player, new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                try {
-                                                    ins.sendInfo(ChatColor.GREEN + "Party", ChatColor.LIGHT_PURPLE + "パーティリーダーのところに移動しています・・・");
-                                                    ins.teleport(players.getLocation());
-                                                }
-                                                catch (PlayerOfflineException ex) {
-                                                }
+                                        ins.sendYesNoFromPlayer("パーティーリーダーが呼びました。飛びますか？", player, () -> {
+                                            try {
+                                                ins.sendInfo(ChatColor.GREEN + "Party", ChatColor.LIGHT_PURPLE + "パーティリーダーのところに移動しています・・・");
+                                                ins.teleport(players.getLocation());
+                                            } catch (PlayerOfflineException ex) {
                                             }
                                         });
                                     }
@@ -131,11 +118,7 @@ public class PartyCommands {
                     }
                 } else if (message.getString(0).equals("rp") || message.getString(0).startsWith("remove") || message.getString(0).equals("削除")) {
                     player.sendInfo(ChatColor.GREEN + "Party", ChatColor.YELLOW + "パーティを解散しました");
-                    for (PlayerInstance ins : pd.getPartyMembers()) {
-                        if (player != ins) {
-                            ins.sendInfo(ChatColor.GREEN + "Party", ChatColor.YELLOW + "パーティが解散しました");
-                        }
-                    }
+                    pd.getPartyMembers().stream().filter(ins -> player != ins).forEach(ins -> ins.sendInfo(ChatColor.GREEN + "Party", ChatColor.YELLOW + "パーティが解散しました"));
                     PartyManager.removeParty(pd.getId());
                 }
             } else if (message.getString(0).equals("cp") || message.getString(0).startsWith("create") || message.getString(0).equals("作成")) {

@@ -68,9 +68,8 @@ public abstract class IOChipScanner implements ChipScanner {
 
     private boolean matchMaterial(Material m, MaterialData md, byte data) {
         if (m != md.getItemType()) return false;
-        else if (m == Material.WOOL) {
-            return data == md.getData();
-        } else return true;
+        else
+            return m != Material.WOOL || data == md.getData();
 
     }
 

@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @author Tal Eisenberg
@@ -35,12 +36,7 @@ public class ChannelManager {
         channel.addWirelessDevice(r);
 
         if (exists) {
-            rc.getServer().getScheduler().scheduleSyncDelayedTask(rc, new Runnable() {
-                @Override
-                public void run() {
-                    channel.updateReceiver(r);
-                }
-            });
+            rc.getServer().getScheduler().scheduleSyncDelayedTask(rc, () -> channel.updateReceiver(r));
         }
 
         return channel;
@@ -116,8 +112,7 @@ public class ChannelManager {
         List<Wireless> list = new ArrayList<>();
 
         for (BroadcastChannel c : broadcastChannels.values()) {
-            for (Wireless w : c.getWirelessDevices())
-                if (w.getCircuit() == circuit) list.add(w);
+            list.addAll(c.getWirelessDevices().stream().filter(w -> w.getCircuit() == circuit).collect(Collectors.toList()));
         }
 
         return list;
@@ -127,8 +122,7 @@ public class ChannelManager {
         List<Wireless> list = getCircuitWireless(circuit);
         if (list.isEmpty()) return false;
         else {
-            for (Wireless w : list)
-                removeWireless(w);
+            list.forEach(this::removeWireless);
         }
 
         return true;

@@ -3,7 +3,7 @@ package com.chantake.MituyaProject.RSC.Chip.IO;
 import com.chantake.MituyaProject.RSC.Chip.Chip;
 import com.chantake.MituyaProject.RSC.Chip.IO.InputPin.SourceType;
 import com.chantake.MituyaProject.RSC.RedstoneChips;
-import com.chantake.MituyaProject.RSC.Util.ChunkLocation;
+import com.chantake.MituyaProject.Util.ChunkLocation;
 import org.bukkit.Effect;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -91,14 +91,12 @@ public class OutputPin extends IOBlock {
     public void setState(boolean state) {
         this.state = state;
 
-        for (Location l : outputBlocks) {
-            if (shouldUpdateChunk(l)) {
-                InputPin in = RedstoneChips.inst().chipManager().getAllChips().getInputPin(l);
+        outputBlocks.stream().filter(l -> shouldUpdateChunk(l)).forEach(l -> {
+            InputPin in = RedstoneChips.inst().chipManager().getAllChips().getInputPin(l);
 
-                if (in == null) changeBlockState(l, state);
-                else in.updateValue(loc.getBlock(), state, SourceType.DIRECT);
-            }
-        }
+            if (in == null) changeBlockState(l, state);
+            else in.updateValue(loc.getBlock(), state, SourceType.DIRECT);
+        });
     }
 
     private boolean changeBlockState(Location outputLoc, boolean state) {
@@ -300,9 +298,7 @@ public class OutputPin extends IOBlock {
      * Updates the state of the pin output blocks.
      */
     public void refreshOutputs() {
-        for (Location l : this.outputBlocks) {
-            if (ChunkLocation.fromLocation(l).isChunkLoaded()) changeBlockState(l, state);
-        }
+        this.outputBlocks.stream().filter(l -> ChunkLocation.fromLocation(l).isChunkLoaded()).forEach(l -> changeBlockState(l, state));
     }
 
     private boolean shouldUpdateChunk(Location l) {

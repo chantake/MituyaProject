@@ -3,7 +3,7 @@ package com.chantake.MituyaProject.RSC.Chip.IO;
 import com.chantake.MituyaProject.RSC.Chip.Chip;
 import com.chantake.MituyaProject.RSC.RCPrefs;
 import com.chantake.MituyaProject.RSC.RedstoneChips;
-import com.chantake.MituyaProject.RSC.Util.ChunkLocation;
+import com.chantake.MituyaProject.Util.ChunkLocation;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -149,11 +149,7 @@ public class InputPin extends IOBlock {
      * refreshes the state of all source blocks according to their block state.
      */
     public void refreshSourceBlocks() {
-        for (Location l : this.sourceBlocks.keySet()) {
-            if (ChunkLocation.fromLocation(l).isChunkLoaded()) {
-                sourceBlocks.put(l, findSourceBlockState(l));
-            }
-        }
+        this.sourceBlocks.keySet().stream().filter(l -> ChunkLocation.fromLocation(l).isChunkLoaded()).forEach(l -> sourceBlocks.put(l, findSourceBlockState(l)));
     }
 
     /**
@@ -166,8 +162,7 @@ public class InputPin extends IOBlock {
 
         switch (m) {
             case REDSTONE_WIRE:
-                if (loc.equals(bottomSourceBlock)) return false;
-                else return b.getData() > 0;
+                return !loc.equals(bottomSourceBlock) && b.getData() > 0;
             case LEVER:
                 return (b.getData() & 8) == 8;
             case REDSTONE_TORCH_OFF:
@@ -176,9 +171,7 @@ public class InputPin extends IOBlock {
                 return true;
             default: // looking for direct connection to an output block.
                 OutputPin out = RedstoneChips.inst().chipManager().getAllChips().getOutputPin(loc);
-                if (out != null && out.isDirect())
-                    return out.getState();
-                else return false;
+                return out != null && out.isDirect() && out.getState();
         }
     }
 

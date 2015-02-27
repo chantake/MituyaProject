@@ -25,7 +25,7 @@ import com.chantake.MituyaProject.Parameter.Parameter328;
 import com.chantake.MituyaProject.Permissions.Rank;
 import com.chantake.MituyaProject.Player.LocationData;
 import com.chantake.MituyaProject.Player.PlayerInstance;
-import com.chantake.MituyaProject.Tool.Tools;
+import com.chantake.MituyaProject.Util.Tools;
 import com.chantake.mituyaapi.commands.Command;
 import com.chantake.mituyaapi.commands.CommandContext;
 import com.chantake.mituyaapi.commands.CommandException;
@@ -39,33 +39,6 @@ import org.bukkit.entity.Player;
  * @author chantake
  */
 public class HomeCommands {
-
-// <editor-fold defaultstate="collapsed" desc="helpMessage">
-    private enum Help {
-
-        Noth("ホームを設定していません"),
-        Main("/home [set/public/here/info/help]"),
-        HomeSet("/home set ['home_id'/message]"),
-        Here("/home [here/invite] 'プレーヤーID' 'ホームID'"),
-        Public("/home public 'ホームID'"),
-        HomeInfo(ChatColor.AQUA + "Home"),
-        Rank("このコマンドをつかうには 権限がありません");
-        private final String help;
-
-        private Help(String txt) {
-            this.help = txt;
-        }
-
-        public String Help() {
-            return this.help;
-        }
-
-        @Override
-        public String toString() {
-            return this.help;
-        }
-    }
-// </editor-fold>
 
 // <editor-fold defaultstate="collapsed" desc="home">
     @Command(aliases = {"home", "ほめ"}, usage = "", desc = "Home",
@@ -100,13 +73,10 @@ public class HomeCommands {
                     player.sendAttention("ホームIDは " + max_subid + " 以下で下から順番に作成してください。");
                 } else {
                     final int mine = Parameter328.Home_Mine[home_size];
-                    player.sendMineYesNo(mine, new Runnable() {
-                        @Override
-                        public void run() {
-                            player.gainMine(-mine);
-                            player.SaveHome(players.getLocation().clone(), subid, false, null);
-                            player.sendSuccess("ホームを設定しました。 ホームID:" + subid);
-                        }
+                    player.sendMineYesNo(mine, () -> {
+                        player.gainMine(-mine);
+                        player.SaveHome(players.getLocation().clone(), subid, false, null);
+                        player.sendSuccess("ホームを設定しました。 ホームID:" + subid);
                     });
                 }
             } else { //ある場合
@@ -208,7 +178,7 @@ public class HomeCommands {
             }
         }
     }
-    // </editor-fold>
+// </editor-fold>
 
 // <editor-fold defaultstate="collapsed" desc="homeset">
     @Command(aliases = {"sethome", "homeset"}, usage = "", desc = "home set command",
@@ -220,6 +190,33 @@ public class HomeCommands {
             sb.append(" ").append(args.getString(0));
         }
         plugin.handleCommand(players, player, sb.toString());
+    }
+    // </editor-fold>
+
+    // <editor-fold defaultstate="collapsed" desc="helpMessage">
+    private enum Help {
+
+        Noth("ホームを設定していません"),
+        Main("/home [set/public/here/info/help]"),
+        HomeSet("/home set ['home_id'/message]"),
+        Here("/home [here/invite] 'プレーヤーID' 'ホームID'"),
+        Public("/home public 'ホームID'"),
+        HomeInfo(ChatColor.AQUA + "Home"),
+        Rank("このコマンドをつかうには 権限がありません");
+        private final String help;
+
+        private Help(String txt) {
+            this.help = txt;
+        }
+
+        public String Help() {
+            return this.help;
+        }
+
+        @Override
+        public String toString() {
+            return this.help;
+        }
     }
 // </editor-fold>
 }

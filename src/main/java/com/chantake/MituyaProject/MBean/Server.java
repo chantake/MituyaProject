@@ -21,16 +21,17 @@ import com.chantake.MituyaProject.Exception.PlayerOfflineException;
 import com.chantake.MituyaProject.MituyaProject;
 import com.chantake.MituyaProject.Parameter.Parameter328;
 import com.chantake.MituyaProject.Player.PlayerInstance;
-import com.chantake.MituyaProject.Tool.PerfomanceCheck;
-import com.chantake.MituyaProject.Tool.Timer.AutoSave;
-import com.chantake.MituyaProject.Tool.Timer.AutoStop;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import com.chantake.MituyaProject.Timer.AutoSave;
+import com.chantake.MituyaProject.Timer.AutoStop;
+import com.chantake.MituyaProject.Util.PerfomanceCheck;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -93,6 +94,11 @@ public class Server implements ServerMBean {
     }
 
     @Override
+    public void setJackpot(long i) {
+        Parameter328.jackpot = i;
+    }
+
+    @Override
     public int getOnlineUser() {
         return plugin.getServer().getOnlinePlayers().size();
     }
@@ -111,11 +117,6 @@ public class Server implements ServerMBean {
     @Override
     public void sayMesseage(String command) {
         plugin.broadcastMessage(ChatColor.LIGHT_PURPLE + "[Server] " + command);
-    }
-
-    @Override
-    public void setJackpot(long i) {
-        Parameter328.jackpot = i;
     }
 
     @Override

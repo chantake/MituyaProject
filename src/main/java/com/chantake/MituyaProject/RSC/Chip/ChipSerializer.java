@@ -4,7 +4,7 @@ import com.chantake.MituyaProject.RSC.Chip.ChipFactory.MaybeChip;
 import com.chantake.MituyaProject.RSC.Chip.Scan.ChipParameters;
 import com.chantake.MituyaProject.RSC.RedstoneChips;
 import com.chantake.MituyaProject.RSC.Serializer;
-import com.chantake.MituyaProject.RSC.Util.BooleanArrays;
+import com.chantake.MituyaProject.Util.BooleanArrays;
 import org.bukkit.Location;
 import org.bukkit.Server;
 import org.bukkit.World;
@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Responsible for turning a {@link com.chantake.MituyaProject.RSC.Chip.Chip Chip} object into
@@ -100,8 +101,7 @@ public class ChipSerializer extends Serializer {
     private List<Block> parseLocationList(World w, List<List<Integer>> list) {
         List<Block> blocks = new ArrayList<>();
         if (list != null)
-            for (List<Integer> coords : list)
-                blocks.add(parseLocation(w, coords).getBlock());
+            blocks.addAll(list.stream().map(coords -> parseLocation(w, coords).getBlock()).collect(Collectors.toList()));
 
         return blocks;
     }

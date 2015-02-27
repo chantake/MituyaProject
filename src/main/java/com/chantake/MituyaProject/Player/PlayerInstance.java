@@ -24,13 +24,13 @@ import com.chantake.MituyaProject.Parameter.Parameter328;
 import com.chantake.MituyaProject.Permissions.Rank;
 import com.chantake.MituyaProject.Player.Chat.ChatType;
 import com.chantake.MituyaProject.Player.Points.UserPointData;
-import com.chantake.MituyaProject.Tool.Encrypter;
-import com.chantake.MituyaProject.Tool.HexTool;
-import com.chantake.MituyaProject.Tool.MySqlProcessing;
-import com.chantake.MituyaProject.Tool.Timer.AutoKick;
-import com.chantake.MituyaProject.Tool.Timer.CancelCheckInstance;
-import com.chantake.MituyaProject.Tool.Timer.PlayerTeleport;
-import com.chantake.MituyaProject.Tool.UUIDUtils;
+import com.chantake.MituyaProject.Timer.AutoKick;
+import com.chantake.MituyaProject.Timer.CancelCheckInstance;
+import com.chantake.MituyaProject.Timer.PlayerTeleport;
+import com.chantake.MituyaProject.Util.Encrypter;
+import com.chantake.MituyaProject.Util.HexTool;
+import com.chantake.MituyaProject.Util.MySqlProcessing;
+import com.chantake.MituyaProject.Util.UUIDUtils;
 import com.chantake.mituyaapi.tools.database.JDCConnection;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -674,10 +674,7 @@ public class PlayerInstance implements PlayerInstanceMBean {
      * @return trueの場合ワールドでHomeを使用してます
      */
     public boolean isHomeWorldUse(World wd) {
-        if (this.isHomeUse()) {
-            return !this.getWorldHome(wd).isEmpty();
-        }
-        return false;
+        return this.isHomeUse() && !this.getWorldHome(wd).isEmpty();
     }
 
     /**
@@ -1326,11 +1323,7 @@ public class PlayerInstance implements PlayerInstanceMBean {
                     ps.close();
 
                     //マイン(所持金)データが見つからない場合は生成する。
-                    if (this.mine_id == -1) {
-                        ret = this.CreateMineTableToDB();
-                    } else {
-                        ret = true;
-                    }
+                    ret = this.mine_id != -1 || this.CreateMineTableToDB();
                 }
             }
         } catch (SQLException ex) {
@@ -1396,9 +1389,9 @@ public class PlayerInstance implements PlayerInstanceMBean {
                 ps.setString(15, this.loginbmessage);//ログインメッセージ
                 ps.setInt(16, this.guildid);//ギルドID
                 ps.setInt(17, this.tpp);//tp public
-                ps.setByte(18, (byte) (false ? 1 : 0));
-                ps.setByte(19, (byte) (false ? 1 : 0));
-                ps.setByte(20, (byte) (false ? 1 : 0));
+                ps.setByte(18, (byte) (0));
+                ps.setByte(19, (byte) (0));
+                ps.setByte(20, (byte) (0));
                 ps.setInt(21, -1);//lastworld worldid
                 ps.setString(22, this.deathmessage);//deathmessage
                 ps.setInt(23, this.mp);//mp

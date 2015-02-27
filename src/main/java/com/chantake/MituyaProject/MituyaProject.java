@@ -22,6 +22,7 @@ import com.chantake.MituyaProject.Bukkit.JapaneseMessage;
 import com.chantake.MituyaProject.Bukkit.Listener.*;
 import com.chantake.MituyaProject.Bukkit.MituyaProjectListener;
 import com.chantake.MituyaProject.Command.*;
+import com.chantake.MituyaProject.Dynmap.DynmapApiConnecter;
 import com.chantake.MituyaProject.Event.EventScriptManager;
 import com.chantake.MituyaProject.Exception.MituyaProjectException;
 import com.chantake.MituyaProject.Exception.PlayerNotFoundException;
@@ -41,16 +42,15 @@ import com.chantake.MituyaProject.Player.Sign.SignCommandManager;
 import com.chantake.MituyaProject.Player.Sign.SignElevatorManager;
 import com.chantake.MituyaProject.Protocol.Listener.SignSendWrapper;
 import com.chantake.MituyaProject.RSC.RedstoneChips;
-import com.chantake.MituyaProject.Tool.Dynmap.DynmapApiConnecter;
-import com.chantake.MituyaProject.Tool.HiraganaToKanji;
-import com.chantake.MituyaProject.Tool.Log.LogType;
-import com.chantake.MituyaProject.Tool.Log.MituyaLogManager;
-import com.chantake.MituyaProject.Tool.MituyaModPacket.PluginPacketManager;
-import com.chantake.MituyaProject.Tool.MySqlProcessing;
-import com.chantake.MituyaProject.Tool.PerformanceMonitor;
-import com.chantake.MituyaProject.Tool.Timer.*;
-import com.chantake.MituyaProject.Tool.Tools;
-import com.chantake.MituyaProject.Tool.Twitter.TwitterManager;
+import com.chantake.MituyaProject.Timer.*;
+import com.chantake.MituyaProject.Util.HiraganaToKanji;
+import com.chantake.MituyaProject.Util.Log.LogType;
+import com.chantake.MituyaProject.Util.Log.MituyaLogManager;
+import com.chantake.MituyaProject.Util.MituyaModPacket.PluginPacketManager;
+import com.chantake.MituyaProject.Util.MySqlProcessing;
+import com.chantake.MituyaProject.Util.PerformanceMonitor;
+import com.chantake.MituyaProject.Util.Tools;
+import com.chantake.MituyaProject.Util.Twitter.TwitterManager;
 import com.chantake.MituyaProject.World.MobManager.MobManager;
 import com.chantake.MituyaProject.World.Pack.PackBookManager;
 import com.chantake.MituyaProject.World.Shop.ChestShopManager;
@@ -169,12 +169,9 @@ public final class MituyaProject extends JavaPlugin {
         TimerManager.getInstance().stop();
         this.Log("データベースを切断中です・・・");
         final MituyaProject plugin = this;
-        Thread th = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                plugin.getDatabaseConnectionManager().close();
-                plugin.Log("DBをすべて切断しました");
-            }
+        Thread th = new Thread(() -> {
+            plugin.getDatabaseConnectionManager().close();
+            plugin.Log("DBをすべて切断しました");
         });
         try {
             th.start();
@@ -269,12 +266,7 @@ public final class MituyaProject extends JavaPlugin {
         } else {
             if (!Parameter328.Mentenance) {
                 final MituyaProject plugin = this;
-                this.getServer().getScheduler().scheduleSyncDelayedTask(this, new Runnable() {
-                    @Override
-                    public void run() {
-                        plugin.sendTwitter("サーバーを起動しました motd:" + getServer().getMotd() + " #minecraft");
-                    }
-                }, 10 * 20L);
+                this.getServer().getScheduler().scheduleSyncDelayedTask(this, () -> plugin.sendTwitter("サーバーを起動しました motd:" + getServer().getMotd() + " #minecraft"), 10 * 20L);
             }
         }
         this.Log("みつやプラグイン version." + getDescription().getVersion() + " は有効です");

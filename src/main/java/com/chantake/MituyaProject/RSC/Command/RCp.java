@@ -1,8 +1,8 @@
 package com.chantake.MituyaProject.RSC.Command;
 
-import com.chantake.MituyaProject.RSC.Paging.Pager;
-import com.chantake.MituyaProject.RSC.Parsing.Parsing;
 import com.chantake.MituyaProject.RSC.RCPrefs;
+import com.chantake.MituyaProject.Util.Paging.Pager;
+import com.chantake.MituyaProject.Util.Parsing.Parsing;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 

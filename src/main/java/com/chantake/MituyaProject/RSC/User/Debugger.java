@@ -116,7 +116,7 @@ public abstract class Debugger extends ChipListenerImpl {
      */
     public void addFlag(Chip c, Flag f) {
         if (!flags.containsKey(c))
-            flags.put(c, new ArrayList<Flag>());
+            flags.put(c, new ArrayList<>());
 
         flags.get(c).add(f);
     }
@@ -129,8 +129,7 @@ public abstract class Debugger extends ChipListenerImpl {
      * @return true if the flag was removed.
      */
     public boolean removeFlag(Chip c, Flag f) {
-        if (!flags.containsKey(c)) return false;
-        return flags.get(c).remove(f);
+        return flags.containsKey(c) && flags.get(c).remove(f);
     }
 
     /**
@@ -139,8 +138,7 @@ public abstract class Debugger extends ChipListenerImpl {
      * @return True if the debug flag is set for this chip.
      */
     public boolean isDebugFlagSet(Chip c, Flag f) {
-        if (!flags.containsKey(c)) return false;
-        else return flags.get(c).contains(f);
+        return flags.containsKey(c) && flags.get(c).contains(f);
     }
 
     public enum Flag {IO}

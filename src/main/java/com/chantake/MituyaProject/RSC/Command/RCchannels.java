@@ -1,19 +1,19 @@
 package com.chantake.MituyaProject.RSC.Command;
 
-import com.chantake.MituyaProject.RSC.Paging.ArrayLineSource;
-import com.chantake.MituyaProject.RSC.Paging.Pager;
 import com.chantake.MituyaProject.RSC.RCPermissions;
 import com.chantake.MituyaProject.RSC.RCPrefs;
-import com.chantake.MituyaProject.RSC.Util.BooleanArrays;
 import com.chantake.MituyaProject.RSC.Wireless.BroadcastChannel;
 import com.chantake.MituyaProject.RSC.Wireless.Receiver;
 import com.chantake.MituyaProject.RSC.Wireless.Transmitter;
+import com.chantake.MituyaProject.Util.BooleanArrays;
+import com.chantake.MituyaProject.Util.Paging.ArrayLineSource;
+import com.chantake.MituyaProject.Util.Paging.Pager;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author Tal Eisenberg
@@ -23,12 +23,7 @@ public class RCchannels extends RCCommand {
     public static void printChannelList(CommandSender sender) {
         com.chantake.MituyaProject.RSC.RedstoneChips rc = com.chantake.MituyaProject.RSC.RedstoneChips.inst();
 
-        List<String> lines = new ArrayList<>();
-        for (BroadcastChannel channel : rc.channelManager().getBroadcastChannels().values()) {
-            if (RCPermissions.enforceChannel(sender, channel, false)) {
-                lines.add(ChatColor.YELLOW + channel.name + ChatColor.WHITE + " - " + channel.getLength() + " bits, " + channel.getTransmitters().size() + " transmitters, " + channel.getReceivers().size() + " receivers." + ChatColor.GREEN + (channel.isProtected() ? " Protected" : ""));
-            }
-        }
+        List<String> lines = rc.channelManager().getBroadcastChannels().values().stream().filter(channel -> RCPermissions.enforceChannel(sender, channel, false)).map(channel -> ChatColor.YELLOW + channel.name + ChatColor.WHITE + " - " + channel.getLength() + " bits, " + channel.getTransmitters().size() + " transmitters, " + channel.getReceivers().size() + " receivers." + ChatColor.GREEN + (channel.isProtected() ? " Protected" : "")).collect(Collectors.toList());
 
         if (lines.isEmpty()) {
             info(sender, "There are no known active broadcast channels.");

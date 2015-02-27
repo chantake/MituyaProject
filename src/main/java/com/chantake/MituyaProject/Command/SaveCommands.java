@@ -21,7 +21,7 @@ import com.chantake.MituyaProject.Exception.PlayerOfflineException;
 import com.chantake.MituyaProject.MituyaProject;
 import com.chantake.MituyaProject.Player.LocationData;
 import com.chantake.MituyaProject.Player.PlayerInstance;
-import com.chantake.MituyaProject.Tool.Tools;
+import com.chantake.MituyaProject.Util.Tools;
 import com.chantake.mituyaapi.commands.Command;
 import com.chantake.mituyaapi.commands.CommandContext;
 import com.chantake.mituyaapi.commands.CommandException;
@@ -55,12 +55,9 @@ public class SaveCommands {
                         player.sendAttention("ログインメッセージは40文字以内で設定してください");
                         return;
                     }
-                    player.sendYesNo("以下の内容で登録してもよろしいでしょうか？ LM:" + text, new Runnable() {
-                        @Override
-                        public void run() {
-                            player.setLoginBMessage(text);
-                            player.sendSuccess("ログインメッセージ設定完了。  " + text);
-                        }
+                    player.sendYesNo("以下の内容で登録してもよろしいでしょうか？ LM:" + text, () -> {
+                        player.setLoginBMessage(text);
+                        player.sendSuccess("ログインメッセージ設定完了。  " + text);
                     });
                 } else {
                     player.sendAttention("/save loginmessage [LoginMessage]");
@@ -72,12 +69,9 @@ public class SaveCommands {
                         player.sendAttention("デスメッセージは40文字以内で設定してください");
                         return;
                     }
-                    player.sendYesNo("以下の内容で登録してもよろしいでしょうか？ DM:" + text, new Runnable() {
-                        @Override
-                        public void run() {
-                            player.setDeathMessage(text);
-                            player.sendSuccess("デスメッセージ設定完了。  " + text);
-                        }
+                    player.sendYesNo("以下の内容で登録してもよろしいでしょうか？ DM:" + text, () -> {
+                        player.setDeathMessage(text);
+                        player.sendSuccess("デスメッセージ設定完了。  " + text);
                     });
                 } else {
                     player.sendAttention("/save deathmessage [メッセージ]");

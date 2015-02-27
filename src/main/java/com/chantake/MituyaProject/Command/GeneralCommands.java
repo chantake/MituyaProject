@@ -26,24 +26,23 @@ import com.chantake.MituyaProject.Parameter.Parameter328;
 import com.chantake.MituyaProject.Permissions.Rank;
 import com.chantake.MituyaProject.Player.HideManager;
 import com.chantake.MituyaProject.Player.PlayerInstance;
-import com.chantake.MituyaProject.Tool.Timer.ArrowRain;
-import com.chantake.MituyaProject.Tool.Tools;
+import com.chantake.MituyaProject.Util.Tools;
 import com.chantake.mituyaapi.commands.Command;
 import com.chantake.mituyaapi.commands.CommandContext;
 import com.chantake.mituyaapi.commands.CommandException;
 import com.chantake.mituyaapi.commands.CommandPermissions;
-import java.io.File;
-import java.io.IOException;
-import java.util.Random;
-import javax.sound.midi.InvalidMidiDataException;
-import javax.sound.midi.MidiUnavailableException;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
-
 import org.bukkit.entity.*;
 import org.bukkit.inventory.BeaconInventory;
 import org.bukkit.util.Vector;
+
+import javax.sound.midi.InvalidMidiDataException;
+import javax.sound.midi.MidiUnavailableException;
+import java.io.File;
+import java.io.IOException;
+import java.util.Random;
 
 /**
  *
@@ -260,12 +259,9 @@ public class GeneralCommands {
             flags = "t", min = 0, max = -1)
     @CommandPermissions({"mituya.player.clearinventory"})
     public static void inventry(CommandContext args, MituyaProject plugin, final Player players, final PlayerInstance player) throws CommandException, PlayerOfflineException {
-        player.sendYesNo("インベントリがすべて消えますがよろしいでしょうか？", new Runnable() {
-            @Override
-            public void run() {
-                players.getInventory().clear();
-                players.sendMessage(ChatColor.DARK_GRAY + "インベントリ内のアイテムをすべて削除しました");
-            }
+        player.sendYesNo("インベントリがすべて消えますがよろしいでしょうか？", () -> {
+            players.getInventory().clear();
+            players.sendMessage(ChatColor.DARK_GRAY + "インベントリ内のアイテムをすべて削除しました");
         });
     }
 // </editor-fold>
@@ -391,32 +387,6 @@ public class GeneralCommands {
         } else {
             player.sendAttention("/account pass");
         }
-    }
-// </editor-fold>
-
-// <editor-fold defaultstate="collapsed" desc="arrowrain">
-    @Command(aliases = {"arrowrain"}, usage = "[-pr] [player] [time]", desc = "",
-            flags = "pr", min = 0, max = -1)
-    @CommandPermissions({"mituyaproject.rank.gm"})
-    public static void arrowrain(CommandContext args, MituyaProject plugin, Player players, PlayerInstance player) throws CommandException, PlayerOfflineException {
-        int times;
-        int mode = 0;
-        if (args.hasFlag('p')) {
-            player = plugin.getInstanceManager().matchSingleInstance(args.getString(0));
-            times = args.getInteger(1);
-        } else {
-            try {
-                times = args.getInteger(0);
-            }
-            catch (NumberFormatException e) {
-                times = 2;
-            }
-        }
-        if (args.hasFlag('r')) {
-            mode = 1;
-        }
-        ArrowRain arrowRain = new ArrowRain(player.getPlayer(), mode, times);
-        plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, arrowRain, 250 * 2L, 250 * 2L);
     }
 // </editor-fold>
 
@@ -546,12 +516,9 @@ public class GeneralCommands {
         if (player.hasPermission(Rank.Supporter)) {
             plugin.broadcastMessage(ChatColor.AQUA + "[" + players.getDisplayName() + "] " + Tools.SignColor(message.getJoinedStrings(0)));
         } else {
-            player.sendMineYesNo(Parameter328.say, new Runnable() {
-                @Override
-                public void run() {
-                    player.gainMine(-Parameter328.say);
-                    plugin.broadcastMessage(ChatColor.AQUA + "[" + players.getName() + "] " + Tools.SignColor(message.getJoinedStrings(0)));
-                }
+            player.sendMineYesNo(Parameter328.say, () -> {
+                player.gainMine(-Parameter328.say);
+                plugin.broadcastMessage(ChatColor.AQUA + "[" + players.getName() + "] " + Tools.SignColor(message.getJoinedStrings(0)));
             });
         }
     }
@@ -607,15 +574,12 @@ public class GeneralCommands {
                 player.sendAttention("0以上を入力してください");
             } else {
                 final int mine = Integer.valueOf(message.getString(1)) * 1000;
-                player.sendYesNo("以下の内容で登録しますがよろしいですか？ PlayerID:" + ins.getName() + " Mine:" + mine, new Runnable() {
-                    @Override
-                    public void run() {
-                        ins.gainMine(mine);
-                        ins.setRank(Rank.Supporter);
-                        ins.setDisplayName();
-                        ins.SaveAll();
-                        player.sendSuccess("以下の内容で登録しました PlayerID:" + ins.getName() + " Mine:" + mine);
-                    }
+                player.sendYesNo("以下の内容で登録しますがよろしいですか？ PlayerID:" + ins.getName() + " Mine:" + mine, () -> {
+                    ins.gainMine(mine);
+                    ins.setRank(Rank.Supporter);
+                    ins.setDisplayName();
+                    ins.SaveAll();
+                    player.sendSuccess("以下の内容で登録しました PlayerID:" + ins.getName() + " Mine:" + mine);
                 });
             }
         } else {

@@ -1,14 +1,14 @@
 package com.chantake.MituyaProject.RSC.Command.Filters;
 
 import com.chantake.MituyaProject.RSC.Chip.Chip;
-import com.chantake.MituyaProject.RSC.Util.Locations;
+import com.chantake.MituyaProject.Util.Locations;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author Tal Eisenberg
@@ -19,12 +19,7 @@ public class LocationFilter implements ChipFilter {
 
     @Override
     public Collection<Chip> filter(Collection<Chip> chips) {
-        List<Chip> filtered = new ArrayList<>();
-
-        for (Chip chip : chips) {
-            if (Locations.isInRadius(location, chip.activationBlock, radius))
-                filtered.add(chip);
-        }
+        List<Chip> filtered = chips.stream().filter(chip -> Locations.isInRadius(location, chip.activationBlock, radius)).collect(Collectors.toList());
 
         return filtered;
     }

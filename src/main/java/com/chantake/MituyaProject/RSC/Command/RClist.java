@@ -2,9 +2,9 @@ package com.chantake.MituyaProject.RSC.Command;
 
 import com.chantake.MituyaProject.RSC.Chip.Chip;
 import com.chantake.MituyaProject.RSC.Command.Filters.*;
-import com.chantake.MituyaProject.RSC.Paging.Pager;
-import com.chantake.MituyaProject.RSC.Parsing.Tokenizer;
 import com.chantake.MituyaProject.RSC.RCPrefs;
+import com.chantake.MituyaProject.Util.Paging.Pager;
+import com.chantake.MituyaProject.Util.Parsing.Tokenizer;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;

@@ -28,11 +28,7 @@ public class RCPermissions {
         Player player = (Player) sender;
         if (player.isOp()) return true;
 
-        if (player.hasPermission("redstonechips.circuit." + (create ? "create" : "destroy") + ".deny") ||
-                player.hasPermission("redstonechips.circuit." + (create ? "create." : "destroy.") + classname + ".deny"))
-            return false;
-        else return player.hasPermission("redstonechips.circuit." + (create ? "create" : "destroy") + ".*") ||
-                player.hasPermission("redstonechips.circuit." + (create ? "create." : "destroy.") + classname);
+        return !(player.hasPermission("redstonechips.circuit." + (create ? "create" : "destroy") + ".deny") || player.hasPermission("redstonechips.circuit." + (create ? "create." : "destroy.") + classname + ".deny")) && (player.hasPermission("redstonechips.circuit." + (create ? "create" : "destroy") + ".*") || player.hasPermission("redstonechips.circuit." + (create ? "create." : "destroy.") + classname));
     }
 
     /**
@@ -45,7 +41,7 @@ public class RCPermissions {
      * @return true if the sender has permission to use the command.
      */
     public static boolean enforceCommand(CommandSender sender, String commandName, boolean opRequired, boolean report) {
-        if (!RCPrefs.getUsePermissions()) return (opRequired ? sender.isOp() : true);
+        if (!RCPrefs.getUsePermissions()) return (!opRequired || sender.isOp());
         if (!(sender instanceof Player)) return true;
         if (sender.hasPermission("redstonechips.command." + commandName) && !sender.hasPermission("redstonechips.command." + commandName + ".deny")) {
             return true;
@@ -72,9 +68,8 @@ public class RCPermissions {
     }
 
     public static boolean enforceChannel(CommandSender sender, String channelName, boolean report) {
-        if (!(RedstoneChips.inst().channelManager().getBroadcastChannels().containsKey(channelName))) return true;
+        return !(RedstoneChips.inst().channelManager().getBroadcastChannels().containsKey(channelName)) || enforceChannel(sender, RedstoneChips.inst().channelManager().getChannelByName(channelName, false), report);
 
-        return enforceChannel(sender, RedstoneChips.inst().channelManager().getChannelByName(channelName, false), report);
     }
 
     public static boolean enforceChannel(CommandSender sender, BroadcastChannel channel, boolean report) {

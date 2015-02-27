@@ -17,7 +17,7 @@
  */
 package com.chantake.MituyaProject.Bukkit;
 
-import com.chantake.MituyaProject.Tool.StringUtil;
+import com.chantake.MituyaProject.Util.StringUtil;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 

@@ -21,8 +21,6 @@ import com.chantake.MituyaProject.MituyaManager;
 import com.chantake.MituyaProject.MituyaProject;
 import com.chantake.MituyaProject.Player.PlayerInstance;
 import com.chantake.MituyaProject.Player.Sign.listener.ItemChestListener;
-import java.util.ArrayList;
-import java.util.List;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -36,24 +34,27 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  *
  * @author inku
  */
 public class ItemChestManager extends MituyaManager {
 
-    private final ItemChestListener listener = new ItemChestListener(this);
-    //*****String*****//
-    private final List<String> ids = new ArrayList<>();
     final private static String splits = ",";
     final private static String perm = "権限あると思った？残念ありませんでした!!!!";//チェスト権限がなかったとき
     final private static String chnot = "チェスト先生…いいやつだった。。。";//チェストがなかったとき
-    //****************//
-    //*****Boolean****//
-    private static boolean itemselect = false;
     //*****BlockFace**//
     final private static BlockFace[] shopFaces = {BlockFace.SELF, BlockFace.DOWN, BlockFace.UP, BlockFace.EAST, BlockFace.NORTH, BlockFace.WEST, BlockFace.SOUTH};
     final private static BlockFace[] chestFaces = {BlockFace.EAST, BlockFace.NORTH, BlockFace.WEST, BlockFace.SOUTH};
+    //****************//
+    //*****Boolean****//
+    private static boolean itemselect = false;
+    private final ItemChestListener listener = new ItemChestListener(this);
+    //*****String*****//
+    private final List<String> ids = new ArrayList<>();
     //****************//
 
     public ItemChestManager(MituyaProject plugin) {
@@ -108,14 +109,13 @@ public class ItemChestManager extends MituyaManager {
                 }
                 itemselect = true;//整頓モード
             } else if (iit.size() >= 0) {
-                for (Entity enti : iit) {
-                    if (enti instanceof ItemFrame) {
-                        ItemFrame it = (ItemFrame)enti;
-                        ItemStack is = it.getItem();
-                        ids.add(is.getTypeId() + ":" + is.getDurability());
-                        itemselect = true;//整頓モード
-                    }
-                }
+                //整頓モード
+                iit.stream().filter(enti -> enti instanceof ItemFrame).forEach(enti -> {
+                    ItemFrame it = (ItemFrame) enti;
+                    ItemStack is = it.getItem();
+                    ids.add(is.getTypeId() + ":" + is.getDurability());
+                    itemselect = true;//整頓モード
+                });
             }
 
             List<Chest> chblock = getChest(si);//チェストを取得

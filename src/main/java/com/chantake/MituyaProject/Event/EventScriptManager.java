@@ -18,14 +18,15 @@
 package com.chantake.MituyaProject.Event;
 
 import com.chantake.MituyaProject.MituyaProject;
-import com.chantake.MituyaProject.Tool.Script.AbstractScriptManager;
+import com.chantake.MituyaProject.Util.Script.AbstractScriptManager;
+
+import javax.script.Invocable;
+import javax.script.ScriptEngine;
+import javax.script.ScriptException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.script.Invocable;
-import javax.script.ScriptEngine;
-import javax.script.ScriptException;
 
 /**
  *
@@ -34,20 +35,7 @@ import javax.script.ScriptException;
 public class EventScriptManager extends AbstractScriptManager {
 
     private final MituyaProject plugin;
-
-    private class EventEntry {
-
-        public EventEntry(String script, Invocable iv, EventManager em) {
-            this.script = script;
-            this.iv = iv;
-            this.em = em;
-        }
-        public String script;
-        public Invocable iv;
-        public EventManager em;
-    }
     private final Map<String, EventEntry> events = new LinkedHashMap<>();
-
     public EventScriptManager(MituyaProject plugin, String[] split) {
         this.plugin = plugin;
         for (String script : split) {
@@ -86,6 +74,19 @@ public class EventScriptManager extends AbstractScriptManager {
     public void cancel() {
         for (EventEntry entry : events.values()) {
             entry.em.cancel();
+        }
+    }
+
+    private class EventEntry {
+
+        public String script;
+        public Invocable iv;
+        public EventManager em;
+
+        public EventEntry(String script, Invocable iv, EventManager em) {
+            this.script = script;
+            this.iv = iv;
+            this.em = em;
         }
     }
 }

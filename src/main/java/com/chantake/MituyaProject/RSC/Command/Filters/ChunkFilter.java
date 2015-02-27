@@ -1,7 +1,7 @@
 package com.chantake.MituyaProject.RSC.Command.Filters;
 
 import com.chantake.MituyaProject.RSC.Chip.Chip;
-import com.chantake.MituyaProject.RSC.Util.ChunkLocation;
+import com.chantake.MituyaProject.Util.ChunkLocation;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 

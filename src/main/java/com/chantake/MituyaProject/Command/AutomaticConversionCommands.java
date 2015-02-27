@@ -21,7 +21,7 @@ import com.chantake.MituyaProject.Exception.PlayerOfflineException;
 import com.chantake.MituyaProject.MituyaProject;
 import com.chantake.MituyaProject.Player.Chat.ChatManager;
 import com.chantake.MituyaProject.Player.PlayerInstance;
-import com.chantake.MituyaProject.Tool.RomaToJapanese;
+import com.chantake.MituyaProject.Util.RomaToJapanese;
 import com.chantake.mituyaapi.commands.Command;
 import com.chantake.mituyaapi.commands.CommandContext;
 import com.chantake.mituyaapi.commands.CommandException;

@@ -68,18 +68,14 @@ public class EventDispatcher {
     public void bindToPlugin(Plugin p) {
         this.plugin = p;
 
-        for (Class<? extends Event> eventClass : listeners.keySet()) {
-            registerBukkitListener(eventClass);
-        }
+        listeners.keySet().forEach(this::registerBukkitListener);
     }
 
     /**
      * Unregister all bukkit event listeners and stop processing events.
      */
     public void stop() {
-        for (Class<? extends Event> eventClass : listeners.keySet()) {
-            unregisterBukkitListener(eventClass);
-        }
+        listeners.keySet().forEach(this::unregisterBukkitListener);
     }
 
     private void registerBukkitListener(Class<? extends Event> eventClass) {

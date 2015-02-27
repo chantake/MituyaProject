@@ -2,8 +2,8 @@ package com.chantake.MituyaProject.RSC.Chip;
 
 import com.chantake.MituyaProject.RSC.Chip.IO.InputPin;
 import com.chantake.MituyaProject.RSC.Chip.IO.OutputPin;
-import com.chantake.MituyaProject.RSC.Parsing.Parsing;
-import com.chantake.MituyaProject.RSC.Util.ChunkLocation;
+import com.chantake.MituyaProject.Util.ChunkLocation;
+import com.chantake.MituyaProject.Util.Parsing.Parsing;
 import org.bukkit.Location;
 import org.bukkit.World;
 
@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * A collection of chips mapped to their id numbers. Used for referencing all the
@@ -145,7 +146,7 @@ public class ChipCollection extends HashMap<Integer, Chip> {
         for (InputPin input : c.inputPins) {
             for (Location l : input.getSourceBlocks()) {
                 if (!sourceLookupMap.containsKey(l))
-                    sourceLookupMap.put(l, new ArrayList<InputPin>());
+                    sourceLookupMap.put(l, new ArrayList<>());
                 sourceLookupMap.get(l).add(input);
             }
             inputPinLookupMap.put(input.getLocation(), input);
@@ -154,7 +155,7 @@ public class ChipCollection extends HashMap<Integer, Chip> {
         for (OutputPin output : c.outputPins) {
             for (Location l : output.getOutputBlocks()) {
                 if (!outputLookupMap.containsKey(l))
-                    outputLookupMap.put(l, new ArrayList<OutputPin>());
+                    outputLookupMap.put(l, new ArrayList<>());
                 outputLookupMap.get(l).add(output);
             }
             outputPinLookupMap.put(output.getLocation(), output);
@@ -162,7 +163,7 @@ public class ChipCollection extends HashMap<Integer, Chip> {
 
         for (ChunkLocation chunk : c.chunks) {
             if (!chunkLookupMap.containsKey(chunk))
-                chunkLookupMap.put(chunk, new ArrayList<Chip>());
+                chunkLookupMap.put(chunk, new ArrayList<>());
             chunkLookupMap.get(chunk).add(c);
         }
     }
@@ -218,34 +219,24 @@ public class ChipCollection extends HashMap<Integer, Chip> {
         List<Location> inputBlocksToRemove = new ArrayList<>();
         for (Location l : sourceLookupMap.keySet()) {
             List<InputPin> pins = sourceLookupMap.get(l);
-            List<InputPin> toRemove = new ArrayList<>();
-            for (InputPin pin : pins) {
-                if (pin.getChip() == c)
-                    toRemove.add(pin);
-            }
+            List<InputPin> toRemove = pins.stream().filter(pin -> pin.getChip() == c).collect(Collectors.toList());
 
             pins.removeAll(toRemove);
             if (pins.isEmpty())
                 inputBlocksToRemove.add(l);
         }
-        for (Location l : inputBlocksToRemove)
-            sourceLookupMap.remove(l);
+        inputBlocksToRemove.forEach(sourceLookupMap::remove);
 
         List<Location> outputBlocksToRemove = new ArrayList<>();
         for (Location l : outputLookupMap.keySet()) {
             List<OutputPin> pins = outputLookupMap.get(l);
-            List<OutputPin> toRemove = new ArrayList<>();
-            for (OutputPin pin : pins) {
-                if (pin.getChip() == c)
-                    toRemove.add(pin);
-            }
+            List<OutputPin> toRemove = pins.stream().filter(pin -> pin.getChip() == c).collect(Collectors.toList());
 
             pins.removeAll(toRemove);
             if (pins.isEmpty())
                 outputBlocksToRemove.add(l);
         }
-        for (Location l : outputBlocksToRemove)
-            outputLookupMap.remove(l);
+        outputBlocksToRemove.forEach(outputLookupMap::remove);
 
         activationLookupMap.remove(c.activationBlock);
 
@@ -263,7 +254,6 @@ public class ChipCollection extends HashMap<Integer, Chip> {
             }
         }
 
-        for (ChunkLocation loc : emptyChunks)
-            chunkLookupMap.remove(loc);
+        emptyChunks.forEach(chunkLookupMap::remove);
     }
 }

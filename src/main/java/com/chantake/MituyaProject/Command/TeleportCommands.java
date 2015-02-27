@@ -197,17 +197,13 @@ public class TeleportCommands {
                         if (ins.isCheck()) {
                             player.sendAttention(players.getName() + " は、現在応答できません。");
                         } else {
-                            ins.sendYesNoFromPlayer(players.getName() + "さんに呼ばれました。テレポートしますか？", player, new Runnable() {
-                                @Override
-                                public void run() {
-                                    try {
-                                        ins.getPlayer().teleport(players.getLocation());
-                                        player.setTp();
-                                        player.sendProcessing(ins.getName() + "を呼んでいます");
-                                        ins.sendProcessing(players.getName() + " にテレポートしています");
-                                    }
-                                    catch (PlayerOfflineException ex) {
-                                    }
+                            ins.sendYesNoFromPlayer(players.getName() + "さんに呼ばれました。テレポートしますか？", player, () -> {
+                                try {
+                                    ins.getPlayer().teleport(players.getLocation());
+                                    player.setTp();
+                                    player.sendProcessing(ins.getName() + "を呼んでいます");
+                                    ins.sendProcessing(players.getName() + " にテレポートしています");
+                                } catch (PlayerOfflineException ex) {
                                 }
                             });
                         }
@@ -229,14 +225,11 @@ public class TeleportCommands {
                 if (player.getDeath() == null) {//保存してないとき
                     player.sendAttention("死んだ直後のみ使えます");
                 } else {
-                    player.sendMineYesNo(Parameter328.spawnback, new Runnable() {
-                        @Override
-                        public void run() {
-                            if (player.gainMine(-Parameter328.spawnback)) {
-                                players.teleport(player.getDeath());
-                                player.setTp();
-                                player.sendInfo(ChatColor.YELLOW + "SpawnBack", ChatColor.YELLOW + "死んだ場所に移動しました");
-                            }
+                    player.sendMineYesNo(Parameter328.spawnback, () -> {
+                        if (player.gainMine(-Parameter328.spawnback)) {
+                            players.teleport(player.getDeath());
+                            player.setTp();
+                            player.sendInfo(ChatColor.YELLOW + "SpawnBack", ChatColor.YELLOW + "死んだ場所に移動しました");
                         }
                     });
                 }
@@ -312,22 +305,18 @@ public class TeleportCommands {
 
     public static void TeleportYesNo(final MituyaProject plugin, final PlayerInstance player, final PlayerInstance ins, final CommandContext message, final Player players) throws PlayerOfflineException {
         player.sendAttention(ins.getName() + "さんにテレポート申請を送りました。許諾され次第テレポートを試行します...");
-        ins.sendYesNoFromPlayer(players.getName() + "さんがテレポートしようとしています。よろしいですか？", player, new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Player cp = ins.getPlayer();
-                    player.setTp();
-                    player.sendProcessing(ins.getName() + " にテレポート中");
-                    if (player.teleport(cp.getLocation())) {
-                        if (!message.hasFlag('s') && !plugin.getInstanceManager().getHideManager().isHidePlayer(players)) {
-                            ins.sendProcessing(players.getName() + " がテレポートしてきています...");
-                        }
+        ins.sendYesNoFromPlayer(players.getName() + "さんがテレポートしようとしています。よろしいですか？", player, () -> {
+            try {
+                Player cp = ins.getPlayer();
+                player.setTp();
+                player.sendProcessing(ins.getName() + " にテレポート中");
+                if (player.teleport(cp.getLocation())) {
+                    if (!message.hasFlag('s') && !plugin.getInstanceManager().getHideManager().isHidePlayer(players)) {
+                        ins.sendProcessing(players.getName() + " がテレポートしてきています...");
                     }
                 }
-                catch (PlayerOfflineException ex) {
-                    Logger.getLogger(TeleportCommands.class.getName()).log(Level.SEVERE, null, ex);
-                }
+            } catch (PlayerOfflineException ex) {
+                Logger.getLogger(TeleportCommands.class.getName()).log(Level.SEVERE, null, ex);
             }
         });
     }

@@ -17,14 +17,15 @@
  */
 package com.chantake.MituyaProject.Player.Sign;
 
-import com.chantake.MituyaProject.Player.Sign.listener.SignCommandListener;
 import com.chantake.MituyaProject.MituyaManager;
 import com.chantake.MituyaProject.MituyaProject;
 import com.chantake.MituyaProject.Player.PlayerInstance;
-import java.util.Iterator;
-import java.util.List;
+import com.chantake.MituyaProject.Player.Sign.listener.SignCommandListener;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
+
+import java.util.Iterator;
+import java.util.List;
 
 /**
  *
@@ -32,8 +33,8 @@ import org.bukkit.entity.Player;
  */
 public class SignCommandManager extends MituyaManager {
 
-    private final SignCommandListener listener = new SignCommandListener(this);
     private static final long CommandDelayTime = 2 * 2L;//0.2秒
+    private final SignCommandListener listener = new SignCommandListener(this);
 
     public SignCommandManager(MituyaProject plugin) {
         super(plugin);
@@ -88,11 +89,6 @@ public class SignCommandManager extends MituyaManager {
 
     public void executionCommandTask(final Player pr, final PlayerInstance ins, final String command, Long delay) {
         final MituyaProject pl = this.getPlugin();
-        this.getPlugin().getServer().getScheduler().scheduleSyncDelayedTask(this.getPlugin(), new Runnable() {
-            @Override
-            public void run() {
-                pl.handleCommand(pr, ins, command);
-            }
-        }, delay);
+        this.getPlugin().getServer().getScheduler().scheduleSyncDelayedTask(this.getPlugin(), () -> pl.handleCommand(pr, ins, command), delay);
     }
 }

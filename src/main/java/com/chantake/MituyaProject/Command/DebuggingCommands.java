@@ -20,8 +20,8 @@ package com.chantake.MituyaProject.Command;
 import com.chantake.MituyaProject.Exception.PlayerOfflineException;
 import com.chantake.MituyaProject.MituyaProject;
 import com.chantake.MituyaProject.Player.PlayerInstance;
-import com.chantake.MituyaProject.Tool.Map.ImageRenderer;
-import com.chantake.MituyaProject.Tool.Map.RenderUtils;
+import com.chantake.MituyaProject.World.Map.ImageRenderer;
+import com.chantake.MituyaProject.World.Map.RenderUtils;
 import com.chantake.mituyaapi.commands.Command;
 import com.chantake.mituyaapi.commands.CommandContext;
 import com.chantake.mituyaapi.commands.CommandException;
@@ -67,52 +67,48 @@ public class DebuggingCommands {
         final long startTicks = world.getFullTime();
 
         Runnable task;
-        task = new Runnable() {
+        task = () -> {
+            long now = System.currentTimeMillis();
+            long nowTicks = world.getFullTime();
 
-            @Override
-            public void run() {
-                long now = System.currentTimeMillis();
-                long nowTicks = world.getFullTime();
+            long elapsedTime = now - start;
+            double elapsedSecs = elapsedTime / 1000.0;
+            int elapsedTicks = (int) (nowTicks - startTicks);
 
-                long elapsedTime = now - start;
-                double elapsedSecs = elapsedTime / 1000.0;
-                int elapsedTicks = (int)(nowTicks - startTicks);
+            double error = (expectedTime - elapsedTime) / elapsedTime * 100;
+            double clockRate = elapsedTicks / elapsedSecs;
 
-                double error = (expectedTime - elapsedTime) / elapsedTime * 100;
-                double clockRate = elapsedTicks / elapsedSecs;
+            if (expectedTicks != elapsedTicks) {
+                sender.sendMessage(ChatColor.DARK_RED
+                        + "Warning: Bukkit scheduler inaccurate; expected "
+                        + expectedTicks + ", got " + elapsedTicks);
+            }
 
-                if (expectedTicks != elapsedTicks) {
-                    sender.sendMessage(ChatColor.DARK_RED
-                            + "Warning: Bukkit scheduler inaccurate; expected "
-                            + expectedTicks + ", got " + elapsedTicks);
-                }
-
-                if (Math.round(clockRate) == 20) {
-                    sender.sendMessage(ChatColor.YELLOW + "Clock test result: "
-                            + ChatColor.GREEN + "EXCELLENT");
-                } else {
-                    if (elapsedSecs > expectedSecs) {
-                        if (clockRate < 19) {
-                            sender.sendMessage(ChatColor.YELLOW + "Clock test result: "
-                                    + ChatColor.DARK_RED + "CLOCK BEHIND");
-                            sender.sendMessage(ChatColor.DARK_RED
-                                    + "WARNING: You have potential block respawn issues.");
-                        } else {
-                            sender.sendMessage(ChatColor.YELLOW + "Clock test result: "
-                                    + ChatColor.DARK_RED + "CLOCK BEHIND");
-                        }
+            if (Math.round(clockRate) == 20) {
+                sender.sendMessage(ChatColor.YELLOW + "Clock test result: "
+                        + ChatColor.GREEN + "EXCELLENT");
+            } else {
+                if (elapsedSecs > expectedSecs) {
+                    if (clockRate < 19) {
+                        sender.sendMessage(ChatColor.YELLOW + "Clock test result: "
+                                + ChatColor.DARK_RED + "CLOCK BEHIND");
+                        sender.sendMessage(ChatColor.DARK_RED
+                                + "WARNING: You have potential block respawn issues.");
                     } else {
                         sender.sendMessage(ChatColor.YELLOW + "Clock test result: "
-                                + ChatColor.DARK_RED + "CLOCK AHEAD");
+                                + ChatColor.DARK_RED + "CLOCK BEHIND");
                     }
+                } else {
+                    sender.sendMessage(ChatColor.YELLOW + "Clock test result: "
+                            + ChatColor.DARK_RED + "CLOCK AHEAD");
                 }
-
-                sender.sendMessage(ChatColor.GRAY + "Expected time elapsed: " + expectedTime + "ms");
-                sender.sendMessage(ChatColor.GRAY + "Time elapsed: " + elapsedTime + "ms");
-                sender.sendMessage(ChatColor.GRAY + "Error: " + error + "%");
-                sender.sendMessage(ChatColor.GRAY + "Actual clock rate: " + clockRate + " ticks/sec");
-                sender.sendMessage(ChatColor.GRAY + "Expected clock rate: 20 ticks/sec");
             }
+
+            sender.sendMessage(ChatColor.GRAY + "Expected time elapsed: " + expectedTime + "ms");
+            sender.sendMessage(ChatColor.GRAY + "Time elapsed: " + elapsedTime + "ms");
+            sender.sendMessage(ChatColor.GRAY + "Error: " + error + "%");
+            sender.sendMessage(ChatColor.GRAY + "Actual clock rate: " + clockRate + " ticks/sec");
+            sender.sendMessage(ChatColor.GRAY + "Expected clock rate: 20 ticks/sec");
         };
 
         plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, task, expectedTicks);

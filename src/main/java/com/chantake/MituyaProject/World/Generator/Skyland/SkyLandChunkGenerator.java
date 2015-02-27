@@ -1,16 +1,23 @@
 package com.chantake.MituyaProject.World.Generator.Skyland;
 
-import com.chantake.MituyaProject.Bukkit.util.NoiseGeneratorOctaves;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import com.chantake.MituyaProject.Util.NoiseGeneratorOctaves;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Biome;
 import org.bukkit.generator.BlockPopulator;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
 public class SkyLandChunkGenerator extends org.bukkit.generator.ChunkGenerator {
 
+    double[] d;
+    double[] e;
+    double[] f;
+    double[] g;
+    double[] h;
+    int[][] i = new int[32][32];
     private Random random;
     private NoiseGeneratorOctaves k;
     private NoiseGeneratorOctaves l;
@@ -23,12 +30,6 @@ public class SkyLandChunkGenerator extends org.bukkit.generator.ChunkGenerator {
     //private WorldGenNether genNetherFort;
     private double[] q;
     private double[] t = new double[256];
-    double[] d;
-    double[] e;
-    double[] f;
-    double[] g;
-    double[] h;
-    int[][] i = new int[32][32];
 
     @Override
     public List<BlockPopulator> getDefaultPopulators(org.bukkit.World world) {

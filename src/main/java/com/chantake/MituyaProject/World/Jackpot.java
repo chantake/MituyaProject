@@ -20,8 +20,9 @@ package com.chantake.MituyaProject.World;
 import com.chantake.MituyaProject.MituyaProject;
 import com.chantake.MituyaProject.Parameter.Parameter328;
 import com.chantake.MituyaProject.Player.PlayerInstance;
-import java.util.Map;
 import org.bukkit.ChatColor;
+
+import java.util.Map;
 
 /**
  *
@@ -132,22 +133,12 @@ public class Jackpot {
                 final int BonusMine = new java.util.Random().nextInt(900000) + 100000 * chanceint * (int)((plugin.getServer().getOnlinePlayers().size() * 0.5) + 1);
                 final int onesmine = BonusMine / onlineusers;
                 plugin.broadcastMessage(ChatColor.GOLD.toString() + "JackPot", ChatColor.YELLOW + "レギュラーボーナス放出" + Chance + " ログイン者全員で山分けです" + Chance + "");
-                plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
-
-                    @Override
-                    public void run() {
-                        plugin.broadcastMessage(ChatColor.GOLD.toString() + "JackPot", ChatColor.YELLOW + "今回の全放出量は" + BonusMine + "Mineです！");
-                    }
-                }, 5 * 20L);
-                plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
-
-                    @Override
-                    public void run() {
-                        plugin.broadcastMessage(ChatColor.GOLD.toString() + "JackPot", ChatColor.YELLOW + "今回の一人あたりの放出量は" + onesmine + "Mineです！");
-                        for (Map.Entry<String, PlayerInstance> entry : plugin.getInstanceManager().getPlayers().entrySet()) {
-                            PlayerInstance playerInstance = entry.getValue();
-                            playerInstance.gainMine(onesmine);
-                        }
+                plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> plugin.broadcastMessage(ChatColor.GOLD.toString() + "JackPot", ChatColor.YELLOW + "今回の全放出量は" + BonusMine + "Mineです！"), 5 * 20L);
+                plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> {
+                    plugin.broadcastMessage(ChatColor.GOLD.toString() + "JackPot", ChatColor.YELLOW + "今回の一人あたりの放出量は" + onesmine + "Mineです！");
+                    for (Map.Entry<String, PlayerInstance> entry : plugin.getInstanceManager().getPlayers().entrySet()) {
+                        PlayerInstance playerInstance = entry.getValue();
+                        playerInstance.gainMine(onesmine);
                     }
                 }, 15 * 20L);
             }

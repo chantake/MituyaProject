@@ -19,7 +19,6 @@ package com.chantake.MituyaProject.Api;
 
 import com.chantake.MituyaProject.Exception.ApiException;
 import com.chantake.MituyaProject.Exception.MituyaProjectException;
-import com.chantake.MituyaProject.Exception.PlayerOfflineException;
 import com.chantake.MituyaProject.MituyaProject;
 import org.apache.mina.core.service.IoHandlerAdapter;
 import org.apache.mina.core.session.IoSession;
@@ -61,11 +60,7 @@ public class ServerHandler extends IoHandlerAdapter {
                 }
                 catch (ApiException ex) {
                     this.sendErrMessage(session, ex.getErr(), ex.getMessage());
-                }
-                catch (PlayerOfflineException ex) {
-                    this.sendErrMessage(session, Err.Other, ex.getMessage());
-                }
-                catch (MituyaProjectException ex) {
+                } catch (MituyaProjectException ex) {
                     this.sendErrMessage(session, Err.Other, ex.getMessage());
                 }
             } else {

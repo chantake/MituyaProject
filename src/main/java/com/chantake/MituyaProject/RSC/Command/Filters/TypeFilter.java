@@ -4,9 +4,9 @@ import com.chantake.MituyaProject.RSC.Chip.Chip;
 import com.chantake.MituyaProject.RSC.Circuit.CircuitLoader;
 import org.bukkit.command.CommandSender;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author Tal Eisenberg
@@ -36,11 +36,7 @@ public class TypeFilter implements ChipFilter {
 
     @Override
     public Collection<Chip> filter(Collection<Chip> chips) {
-        List<Chip> filtered = new ArrayList<>();
-
-        for (Chip chip : chips) {
-            if (chip.getType().equalsIgnoreCase(cclass)) filtered.add(chip);
-        }
+        List<Chip> filtered = chips.stream().filter(chip -> chip.getType().equalsIgnoreCase(cclass)).collect(Collectors.toList());
 
         return filtered;
     }

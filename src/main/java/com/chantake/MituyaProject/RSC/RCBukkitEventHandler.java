@@ -5,7 +5,7 @@ import com.chantake.MituyaProject.RSC.Chip.ChipFactory;
 import com.chantake.MituyaProject.RSC.Chip.ChipManager;
 import com.chantake.MituyaProject.RSC.Chip.IO.OutputPin;
 import com.chantake.MituyaProject.RSC.User.UserSession;
-import com.chantake.MituyaProject.RSC.Util.ChunkLocation;
+import com.chantake.MituyaProject.Util.ChunkLocation;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -146,13 +146,11 @@ public class RCBukkitEventHandler implements Listener {
 
             Block attached = b.getRelative(f);
 
-            for (OutputPin o : pins) {
-                if (attached.getLocation().equals(o.getLocation())) {
-                    Material m = o.getState() ? Material.REDSTONE_TORCH_ON : Material.REDSTONE_TORCH_OFF;
-                    b.setTypeIdAndData(m.getId(), b.getData(), false);
-                    event.setCancelled(true);
-                }
-            }
+            pins.stream().filter(o -> attached.getLocation().equals(o.getLocation())).forEach(o -> {
+                Material m = o.getState() ? Material.REDSTONE_TORCH_ON : Material.REDSTONE_TORCH_OFF;
+                b.setTypeIdAndData(m.getId(), b.getData(), false);
+                event.setCancelled(true);
+            });
         }
     }
 

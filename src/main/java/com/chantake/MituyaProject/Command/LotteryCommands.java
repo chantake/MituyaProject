@@ -20,7 +20,7 @@ package com.chantake.MituyaProject.Command;
 import com.chantake.MituyaProject.Exception.MituyaProjectException;
 import com.chantake.MituyaProject.MituyaProject;
 import com.chantake.MituyaProject.Player.PlayerInstance;
-import com.chantake.MituyaProject.Tool.Tools;
+import com.chantake.MituyaProject.Util.Tools;
 import com.chantake.mituyaapi.commands.Command;
 import com.chantake.mituyaapi.commands.CommandContext;
 import com.chantake.mituyaapi.commands.CommandPermissions;
@@ -60,52 +60,48 @@ public class LotteryCommands {
                 return;
             }
             player.sendMessage(ChatColor.AQUA + lottery_name + "を" + leaves + "枚購入します。");
-            player.sendMineYesNo(lottery_price * leaves, new Runnable() {
-                @Override
-                public void run() {
-                    //購入処理
-                    if (player.gainMine(-lottery_price * leaves)) {
-                        int[] windata = new int[7];
-                        long winprice = 0;
-                        for (int i = 0; i < 7; i++) {
-                            windata[i] = 0;
-                        }
-                        for (int i = 0; i < leaves; i++) {
-                            windata[Lottery()]++;
-                        }
-                        for (int i = 1; i < 7; i++) {
-                            if (windata[i] > 0) {
-                                player.sendMessage(ChatColor.AQUA + "" + i + "等　×　" + windata[i] + "本");
-                                winprice += GetLotteryWinPrice(i) * windata[i];
-                            }
-                        }
-
-                        if (winprice == 0) {
-                            player.sendMessage(ChatColor.AQUA + "残念！！　次回に期待しましょう。");
-                        } else {
-                            player.sendMessage(ChatColor.AQUA + "合計" + ChatColor.GOLD + Tools.FormatMine(winprice) + ChatColor.AQUA + "Mine が当たりました。");
-                            player.gainMine(winprice);
-                            if (winprice >= 1000000) {
-                                plugin.broadcastMessage(ChatColor.AQUA + "<<<" + lottery_name + "インフォメーション>>>");
-                                plugin.broadcastMessage(ChatColor.YELLOW + player.getName() + ChatColor.AQUA + "さんが" + lottery_name + "を"
-                                        + leaves + "枚購入して"
-                                        + ChatColor.GOLD + Tools.FormatMine(winprice) + ChatColor.AQUA + "Mine"
-                                        + "当たりました。");
-                                plugin.broadcastMessage(ChatColor.AQUA + "おめでとうございます！！");
-
-                            }
-                        }
-
-                        //購入ログを記録
-                        try {
-                            InsertLotteryLog(plugin, players.getName(), leaves, lottery_price * leaves, winprice, windata);
-                        }
-                        catch (SQLException ex) {
-                            Logger.getLogger(LotteryCommands.class.getName()).log(Level.SEVERE, null, ex);
-                        }
-                    } else {
-                        player.sendMessage(ChatColor.RED + "Mineが不足しているため" + lottery_name + "を購入出来ませんでした。");
+            player.sendMineYesNo(lottery_price * leaves, () -> {
+                //購入処理
+                if (player.gainMine(-lottery_price * leaves)) {
+                    int[] windata = new int[7];
+                    long winprice = 0;
+                    for (int i = 0; i < 7; i++) {
+                        windata[i] = 0;
                     }
+                    for (int i = 0; i < leaves; i++) {
+                        windata[Lottery()]++;
+                    }
+                    for (int i = 1; i < 7; i++) {
+                        if (windata[i] > 0) {
+                            player.sendMessage(ChatColor.AQUA + "" + i + "等　×　" + windata[i] + "本");
+                            winprice += GetLotteryWinPrice(i) * windata[i];
+                        }
+                    }
+
+                    if (winprice == 0) {
+                        player.sendMessage(ChatColor.AQUA + "残念！！　次回に期待しましょう。");
+                    } else {
+                        player.sendMessage(ChatColor.AQUA + "合計" + ChatColor.GOLD + Tools.FormatMine(winprice) + ChatColor.AQUA + "Mine が当たりました。");
+                        player.gainMine(winprice);
+                        if (winprice >= 1000000) {
+                            plugin.broadcastMessage(ChatColor.AQUA + "<<<" + lottery_name + "インフォメーション>>>");
+                            plugin.broadcastMessage(ChatColor.YELLOW + player.getName() + ChatColor.AQUA + "さんが" + lottery_name + "を"
+                                    + leaves + "枚購入して"
+                                    + ChatColor.GOLD + Tools.FormatMine(winprice) + ChatColor.AQUA + "Mine"
+                                    + "当たりました。");
+                            plugin.broadcastMessage(ChatColor.AQUA + "おめでとうございます！！");
+
+                        }
+                    }
+
+                    //購入ログを記録
+                    try {
+                        InsertLotteryLog(plugin, players.getName(), leaves, lottery_price * leaves, winprice, windata);
+                    } catch (SQLException ex) {
+                        Logger.getLogger(LotteryCommands.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                } else {
+                    player.sendMessage(ChatColor.RED + "Mineが不足しているため" + lottery_name + "を購入出来ませんでした。");
                 }
             });
             return;
@@ -121,42 +117,38 @@ public class LotteryCommands {
             }
 
             player.sendMessage(ChatColor.AQUA + lottery_name + "を購入します。");
-            player.sendMineYesNo(lottery_price, new Runnable() {
-                @Override
-                public void run() {
-                    //購入処理
-                    if (player.gainMine(-lottery_price)) {
-                        //抽選処理
-                        int num = Lottery();
-                        if (num == 0) {
-                            player.sendMessage(ChatColor.AQUA + "残念！！　次回に期待しましょう。");
-                        } else {
-                            player.gainMine(GetLotteryWinPrice(num));
-                            player.sendMessage(ChatColor.AQUA + "" + num + "等 " + ChatColor.GOLD + Tools.FormatMine(GetLotteryWinPrice(num)) + ChatColor.GOLD + "Mine が当たりました。");
-                        }
-                        if (num > 0 && num < 4) {
-                            plugin.broadcastMessage(ChatColor.AQUA + "<<<" + lottery_name + "インフォメーション>>>");
-
-                            plugin.broadcastMessage(ChatColor.AQUA + "" + lottery_name + "で、"
-                                    + ChatColor.YELLOW + player.getName()
-                                    + ChatColor.AQUA + "さんに"
-                                    + num + "等 "
-                                    + ChatColor.GOLD + Tools.FormatMine(GetLotteryWinPrice(num))
-                                    + ChatColor.AQUA + "Mine"
-                                    + "が当たりました。");
-                            plugin.broadcastMessage(ChatColor.AQUA + "おめでとうございます！！");
-                        }
-
-                        //購入ログを記録
-                        try {
-                            InsertLotteryLog(plugin, players.getName(), num);
-                        }
-                        catch (SQLException ex) {
-                            Logger.getLogger(LotteryCommands.class.getName()).log(Level.SEVERE, null, ex);
-                        }
+            player.sendMineYesNo(lottery_price, () -> {
+                //購入処理
+                if (player.gainMine(-lottery_price)) {
+                    //抽選処理
+                    int num = Lottery();
+                    if (num == 0) {
+                        player.sendMessage(ChatColor.AQUA + "残念！！　次回に期待しましょう。");
                     } else {
-                        player.sendMessage(ChatColor.RED + "Mineが不足しているため" + lottery_name + "を購入出来ませんでした。");
+                        player.gainMine(GetLotteryWinPrice(num));
+                        player.sendMessage(ChatColor.AQUA + "" + num + "等 " + ChatColor.GOLD + Tools.FormatMine(GetLotteryWinPrice(num)) + ChatColor.GOLD + "Mine が当たりました。");
                     }
+                    if (num > 0 && num < 4) {
+                        plugin.broadcastMessage(ChatColor.AQUA + "<<<" + lottery_name + "インフォメーション>>>");
+
+                        plugin.broadcastMessage(ChatColor.AQUA + "" + lottery_name + "で、"
+                                + ChatColor.YELLOW + player.getName()
+                                + ChatColor.AQUA + "さんに"
+                                + num + "等 "
+                                + ChatColor.GOLD + Tools.FormatMine(GetLotteryWinPrice(num))
+                                + ChatColor.AQUA + "Mine"
+                                + "が当たりました。");
+                        plugin.broadcastMessage(ChatColor.AQUA + "おめでとうございます！！");
+                    }
+
+                    //購入ログを記録
+                    try {
+                        InsertLotteryLog(plugin, players.getName(), num);
+                    } catch (SQLException ex) {
+                        Logger.getLogger(LotteryCommands.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                } else {
+                    player.sendMessage(ChatColor.RED + "Mineが不足しているため" + lottery_name + "を購入出来ませんでした。");
                 }
             });
             return;

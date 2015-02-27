@@ -17,15 +17,16 @@
  */
 package com.chantake.MituyaProject.World.Pack;
 
+import org.bukkit.configuration.file.YamlConfiguration;
+
 import java.util.ArrayList;
 import java.util.List;
-import org.bukkit.configuration.file.YamlConfiguration;
 
 public class PassBookExt<T> implements PackBookImpl {
 
+    private final BookType type;
     private String title;
     private List<String> data;
-    private final BookType type;
 
     protected PassBookExt(BookType type, String title, List<String> data) {
         this.type = type;
@@ -33,6 +34,7 @@ public class PassBookExt<T> implements PackBookImpl {
         this.data = data;
     }
 
+    @SafeVarargs
     protected PassBookExt(BookType type, String title, String key, T... datas) {
         this.type = type;
         this.title = title;
@@ -45,13 +47,13 @@ public class PassBookExt<T> implements PackBookImpl {
     }
 
     @Override
-    public void setTitle(String title) {
-        this.title = title;
+    public String getTitle() {
+        return this.title;
     }
 
     @Override
-    public String getTitle() {
-        return this.title;
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     @Override

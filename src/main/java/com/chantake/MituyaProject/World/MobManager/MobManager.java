@@ -19,11 +19,12 @@ package com.chantake.MituyaProject.World.MobManager;
 
 import com.chantake.MituyaProject.MituyaProject;
 import com.chantake.MituyaProject.Parameter.Parameter328;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
+
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 
 /**
  * Mobを管理するクラス
@@ -160,21 +161,15 @@ public class MobManager {
      * すべてのmobを削除
      */
     public void removeMob() {
-        for (LivingEntity entity : this.spawner_Entity.keySet()) {
-            entity.remove();
-        }
-        for (LivingEntity entity : this.other_Entity.keySet()) {
-            entity.remove();
-        }
+        this.spawner_Entity.keySet().forEach(org.bukkit.entity.LivingEntity::remove);
+        this.other_Entity.keySet().forEach(org.bukkit.entity.LivingEntity::remove);
         this.spawner_Entity.clear();
         this.other_Entity.clear();
     }
 
     public void removeOtherMob() {
         plugin.broadcastGMMessage(ChatColor.LIGHT_PURPLE + "[Server] Remove Other Entity :" + this.other_Entity.size());
-        for (LivingEntity entity : this.other_Entity.keySet()) {
-            entity.remove();
-        }
+        this.other_Entity.keySet().forEach(org.bukkit.entity.LivingEntity::remove);
         this.other_Entity.clear();
     }
 }

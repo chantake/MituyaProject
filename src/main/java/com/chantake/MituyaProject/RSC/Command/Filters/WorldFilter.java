@@ -7,9 +7,9 @@ import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author Tal Eisenberg
@@ -40,11 +40,7 @@ public class WorldFilter implements ChipFilter {
 
     @Override
     public Collection<Chip> filter(Collection<Chip> circuits) {
-        List<Chip> filtered = new ArrayList<>();
-
-        for (Chip chip : circuits) {
-            if (chip.world.getName().equals(world.getName())) filtered.add(chip);
-        }
+        List<Chip> filtered = circuits.stream().filter(chip -> chip.world.getName().equals(world.getName())).collect(Collectors.toList());
 
         return filtered;
     }

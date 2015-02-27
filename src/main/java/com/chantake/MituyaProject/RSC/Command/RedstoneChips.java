@@ -18,12 +18,7 @@ public class RedstoneChips extends RCCommand {
 
     @Override
     public void run(final CommandSender sender, Command command, String label, String[] args) {
-        rc.getServer().getScheduler().runTaskAsynchronously(rc, new Runnable() {
-            @Override
-            public void run() {
-                showMessage(sender);
-            }
-        });
+        rc.getServer().getScheduler().runTaskAsynchronously(rc, () -> showMessage(sender));
     }
 
     private void showMessage(CommandSender sender) {

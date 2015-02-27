@@ -7,7 +7,7 @@ import com.chantake.MituyaProject.RSC.Chip.IO.OutputPin;
 import com.chantake.MituyaProject.RSC.Circuit.Circuit;
 import com.chantake.MituyaProject.RSC.RCPrefs;
 import com.chantake.MituyaProject.RSC.RedstoneChips;
-import com.chantake.MituyaProject.RSC.Util.ChunkLocation;
+import com.chantake.MituyaProject.Util.ChunkLocation;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.BlockState;
@@ -238,12 +238,7 @@ public class Chip implements IOWriter {
             if (!line.equals(sign.getLine(0))) {
                 sign.setLine(0, line);
 
-                RedstoneChips.inst().getServer().getScheduler().scheduleSyncDelayedTask(RedstoneChips.inst(), new Runnable() {
-                    @Override
-                    public void run() {
-                        sign.update();
-                    }
-                });
+                RedstoneChips.inst().getServer().getScheduler().scheduleSyncDelayedTask(RedstoneChips.inst(), () -> sign.update());
             }
         } catch (NullPointerException ne) {
         }

@@ -1,7 +1,7 @@
 package com.chantake.MituyaProject.RSC.Memory;
 
-import com.chantake.MituyaProject.RSC.Util.BitSetConstructor;
-import com.chantake.MituyaProject.RSC.Util.BitSetRepresenter;
+import com.chantake.MituyaProject.Util.BitSetConstructor;
+import com.chantake.MituyaProject.Util.BitSetRepresenter;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 

@@ -8,6 +8,7 @@ import org.bukkit.command.CommandSender;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author Tal Eisenberg
@@ -39,11 +40,7 @@ public class RCreset extends RCCommand {
         List<Chip> allChips = new ArrayList<>();
         allChips.addAll(rc.chipManager().getAllChips().values());
 
-        for (Chip c : allChips) {
-            if (!rc.chipManager().resetChip(c, sender)) {
-                failed.add(c);
-            }
-        }
+        failed.addAll(allChips.stream().filter(c -> !rc.chipManager().resetChip(c, sender)).collect(Collectors.toList()));
 
         if (sender != null) {
             if (!failed.isEmpty()) {

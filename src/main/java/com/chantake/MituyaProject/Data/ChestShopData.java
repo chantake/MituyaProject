@@ -17,7 +17,7 @@
  */
 package com.chantake.MituyaProject.Data;
 
-import com.chantake.MituyaProject.Tool.Tools;
+import com.chantake.MituyaProject.Util.Tools;
 import com.chantake.MituyaProject.World.Shop.ChestShopManager;
 import org.bukkit.ChatColor;
 import org.bukkit.World;
@@ -120,8 +120,16 @@ public class ChestShopData {
         return owner;
     }
 
+    public void setOwner(String owner) {
+        this.owner = owner;
+    }
+
     public int getAmount() {
         return this.amount;
+    }
+
+    public boolean getOfficial() {
+        return this.official;
     }
 
     public void setOfficial(boolean official) {
@@ -131,14 +139,6 @@ public class ChestShopData {
             this.sign.update();
         }
         this.official = official;
-    }
-
-    public void setOwner(String owner) {
-        this.owner = owner;
-    }
-
-    public boolean getOfficial() {
-        return this.official;
     }
 
     public short getData() {

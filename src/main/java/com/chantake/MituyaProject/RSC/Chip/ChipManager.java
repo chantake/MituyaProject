@@ -9,13 +9,13 @@ import com.chantake.MituyaProject.RSC.Chip.IO.OutputPin;
 import com.chantake.MituyaProject.RSC.Chip.Scan.ChipParameters;
 import com.chantake.MituyaProject.RSC.Circuit.Circuit;
 import com.chantake.MituyaProject.RSC.Circuit.CircuitLoader;
-import com.chantake.MituyaProject.RSC.Parsing.Parsing;
 import com.chantake.MituyaProject.RSC.RCPermissions;
 import com.chantake.MituyaProject.RSC.RCPrefs;
 import com.chantake.MituyaProject.RSC.RedstoneChips;
 import com.chantake.MituyaProject.RSC.User.Debugger;
-import com.chantake.MituyaProject.RSC.Util.ChunkLocation;
 import com.chantake.MituyaProject.RSC.Wireless.Wireless;
+import com.chantake.MituyaProject.Util.ChunkLocation;
+import com.chantake.MituyaProject.Util.Parsing.Parsing;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 /**
  * @author Tal Eisenberg
@@ -138,9 +139,7 @@ public class ChipManager {
             chip.updateSign(false);
         }
 
-        for (ChunkLocation chunk : chunksToUnload) {
-            releaseChunk(chunk);
-        }
+        chunksToUnload.forEach(this::releaseChunk);
 
         return success;
     }
@@ -234,9 +233,7 @@ public class ChipManager {
         if (OutputPin.isOutputMaterial(block.getType())) {
             final List<OutputPin> outputs = chips.getOutputPinByOutputBlock(block.getLocation());
             if (outputs != null && !outputs.isEmpty()) {
-                for (OutputPin pin : outputs) {
-                    pin.refreshOutputs();
-                }
+                outputs.forEach(com.chantake.MituyaProject.RSC.Chip.IO.OutputPin::refreshOutputs);
                 return true;
             }
 
@@ -341,7 +338,7 @@ public class ChipManager {
      * Calls Chip.shutdown on every activated chip.
      */
     public void shutdownAllChips() {
-        for (Chip c : chips.values()) c.shutdown();
+        chips.values().forEach(com.chantake.MituyaProject.RSC.Chip.Chip::shutdown);
     }
 
     /**
@@ -375,9 +372,7 @@ public class ChipManager {
         List<Chip> chipsInChunk = chips.getInChunk(chunk);
 
         if (chipsInChunk != null) {
-            for (Chip c : chipsInChunk) {
-                c.chipChunkLoaded();
-            }
+            chipsInChunk.forEach(com.chantake.MituyaProject.RSC.Chip.Chip::chipChunkLoaded);
         }
     }
 
@@ -429,32 +424,24 @@ public class ChipManager {
 
         List<ChunkLocation> unloadedChunks = new ArrayList<>();
 
-        for (Chip c : chips.values()) {
-            if (c.world.equals(world)) {
-                for (ChunkLocation chunk : c.chunks) {
-                    if (!chunk.isChunkLoaded() && !unloadedChunks.contains(chunk))
-                        unloadedChunks.add(chunk);
-                }
-
-                // we also might need to load/unload some chunks that don't have i/o blocks in them
-                for (Location s : c.structure) {
-                    ChunkLocation chunk = ChunkLocation.fromLocation(s);
-                    if (!chunk.isChunkLoaded() && !unloadedChunks.contains(chunk))
-                        unloadedChunks.add(chunk);
-                }
+        // we also might need to load/unload some chunks that don't have i/o blocks in them
+        chips.values().stream().filter(c -> c.world.equals(world)).forEach(c -> {
+            for (ChunkLocation chunk : c.chunks) {
+                if (!chunk.isChunkLoaded() && !unloadedChunks.contains(chunk))
+                    unloadedChunks.add(chunk);
             }
-        }
 
-        for (ChunkLocation c : unloadedChunks)
-            workOnChunk(c);
-
-        for (Chip c : chips.values()) {
-            if (c.world.equals(world)) {
-                if (!checkChipIntegrity(c)) {
-                    invalidIds.add(c.id);
-                }
+            // we also might need to load/unload some chunks that don't have i/o blocks in them
+            for (Location s : c.structure) {
+                ChunkLocation chunk = ChunkLocation.fromLocation(s);
+                if (!chunk.isChunkLoaded() && !unloadedChunks.contains(chunk))
+                    unloadedChunks.add(chunk);
             }
-        }
+        });
+
+        unloadedChunks.forEach(this::workOnChunk);
+
+        invalidIds.addAll(chips.values().stream().filter(c -> c.world.equals(world)).filter(c -> !checkChipIntegrity(c)).map(c -> c.id).collect(Collectors.toList()));
 
         String msg = "";
         if (!invalidIds.isEmpty()) {
@@ -472,9 +459,7 @@ public class ChipManager {
             msg = "Deactivated " + invalidIds.size() + " damaged circuits: " + ids;
         }
 
-        for (ChunkLocation chunk : unloadedChunks) {
-            releaseChunk(chunk);
-        }
+        unloadedChunks.forEach(this::releaseChunk);
 
         if (!invalidIds.isEmpty()) rc.log(Level.INFO, "Done checking circuits. " + msg);
     }
@@ -560,9 +545,7 @@ public class ChipManager {
             }
         }
 
-        for (ChunkLocation chunk : chunksToUnload) {
-            releaseChunk(chunk);
-        }
+        chunksToUnload.forEach(this::releaseChunk);
 
         return blockCount;
     }

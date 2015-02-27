@@ -18,8 +18,6 @@
 package com.chantake.MituyaProject.World.SignItemChest;
 
 import com.chantake.MituyaProject.MituyaProject;
-import java.util.ArrayList;
-import java.util.List;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -32,6 +30,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -94,14 +95,13 @@ public class ItemChest {
                 }
                 itemselect = true;//整頓モード
             } else if (iit.size() >= 0) {
-                for (Entity enti : iit) {
-                    if (enti instanceof ItemFrame) {
-                        ItemFrame it = (ItemFrame)enti;
-                        ItemStack is = it.getItem();
-                        ids.add(is.getTypeId() + ":" + is.getDurability());
-                        itemselect = true;//整頓モード
-                    }
-                }
+                //整頓モード
+                iit.stream().filter(enti -> enti instanceof ItemFrame).forEach(enti -> {
+                    ItemFrame it = (ItemFrame) enti;
+                    ItemStack is = it.getItem();
+                    ids.add(is.getTypeId() + ":" + is.getDurability());
+                    itemselect = true;//整頓モード
+                });
             }
 
             List<Chest> chblock = getChest(si);//チェストを取得

@@ -22,8 +22,8 @@ import com.chantake.MituyaProject.Data.CommandShopData;
 import com.chantake.MituyaProject.Exception.PlayerOfflineException;
 import com.chantake.MituyaProject.MituyaProject;
 import com.chantake.MituyaProject.Player.PlayerInstance;
-import com.chantake.MituyaProject.Tool.MySqlProcessing;
-import com.chantake.MituyaProject.Tool.Tools;
+import com.chantake.MituyaProject.Util.MySqlProcessing;
+import com.chantake.MituyaProject.Util.Tools;
 import com.chantake.mituyaapi.tools.database.JDCConnection;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -78,21 +78,17 @@ public class CommandShopManager {
         final int mine = itemData.getBuy() * amount;
         //item name
         final String itemname = plugin.getJapaneseMessage().getItemName(itemData.getStringID());
-        ins.sendMineYesNo(-mine, itemname + " を " + amount + "個 購入します 単価:" + itemData.getBuy() + "Mine", new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    //お金
-                    if (ins.checkMine(-mine) && ins.gainItem(itemData.getItemStack(), amount)) {
-                        ins.gainMine(-mine);
-                        StringBuilder sb = new StringBuilder();
-                        sb.append(ChatColor.AQUA).append(itemname).append("(").append(itemData.getStringID()).append(") ").append(ChatColor.YELLOW).append("を ").append(ChatColor.RED).append(amount).append(ChatColor.YELLOW).append("個 購入しました。");
-                        ins.sendInfo(ChatColor.RED + "Shop", sb.toString());
-                        MySqlProcessing.ShopDealingsLog(ins.getRawName(), "buy", itemData.getId(), itemData.getType(), amount, mine);
-                    }
+        ins.sendMineYesNo(-mine, itemname + " を " + amount + "個 購入します 単価:" + itemData.getBuy() + "Mine", () -> {
+            try {
+                //お金
+                if (ins.checkMine(-mine) && ins.gainItem(itemData.getItemStack(), amount)) {
+                    ins.gainMine(-mine);
+                    StringBuilder sb = new StringBuilder();
+                    sb.append(ChatColor.AQUA).append(itemname).append("(").append(itemData.getStringID()).append(") ").append(ChatColor.YELLOW).append("を ").append(ChatColor.RED).append(amount).append(ChatColor.YELLOW).append("個 購入しました。");
+                    ins.sendInfo(ChatColor.RED + "Shop", sb.toString());
+                    MySqlProcessing.ShopDealingsLog(ins.getRawName(), "buy", itemData.getId(), itemData.getType(), amount, mine);
                 }
-                catch (PlayerOfflineException ex) {
-                }
+            } catch (PlayerOfflineException ex) {
             }
         });
 
@@ -142,32 +138,29 @@ public class CommandShopManager {
         final int mine = itemData.getSell() * items;
         //item name
         final String itemname = plugin.getJapaneseMessage().getItemName(itemData.getStringID());
-        ins.sendMineYesNo(mine, itemname + " を " + items + "個 売却します 単価:" + itemData.getSell(), new Runnable() {
-            @Override
-            public void run() {
-                //インベントリチェック
-                int am = 0;
-                for (int i = 0; i < inventory.getSize(); i++) {
-                    ItemStack item = inventory.getItem(i);
-                    if (item != null && item.getTypeId() == itemData.getId() && item.getDurability() == itemData.getType()) {
-                        am += inventory.getItem(i).getAmount();
-                    }
+        ins.sendMineYesNo(mine, itemname + " を " + items + "個 売却します 単価:" + itemData.getSell(), () -> {
+            //インベントリチェック
+            int am = 0;
+            for (int i = 0; i < inventory.getSize(); i++) {
+                ItemStack item = inventory.getItem(i);
+                if (item != null && item.getTypeId() == itemData.getId() && item.getDurability() == itemData.getType()) {
+                    am += inventory.getItem(i).getAmount();
                 }
-                //元より少ない場合
-                if (am < is.getAmount()) {
-                    StringBuilder sb = new StringBuilder();
-                    sb.append(ChatColor.RED).append(plugin.getJapaneseMessage().getItemName(itemData.getStringID())).append(" がインベントリに無いか、足りません");
-                    ins.sendInfo(ChatColor.RED + "Shop", sb.toString());
-                    return;
-                }
-                //お金
-                if (ins.gainMine(mine)) {
-                    inventory.removeItem(is);
-                    StringBuilder sb = new StringBuilder();
-                    sb.append(ChatColor.AQUA).append(itemname).append("(").append(itemData.getStringID()).append(") ").append(ChatColor.YELLOW).append("を ").append(ChatColor.RED).append(is.getAmount()).append(ChatColor.YELLOW).append("個 売りました。");
-                    ins.sendInfo(ChatColor.RED + "Shop", sb.toString());
-                    MySqlProcessing.ShopDealingsLog(ins.getRawName(), "sell", itemData.getId(), itemData.getType(), is.getAmount(), mine);
-                }
+            }
+            //元より少ない場合
+            if (am < is.getAmount()) {
+                StringBuilder sb = new StringBuilder();
+                sb.append(ChatColor.RED).append(plugin.getJapaneseMessage().getItemName(itemData.getStringID())).append(" がインベントリに無いか、足りません");
+                ins.sendInfo(ChatColor.RED + "Shop", sb.toString());
+                return;
+            }
+            //お金
+            if (ins.gainMine(mine)) {
+                inventory.removeItem(is);
+                StringBuilder sb = new StringBuilder();
+                sb.append(ChatColor.AQUA).append(itemname).append("(").append(itemData.getStringID()).append(") ").append(ChatColor.YELLOW).append("を ").append(ChatColor.RED).append(is.getAmount()).append(ChatColor.YELLOW).append("個 売りました。");
+                ins.sendInfo(ChatColor.RED + "Shop", sb.toString());
+                MySqlProcessing.ShopDealingsLog(ins.getRawName(), "sell", itemData.getId(), itemData.getType(), is.getAmount(), mine);
             }
         });
     }

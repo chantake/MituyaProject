@@ -1,7 +1,7 @@
 package com.chantake.MituyaProject.RSC.Wireless;
 
-import com.chantake.MituyaProject.RSC.Util.BooleanArrays;
-import com.chantake.MituyaProject.RSC.Util.BooleanSubset;
+import com.chantake.MituyaProject.Util.BooleanArrays;
+import com.chantake.MituyaProject.Util.BooleanSubset;
 
 /**
  * A Wireless transmitter.
@@ -30,7 +30,7 @@ public class Transmitter extends Wireless {
     }
 
     /**
-     * Transmit a {@link com.chantake.MituyaProject.RSC.Util.BooleanSubset BooleanSubset} over the channel.
+     * Transmit a {@link com.chantake.MituyaProject.Util.BooleanSubset BooleanSubset} over the channel.
      *
      * @param transmission
      */

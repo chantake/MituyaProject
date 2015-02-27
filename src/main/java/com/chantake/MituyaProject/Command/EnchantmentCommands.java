@@ -21,7 +21,7 @@ import com.chantake.MituyaProject.Exception.MituyaProjectException;
 import com.chantake.MituyaProject.Gachapon.GachaponDataManager;
 import com.chantake.MituyaProject.MituyaProject;
 import com.chantake.MituyaProject.Player.PlayerInstance;
-import com.chantake.MituyaProject.Tool.Tools;
+import com.chantake.MituyaProject.Util.Tools;
 import com.chantake.mituyaapi.commands.Command;
 import com.chantake.mituyaapi.commands.CommandContext;
 import com.chantake.mituyaapi.commands.CommandPermissions;
@@ -70,17 +70,14 @@ public class EnchantmentCommands {
         }
 
         playerInstance.sendMessage(ChatColor.YELLOW + "手に持っているアイテムのエンチャントを削除します。");
-        playerInstance.sendMineYesNo(8000, new Runnable() {
-            @Override
-            public void run() {
-                if (playerInstance.gainMine(-8000)) {
-                    ItemStack new_is = new ItemStack(is.getTypeId());
-                    player.setItemInHand(new_is);
-                    player.playSound(player.getLocation(), Sound.ANVIL_USE, 1.0f, 1.0f);
-                    playerInstance.sendMessage(ChatColor.AQUA + "エンチャントを削除しました。");
-                } else {
-                    playerInstance.sendMessage(ChatColor.RED + "Mineが不足しているためエンチャントを削除出来ませんでした。");
-                }
+        playerInstance.sendMineYesNo(8000, () -> {
+            if (playerInstance.gainMine(-8000)) {
+                ItemStack new_is = new ItemStack(is.getTypeId());
+                player.setItemInHand(new_is);
+                player.playSound(player.getLocation(), Sound.ANVIL_USE, 1.0f, 1.0f);
+                playerInstance.sendMessage(ChatColor.AQUA + "エンチャントを削除しました。");
+            } else {
+                playerInstance.sendMessage(ChatColor.RED + "Mineが不足しているためエンチャントを削除出来ませんでした。");
             }
         });
     }

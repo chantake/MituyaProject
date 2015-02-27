@@ -21,23 +21,19 @@ import com.chantake.MituyaProject.Exception.PlayerOfflineException;
 import com.chantake.MituyaProject.MituyaProject;
 import com.chantake.MituyaProject.Parameter.Parameter328;
 import com.chantake.MituyaProject.World.Jackpot;
+import org.bukkit.Chunk;
+import org.bukkit.Location;
+import org.bukkit.World;
+import org.bukkit.entity.*;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
+import org.bukkit.util.Vector;
+
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.bukkit.Chunk;
-import org.bukkit.Location;
-import org.bukkit.World;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.ExperienceOrb;
-import org.bukkit.entity.Fireball;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.TNTPrimed;
-import org.bukkit.entity.ThrownPotion;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
-import org.bukkit.util.Vector;
 
 /**
  *
@@ -45,8 +41,8 @@ import org.bukkit.util.Vector;
  */
 public class Debug implements DebugMBean {
 
-    public List<Chunk> ll2 = new LinkedList<>();
     private final MituyaProject plugin;
+    public List<Chunk> ll2 = new LinkedList<>();
 
     public Debug(MituyaProject plugin) {
         this.plugin = plugin;
@@ -169,6 +165,11 @@ public class Debug implements DebugMBean {
     }
 
     @Override
+    public void setLimitJackpot1(int a) {
+        Jackpot.LimitJackpot1 = a;
+    }
+
+    @Override
     public int getjackpot2() {
         return Jackpot.jackpot2;
     }
@@ -179,18 +180,13 @@ public class Debug implements DebugMBean {
     }
 
     @Override
-    public void setLimitJackpot1(int a) {
-        Jackpot.LimitJackpot1 = a;
+    public void setLimitJackpot2(int a) {
+        Jackpot.LimitJackpot2 = a;
     }
 
     @Override
     public void setjackpot2(int a) {
         Jackpot.jackpot2 = a;
-    }
-
-    @Override
-    public void setLimitJackpot2(int a) {
-        Jackpot.LimitJackpot2 = a;
     }
 
     @Override
@@ -208,9 +204,7 @@ public class Debug implements DebugMBean {
         try {
             Player player = plugin.getInstanceManager().matchSingleInstance(name).getPlayer();
             player.getServer().getOnlinePlayers();
-            for (Player pl : player.getServer().getOnlinePlayers()) {
-                player.hidePlayer(pl);
-            }
+            player.getServer().getOnlinePlayers().forEach(player::hidePlayer);
         }
         catch (PlayerOfflineException ex) {
         }
@@ -221,9 +215,7 @@ public class Debug implements DebugMBean {
         try {
             Player player = plugin.getInstanceManager().matchSingleInstance(name).getPlayer();
             player.getServer().getOnlinePlayers();
-            for (Player pl : player.getServer().getOnlinePlayers()) {
-                player.showPlayer(pl);
-            }
+            player.getServer().getOnlinePlayers().forEach(player::showPlayer);
         }
         catch (PlayerOfflineException ex) {
         }

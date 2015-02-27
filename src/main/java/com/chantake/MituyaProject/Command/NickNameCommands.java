@@ -20,7 +20,7 @@ package com.chantake.MituyaProject.Command;
 import com.chantake.MituyaProject.Exception.PlayerOfflineException;
 import com.chantake.MituyaProject.MituyaProject;
 import com.chantake.MituyaProject.Player.PlayerInstance;
-import com.chantake.MituyaProject.Tool.Tools;
+import com.chantake.MituyaProject.Util.Tools;
 import com.chantake.mituyaapi.commands.Command;
 import com.chantake.mituyaapi.commands.CommandContext;
 import com.chantake.mituyaapi.commands.CommandException;
@@ -52,30 +52,23 @@ public class NickNameCommands {
                 } else if (nick.contains(" ") || nick.contains("　")) {
                     player.sendAttention("空白などの禁止文字が含まれています");
                 } else {
-                    player.sendYesNo("以下の内容でニックネームを登録してもよろしいでしょうか？ ：" + nick, new Runnable() {
-                        @Override
-                        public void run() {
-                            if (player.setNickName(nick)) {
-                                if (player.gainMine(-3000)) {
-                                    player.sendSuccess("ニックネームを設定しました：" + nick);
-                                }
-                            } else {
-                                player.sendAttention("既にニックネームもしくはIDが存在しています");
+                    player.sendYesNo("以下の内容でニックネームを登録してもよろしいでしょうか？ ：" + nick, () -> {
+                        if (player.setNickName(nick)) {
+                            if (player.gainMine(-3000)) {
+                                player.sendSuccess("ニックネームを設定しました：" + nick);
                             }
+                        } else {
+                            player.sendAttention("既にニックネームもしくはIDが存在しています");
                         }
                     });
                     player.sendAttention("※3000Mine登録料としてかかります");
                 }
             } else if (message.getString(0).equalsIgnoreCase("remove") || message.getString(0).equalsIgnoreCase("clear") || message.getString(0).equalsIgnoreCase("削除")) {
-                player.sendYesNo("ニックネームを削除します　よろしいでしょうか？", new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            player.removeNickName();
-                            player.sendSuccess("ニックネームを削除しました");
-                        }
-                        catch (PlayerOfflineException ex) {
-                        }
+                player.sendYesNo("ニックネームを削除します　よろしいでしょうか？", () -> {
+                    try {
+                        player.removeNickName();
+                        player.sendSuccess("ニックネームを削除しました");
+                    } catch (PlayerOfflineException ex) {
                     }
                 });
             }

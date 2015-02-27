@@ -22,7 +22,7 @@ import com.chantake.MituyaProject.Exception.PlayerNotFoundException;
 import com.chantake.MituyaProject.MituyaProject;
 import com.chantake.MituyaProject.Player.Mail.MailData;
 import com.chantake.MituyaProject.Player.PlayerInstance;
-import com.chantake.MituyaProject.Tool.Tools;
+import com.chantake.MituyaProject.Util.Tools;
 import com.chantake.mituyaapi.commands.Command;
 import com.chantake.mituyaapi.commands.CommandContext;
 import com.chantake.mituyaapi.commands.CommandPermissions;
@@ -185,17 +185,14 @@ public class MailCommands {
                 }
             } else if (message.getString(0).equals("remove") || message.getString(0).equals("削除")) {
                 if (message.argsLength() > 1) {
-                    player.sendYesNo("メールを削除しますがよろしいでしょうか？", new Runnable() {
-                        @Override
-                        public void run() {
-                            MailData md = plugin.getMailManager().getMailFromID(players, message.getInteger(1));
-                            if (md == null) {
-                                player.sendAttention("ID:" + message.getInteger(1) + " は存在しないか、読む権限がありません");
-                                return;
-                            }
-                            plugin.getMailManager().removeMail(md.getId());
-                            player.sendInfo(ChatColor.GREEN + "Mail", ChatColor.YELLOW + "メールを削除しました");
+                    player.sendYesNo("メールを削除しますがよろしいでしょうか？", () -> {
+                        MailData md = plugin.getMailManager().getMailFromID(players, message.getInteger(1));
+                        if (md == null) {
+                            player.sendAttention("ID:" + message.getInteger(1) + " は存在しないか、読む権限がありません");
+                            return;
                         }
+                        plugin.getMailManager().removeMail(md.getId());
+                        player.sendInfo(ChatColor.GREEN + "Mail", ChatColor.YELLOW + "メールを削除しました");
                     });
                 } else {
                     player.sendAttention("/mail [remove/削除] ID　　メールを削除します");

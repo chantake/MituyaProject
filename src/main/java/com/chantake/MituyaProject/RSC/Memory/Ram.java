@@ -1,7 +1,7 @@
 package com.chantake.MituyaProject.RSC.Memory;
 
-import com.chantake.MituyaProject.RSC.Util.BitSetUtils;
-import com.chantake.MituyaProject.RSC.Util.BooleanArrays;
+import com.chantake.MituyaProject.Util.BitSetUtils;
+import com.chantake.MituyaProject.Util.BooleanArrays;
 
 import java.math.BigInteger;
 import java.util.*;

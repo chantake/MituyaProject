@@ -20,13 +20,14 @@ package com.chantake.MituyaProject.Player;
 import com.chantake.MituyaProject.Bukkit.Event.MituyaPlayerHideEvent;
 import com.chantake.MituyaProject.MituyaProject;
 import com.chantake.MituyaProject.Permissions.Rank;
-import java.util.ArrayList;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+
+import java.util.ArrayList;
 
 /**
  * HidePlayerManager
@@ -35,10 +36,10 @@ import org.bukkit.event.player.PlayerQuitEvent;
  */
 public class HideManager {
 
-    private MituyaProject plugin;
+    private final HideListener listener = new HideListener(this);
     protected ArrayList<String> hideplayers = new ArrayList<>();
     protected ArrayList<Player> hide_onlineplayers = new ArrayList<>();
-    private final HideListener listener = new HideListener(this);
+    private MituyaProject plugin;
 
     public HideManager() {
     }
@@ -176,14 +177,10 @@ public class HideManager {
                 this.manager.HideOnlinePlayers(player);
             }
             //hideする
-            for (Player pr : this.manager.plugin.getServer().getOnlinePlayers()) {
-                //GM未満は見えないように
-                if (!this.manager.plugin.getInstanceManager().getInstance(pr).hasPermission(Rank.Moderator)) {
-                    for (Player hp : this.manager.hide_onlineplayers) {
-                        pr.hidePlayer(hp);
-                    }
-                }
-            }
+            //GM未満は見えないように
+            this.manager.plugin.getServer().getOnlinePlayers().stream().filter(pr -> !this.manager.plugin.getInstanceManager().getInstance(pr).hasPermission(Rank.Moderator)).forEach(pr -> {
+                this.manager.hide_onlineplayers.forEach((player1) -> pr.hidePlayer(player1));
+            });
         }
     }
 }

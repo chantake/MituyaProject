@@ -1,10 +1,11 @@
 package com.chantake.MituyaProject.RSC.Wireless;
 
-import com.chantake.MituyaProject.RSC.Util.BooleanArrays;
-import com.chantake.MituyaProject.RSC.Util.BooleanSubset;
+import com.chantake.MituyaProject.Util.BooleanArrays;
+import com.chantake.MituyaProject.Util.BooleanSubset;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Represents a wireless broadcast channel that receivers and transmitters can communicate over.
@@ -134,7 +135,7 @@ public class BroadcastChannel {
     }
 
     /**
-     * Transmit a {@link com.chantake.MituyaProject.RSC.Util.BooleanSubset BooleanSubset} over this channel to all receivers.
+     * Transmit a {@link com.chantake.MituyaProject.Util.BooleanSubset BooleanSubset} over this channel to all receivers.
      *
      * @param subset The subset to transmit.
      * @param start  The index of the first channel bit that will be modified.
@@ -183,9 +184,8 @@ public class BroadcastChannel {
     }
 
     public List<Transmitter> getTransmitters() {
-        List<Transmitter> ts = new ArrayList<>();
+        List<Transmitter> ts = devices.stream().filter(w -> w instanceof Transmitter).map(w -> (Transmitter) w).collect(Collectors.toList());
 
-        for (Wireless w : devices) if (w instanceof Transmitter) ts.add((Transmitter) w);
         return ts;
     }
 }

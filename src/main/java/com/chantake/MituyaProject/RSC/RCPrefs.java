@@ -290,10 +290,7 @@ public class RCPrefs {
     }
 
     private static void loadMissingPrefs(Map<String, Object> loadedPrefs) {
-        for (String key : defaults.keySet()) {
-            if (!loadedPrefs.containsKey(key))
-                loadedPrefs.put(key, defaults.get(key));
-        }
+        defaults.keySet().stream().filter(key -> !loadedPrefs.containsKey(key)).forEach(key -> loadedPrefs.put(key, defaults.get(key)));
     }
 
     /**

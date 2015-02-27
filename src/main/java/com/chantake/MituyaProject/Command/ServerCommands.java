@@ -23,9 +23,9 @@ import com.chantake.MituyaProject.Exception.PlayerOfflineException;
 import com.chantake.MituyaProject.MituyaProject;
 import com.chantake.MituyaProject.Parameter.Parameter328;
 import com.chantake.MituyaProject.Player.PlayerInstance;
-import com.chantake.MituyaProject.Tool.PerfomanceCheck;
-import com.chantake.MituyaProject.Tool.Timer.AutoStop;
-import com.chantake.MituyaProject.Tool.Tools;
+import com.chantake.MituyaProject.Timer.AutoStop;
+import com.chantake.MituyaProject.Util.PerfomanceCheck;
+import com.chantake.MituyaProject.Util.Tools;
 import com.chantake.mituyaapi.commands.Command;
 import com.chantake.mituyaapi.commands.CommandContext;
 import com.chantake.mituyaapi.commands.CommandException;
@@ -34,13 +34,8 @@ import com.sk89q.worldguard.protection.GlobalRegionManager;
 import com.sk89q.worldguard.protection.flags.DefaultFlag;
 import com.sk89q.worldguard.protection.flags.StateFlag;
 import com.sk89q.worldguard.protection.managers.RegionManager;
-import com.sk89q.worldguard.protection.regions.ProtectedRegion;
-import org.bukkit.ChatColor;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.World;
-import org.bukkit.entity.*;
+import org.bukkit.*;
+import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitScheduler;
 
 /**
@@ -276,12 +271,8 @@ public class ServerCommands {
         GlobalRegionManager globalRegionManager = plugin.getWorldGuard().getGlobalRegionManager();
         for (World wd : plugin.getServer().getWorlds()) {
             RegionManager mgr = globalRegionManager.get(wd);
-            for (ProtectedRegion region : mgr.getRegions().values()) {
-                //個別にtntが許可されているところはスキップ
-                if (region.getFlag(DefaultFlag.TNT) != StateFlag.State.ALLOW) {
-                    region.setFlag(DefaultFlag.TNT, StateFlag.State.DENY);
-                }
-            }
+            //個別にtntが許可されているところはスキップ
+            mgr.getRegions().values().stream().filter(region -> region.getFlag(DefaultFlag.TNT) != StateFlag.State.ALLOW).forEach(region -> region.setFlag(DefaultFlag.TNT, StateFlag.State.DENY));
         }
         player.sendInfo(ChatColor.YELLOW + "WorldGuard", ChatColor.YELLOW + "全エリア保護にTNTフラグを設定しました");
     }
@@ -294,12 +285,8 @@ public class ServerCommands {
         GlobalRegionManager globalRegionManager = plugin.getWorldGuard().getGlobalRegionManager();
         for (World wd : plugin.getServer().getWorlds()) {
             RegionManager mgr = globalRegionManager.get(wd);
-            for (ProtectedRegion region : mgr.getRegions().values()) {
-                //個別に匠が許可されているところはスキップ
-                if (region.getFlag(DefaultFlag.CREEPER_EXPLOSION) != StateFlag.State.ALLOW) {
-                    region.setFlag(DefaultFlag.CREEPER_EXPLOSION, StateFlag.State.DENY);
-                }
-            }
+            //個別に匠が許可されているところはスキップ
+            mgr.getRegions().values().stream().filter(region -> region.getFlag(DefaultFlag.CREEPER_EXPLOSION) != StateFlag.State.ALLOW).forEach(region -> region.setFlag(DefaultFlag.CREEPER_EXPLOSION, StateFlag.State.DENY));
         }
         player.sendInfo(ChatColor.YELLOW + "WorldGuard", ChatColor.YELLOW + "全エリア保護にクリーパーフラグを設定しました");
     }

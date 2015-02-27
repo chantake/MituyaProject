@@ -1,18 +1,18 @@
 package com.chantake.MituyaProject.RSC.Command;
 
-import com.chantake.MituyaProject.RSC.Paging.ArrayLineSource;
-import com.chantake.MituyaProject.RSC.Paging.Pager;
 import com.chantake.MituyaProject.RSC.RCPrefs;
+import com.chantake.MituyaProject.Util.Paging.ArrayLineSource;
+import com.chantake.MituyaProject.Util.Paging.Pager;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.Permission;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @author Tal Eisenberg
@@ -20,10 +20,7 @@ import java.util.Map;
 public class RChelp extends RCCommand {
 
     public static void printCommandList(CommandSender sender, Map commands, String[] args, ChatColor infoColor, ChatColor errorColor) {
-        List<String> lines = new ArrayList<>();
-
-        for (Object command : commands.keySet())
-            lines.add(ChatColor.YELLOW + command.toString() + ChatColor.WHITE + " - " + ((Map) commands.get(command)).get("description"));
+        List<String> lines = (List<String>) commands.keySet().stream().map(command -> ChatColor.YELLOW + command.toString() + ChatColor.WHITE + " - " + ((Map) commands.get(command)).get("description")).collect(Collectors.toList());
 
         Collections.sort(lines);
         Pager.beginPaging(sender, "RedstoneChips commands", new ArrayLineSource(lines.toArray(new String[0])), infoColor, errorColor, Pager.MaxLines - 1);
@@ -39,12 +36,7 @@ public class RChelp extends RCCommand {
             help += "\n" + ChatColor.WHITE + commandMap.get("usage").toString();
         }
 
-        List<Permission> perms = new ArrayList<>();
-        for (Permission p : rc.getDescription().getPermissions()) {
-            if (p.getName().startsWith("redstonechips.command." + command.toString())) {
-                perms.add(p);
-            }
-        }
+        List<Permission> perms = rc.getDescription().getPermissions().stream().filter(p -> p.getName().startsWith("redstonechips.command." + command.toString())).collect(Collectors.toList());
 
         if (commandMap.containsKey("aliases") && commandMap.get("aliases") != null) {
             String alist = "";

@@ -10,7 +10,6 @@ import com.chantake.MituyaProject.RSC.Memory.Memory;
 import com.chantake.MituyaProject.RSC.User.UserSession;
 import com.chantake.MituyaProject.RSC.Wireless.ChannelManager;
 import org.bukkit.Location;
-import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -20,6 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 /**
  * RedstoneChips Bukkit JavaPlugin implementation. The main entry point of the plugin.
@@ -77,40 +77,28 @@ public class RedstoneChips extends JavaPlugin {
         for (CircuitIndex lib : CircuitLoader.getCircuitLibraries()) lib.onRedstoneChipsEnable(this);
 
         // delay some tasks until after the server startup is complete.
-        getServer().getScheduler().runTaskLater(this, new Runnable() {
-            @Override
-            public void run() {
-                postStartup();
-            }
-        }, 1);
+        getServer().getScheduler().runTaskLater(this, () -> postStartup(), 1);
     }
 
     private void postStartup() {
-        for (World w : getServer().getWorlds()) {
-            if (!WorldsObserver.isWorldLoaded(w))
-                RCPersistence.loadChipsOf(w);
-        }
+        getServer().getWorlds().stream().filter(w -> !WorldsObserver.isWorldLoaded(w)).forEach(RCPersistence::loadChipsOf);
 
         RCPersistence.loadChannelsIfExists();
 
         log(Level.INFO, "Processing " + circuitManager.getAllChips().size() + " active chip(s).");
 
         if (RCPrefs.getCheckForUpdates()) {
-            Runnable updater = new Runnable() {
-
-                @Override
-                public void run() {
-                    String ver;
-                    try {
-                        ver = UpdateChecker.checkUpdate(getDescription().getVersion());
-                    } catch (IOException ex) {
-                        log(Level.WARNING, "Couldn't check for an update (" + ex.getClass().getSimpleName() + ").");
-                        return;
-                    }
-                    if (ver != null) {
-                        log(Level.INFO, "A new RedstoneChips version (" + ver + ") is available.\n"
-                                + "To download the update go to: http://eisental.github.com/RedstoneChips");
-                    }
+            Runnable updater = () -> {
+                String ver;
+                try {
+                    ver = UpdateChecker.checkUpdate(getDescription().getVersion());
+                } catch (IOException ex) {
+                    log(Level.WARNING, "Couldn't check for an update (" + ex.getClass().getSimpleName() + ").");
+                    return;
+                }
+                if (ver != null) {
+                    log(Level.INFO, "A new RedstoneChips version (" + ver + ") is available.\n"
+                            + "To download the update go to: http://eisental.github.com/RedstoneChips");
                 }
             };
             getServer().getScheduler().runTaskAsynchronously(this, updater);
@@ -120,8 +108,7 @@ public class RedstoneChips extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        for (UserSession s : sessions.values())
-            s.playerQuit();
+        sessions.values().forEach(com.chantake.MituyaProject.RSC.User.UserSession::playerQuit);
 
         RCPersistence.saveAll();
         circuitManager.shutdownAllChips();
@@ -265,14 +252,8 @@ public class RedstoneChips extends JavaPlugin {
      * @param circuit The rcTypeReceiver to remove.
      */
     public void removeRCTypeReceiver(RCTypeReceiver circuit) {
-        List<Location> toremove = new ArrayList<>();
+        List<Location> toremove = rcTypeReceivers.keySet().stream().filter(l -> rcTypeReceivers.get(l) == circuit).collect(Collectors.toList());
 
-        for (Location l : rcTypeReceivers.keySet()) {
-            if (rcTypeReceivers.get(l) == circuit)
-                toremove.add(l);
-        }
-
-        for (Location l : toremove)
-            rcTypeReceivers.remove(l);
+        toremove.forEach(rcTypeReceivers::remove);
     }
 }

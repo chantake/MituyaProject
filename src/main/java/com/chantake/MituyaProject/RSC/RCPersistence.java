@@ -12,6 +12,7 @@ import org.yaml.snakeyaml.Yaml;
 import java.io.*;
 import java.util.*;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 /**
  * A bunch of static methods for saving and loading circuit states.
@@ -85,12 +86,10 @@ public class RCPersistence {
             }
 
             // Activate all compiled chips.
-            for (Chip c : chipsAndState.keySet()) {
-                if (rc.chipManager().activateChip(c, null, c.id)) {
-                    Map<String, String> state = chipsAndState.get(c);
-                    if (state != null) c.circuit.setInternalState(state);
-                }
-            }
+            chipsAndState.keySet().stream().filter(c -> rc.chipManager().activateChip(c, null, c.id)).forEach(c -> {
+                Map<String, String> state = chipsAndState.get(c);
+                if (state != null) c.circuit.setInternalState(state);
+            });
         }
     }
 
@@ -98,8 +97,7 @@ public class RCPersistence {
      * Saves all the circuits on the server.
      */
     public static void saveAll() {
-        for (World wrld : RedstoneChips.inst().getServer().getWorlds())
-            saveChipsOf(wrld);
+        RedstoneChips.inst().getServer().getWorlds().forEach(com.chantake.MituyaProject.RSC.RCPersistence::saveChipsOf);
     }
 
     /**
@@ -126,12 +124,7 @@ public class RCPersistence {
 
         dontSaveCircuits.add(world);
         if (rc.isEnabled()) {
-            rc.getServer().getScheduler().runTaskLaterAsynchronously(rc, new Runnable() {
-                @Override
-                public void run() {
-                    dontSaveCircuits.clear();
-                }
-            }, 1);
+            rc.getServer().getScheduler().runTaskLaterAsynchronously(rc, () -> dontSaveCircuits.clear(), 1);
         }
 
         Collection<Chip> chips = rc.chipManager().getAllChips().getInWorld(world).values();
@@ -154,10 +147,7 @@ public class RCPersistence {
     }
 
     private static void serialize(Collection values, Serializer serializer, File file) {
-        List<Map<String, Object>> map = new ArrayList<>();
-        for (Object o : values) {
-            map.add(serializer.serialize(o));
-        }
+        List<Map<String, Object>> map = (List<Map<String, Object>>) values.stream().map(serializer::serialize).collect(Collectors.toList());
 
         if (!map.isEmpty())
             dumpYaml(map, file);
@@ -204,9 +194,7 @@ public class RCPersistence {
             ChannelSerializer ser = new ChannelSerializer();
 
             if (channelsList != null) {
-                for (Map<String, Object> channelMap : channelsList) {
-                    ser.deserialize(channelMap);
-                }
+                channelsList.forEach(ser::deserialize);
             }
         } catch (IOException ex) {
             RedstoneChips.inst().log(Level.SEVERE, "While reading channels file: " + ex.toString());
@@ -254,8 +242,7 @@ public class RCPersistence {
     }
 
     private static void removeUnprotectedChannels(Collection<BroadcastChannel> channels) {
-        List<BroadcastChannel> toremove = new ArrayList<>();
-        for (BroadcastChannel c : channels) if (!c.isProtected()) toremove.add(c);
-        for (BroadcastChannel c : toremove) channels.remove(c);
+        List<BroadcastChannel> toremove = channels.stream().filter(c -> !c.isProtected()).collect(Collectors.toList());
+        toremove.forEach(channels::remove);
     }
 }
