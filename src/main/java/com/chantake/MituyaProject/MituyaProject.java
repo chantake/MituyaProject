@@ -40,6 +40,7 @@ import com.chantake.MituyaProject.Player.PlayerInstance;
 import com.chantake.MituyaProject.Player.Sign.ItemChestManager;
 import com.chantake.MituyaProject.Player.Sign.SignCommandManager;
 import com.chantake.MituyaProject.Player.Sign.SignElevatorManager;
+import com.chantake.MituyaProject.Player.Vote.VoteManager;
 import com.chantake.MituyaProject.Protocol.Listener.SignSendWrapper;
 import com.chantake.MituyaProject.RSC.RedstoneChips;
 import com.chantake.MituyaProject.Timer.*;
@@ -130,8 +131,9 @@ public final class MituyaProject extends JavaPlugin {
     private final CommandShopManager cmdshop = new CommandShopManager(this);//コマンドショップ
     private final String cfile = "config.properties";
     private final HashMap<String, ScriptEngine> engine = new HashMap<>();
-    private final RedstoneChips redstoneChips = new RedstoneChips(this);
+    //private final RedstoneChips redstoneChips = new RedstoneChips(this);
     private final GachaponDataManager gachaponDataManager = new GachaponDataManager(this);
+    private final VoteManager voteManager = new VoteManager(this);
     public Permission permission = null;
     public Economy economy = null;
     public Chat chat = null;
@@ -883,6 +885,7 @@ public final class MituyaProject extends JavaPlugin {
         commands.register(LotteryCommands.class);//宝くじコマンド
         commands.register(EnchantmentCommands.class);//エンチャントコマンド
         commands.register(MonitorCommand.class);//モニターコマンド
+        commands.register(VoteCommands.class);//投票コマンド
         //commands.register(MoveCommands.class);//移動コマンド
 
         this.Log("コマンドの読み込みが完了しました");
@@ -931,7 +934,7 @@ public final class MituyaProject extends JavaPlugin {
     }
 
     public RedstoneChips getRedstoneChips() {
-        return redstoneChips;
+        return null;//redstoneChips;
     }
 
     private boolean setupPermissions() {
