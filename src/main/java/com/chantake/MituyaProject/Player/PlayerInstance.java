@@ -17,6 +17,7 @@
  */
 package com.chantake.MituyaProject.Player;
 
+import com.chantake.MituyaProject.Bukkit.TitleAPI;
 import com.chantake.MituyaProject.Exception.PlayerOfflineException;
 import com.chantake.MituyaProject.Gachapon.GachaponUserPhaseData;
 import com.chantake.MituyaProject.MituyaProject;
@@ -2452,6 +2453,19 @@ public class PlayerInstance implements PlayerInstanceMBean {
      */
     public String getNickName() {
         return this.nickname;
+    }
+    
+    /**
+     * 
+     * @param fadeIn
+     * @param stay
+     * @param fadeOut
+     * @param title
+     * @param subtitle
+     * @throws PlayerOfflineException 
+     */
+    public void sendTitle(int fadeIn, int stay, int fadeOut, String title, String subtitle) throws PlayerOfflineException {
+        TitleAPI.sendTitle(this.getPlayer(), fadeIn, stay, fadeOut, title, subtitle);
     }
 
     public boolean setNickName(String name) {

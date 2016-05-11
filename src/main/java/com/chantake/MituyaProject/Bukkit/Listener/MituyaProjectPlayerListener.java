@@ -103,7 +103,8 @@ public class MituyaProjectPlayerListener implements Listener {
             } else {
                 ins.setLastworld(from);
             }
-            ins.sendSuccess(from.getName() + " ワールド から、" + to.getName() + " ワールドに移動しました。");
+            ins.sendTitle(1, 2, 1, Color.GREEN + to.getName(), "");
+            //ins.sendSuccess(from.getName() + " ワールド から、" + to.getName() + " ワールドに移動しました。");
         }
     }
 

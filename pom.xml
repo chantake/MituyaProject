@@ -5,16 +5,15 @@
     <groupId>com.chantake</groupId>
     <artifactId>MituyaProject</artifactId>
     <!-- plugin version -->
-    <version>5.6</version>
+    <version>6.0</version>
     
     <name>MituyaProject</name>
     <url>https://github.com/chantake/MituyaProject</url>
     
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <craftbukkitVersion>1.8-R0.1-SNAPSHOT</craftbukkitVersion>
-        <bukkitVersion>1.8-R0.1-SNAPSHOT</bukkitVersion>
-        <minecraftVersion>1.8</minecraftVersion>
+        <spigotVersion>1.9.4-R0.1-SNAPSHOT</spigotVersion>
+        <minecraftVersion>1.9</minecraftVersion>
         <buildNumber>0</buildNumber>
     </properties>
     <build>
@@ -190,13 +189,17 @@
         </repository> -->
         <repository>
             <id>mikeprimm</id>
-            <name>mikeprimm Repository</name>
+            <name>mikeprimm Repository</name><!-- dynmap -->
             <url>http://repo.mikeprimm.com/</url>
         </repository>
         <repository>
+            <id>dmulloy2-repo</id>
+            <url>http://repo.dmulloy2.net/content/groups/public/</url>
+        </repository>
+        <!-- <repository>
             <id>shadowvolt-repo</id>
             <url>http://ci.shadowvolt.com/plugin/repository/everything/</url>
-        </repository>
+        </repository> -->
         <!-- <repository>
             <id>pex-repo</id>
             <name>pex repo</name>
@@ -235,14 +238,14 @@
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
-            <version>${bukkitVersion}</version>
+            <version>${spigotVersion}</version>
         </dependency>
         <!--Bukkit API-->
-        <dependency>
+        <!--<dependency>
             <groupId>org.bukkit</groupId>
             <artifactId>bukkit</artifactId>
             <version>${bukkitVersion}</version>
-        </dependency>
+        </dependency>-->
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-io</artifactId>
@@ -277,7 +280,7 @@
         <dependency>
             <groupId>com.sk89q</groupId>
             <artifactId>worldguard</artifactId>
-            <version>5.9.1-SNAPSHOT</version>
+            <version>6.1.1-SNAPSHOT</version>
             <exclusions>
                 <exclusion>
                     <artifactId>prtree</artifactId>
@@ -358,7 +361,7 @@
         <dependency>
             <groupId>com.comphenix.protocol</groupId>
             <artifactId>ProtocolLib</artifactId>
-            <version>3.6.3-SNAPSHOT</version>
+            <version>3.6.5</version>
         </dependency>
     </dependencies>
 </project>

@@ -159,6 +159,15 @@ public final class MituyaProject extends JavaPlugin {
     private CommandsManager<PlayerInstance> commands;
     private ProtocolManager protocolManager;
 
+    private static class MituyaProjectHolder {
+        protected static MituyaProject instance;
+        
+    }
+
+    public static MituyaProject getInstance() {
+        return MituyaProjectHolder.instance;
+    }
+
     /**
      * プラグインアンロード処理
      */
@@ -192,6 +201,7 @@ public final class MituyaProject extends JavaPlugin {
      */
     @Override
     public void onEnable() {
+        MituyaProjectHolder.instance = this;
         this.Log("初期設定を開始します");
         try {
             //DB初期設定
@@ -217,7 +227,7 @@ public final class MituyaProject extends JavaPlugin {
         //ProtocolLib
         protocolManager = ProtocolLibrary.getProtocolManager();
         //protocolManager.addPacketListener(new ServerPingWrapper(this));
-        protocolManager.addPacketListener(new SignSendWrapper(this));
+        //protocolManager.addPacketListener(new SignSendWrapper(this));
 
         try {
             final PluginManager pm = getServer().getPluginManager();
@@ -398,7 +408,7 @@ public final class MituyaProject extends JavaPlugin {
      * 範囲ブロードキャストメッセージ
      *
      * @param location Locaiton
-     * @param message  メッセージ
+     * @param message メッセージ
      */
     public void broadcastRangeMessage(Location location, String message) {
         for (Player pr : getRangePlayers(location, Parameter328.ChatRange)) {
@@ -419,7 +429,7 @@ public final class MituyaProject extends JavaPlugin {
      * 範囲内のプレーヤーを取得します
      *
      * @param location 中心座標
-     * @param range    範囲
+     * @param range 範囲
      * @return
      */
     public List<Player> getRangePlayers(Location location, int range) {
@@ -440,7 +450,7 @@ public final class MituyaProject extends JavaPlugin {
     /**
      * コマンドを実行します
      *
-     * @param player  Player
+     * @param player Player
      * @param command コマンド
      * @return
      */
@@ -453,7 +463,7 @@ public final class MituyaProject extends JavaPlugin {
      * コマンドを実行します
      *
      * @param player Player
-     * @param split  コマンド
+     * @param split コマンド
      * @return
      */
     public boolean handleCommand(Player player, String[] split) {
@@ -464,8 +474,8 @@ public final class MituyaProject extends JavaPlugin {
     /**
      * コマンドを実行します
      *
-     * @param player  Player
-     * @param ins     PlayerInstance
+     * @param player Player
+     * @param ins PlayerInstance
      * @param command コマンド
      * @return
      */
@@ -477,8 +487,8 @@ public final class MituyaProject extends JavaPlugin {
      * コマンドを実行します
      *
      * @param player Player
-     * @param ins    PlayerInstance
-     * @param split  コマンド
+     * @param ins PlayerInstance
+     * @param split コマンド
      * @return コマンドが正常実行された場合はtrueが返ります
      */
     public boolean handleCommand(Player player, PlayerInstance ins, String[] split) {
@@ -746,7 +756,7 @@ public final class MituyaProject extends JavaPlugin {
      * そのブロックにプレーヤーがアクセスする権限があるかどうかを調べます
      *
      * @param player Player
-     * @param block  Block
+     * @param block Block
      * @return WorldGuardとLWCから検索し、両方でのアクセス許可があった場合のみtrueを返します
      */
     public boolean canBuild(Player player, Block block) {

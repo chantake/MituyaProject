@@ -242,7 +242,7 @@ public class GachaponInnerCommands {
             public void run() {
                 if (pi.gainMine(-gpd.GetPrice())) {
                     //ガチャの音っぽいピストンの音を再生
-                    p.playSound(p.getLocation(), Sound.PISTON_EXTEND, 1.0f, 1.0f);
+                    p.playSound(p.getLocation(), Sound.BLOCK_PISTON_EXTEND, 1.0f, 1.0f);
 
                     //抽選処理
                     GachaponCapsuleData gcd = gpd.GetLotteryCapsule();

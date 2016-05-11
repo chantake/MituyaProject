@@ -136,7 +136,7 @@ public class Server implements ServerMBean {
             if (monstername != null && et != null) {
                 for (int i = 0; i <= amount; i++) {
                     p.getPlayer().getLocation();
-                    p.getPlayer().getWorld().spawnCreature(p.getPlayer().getLocation(), et);
+                    p.getPlayer().getWorld().spawnEntity(p.getPlayer().getLocation(), et);
                 }
             }
         }

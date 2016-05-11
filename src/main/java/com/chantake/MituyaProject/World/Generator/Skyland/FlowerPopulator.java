@@ -21,7 +21,7 @@ public class FlowerPopulator extends BlockPopulator {
 
     @Override
     public void populate(World world, Random random, Chunk chunk) {
-        List iceBiomes = Arrays.asList(new Biome[]{Biome.TAIGA, Biome.TAIGA_HILLS, Biome.ICE_PLAINS, Biome.ICE_MOUNTAINS, Biome.FROZEN_RIVER, Biome.FROZEN_OCEAN});
+        List iceBiomes = Arrays.asList(new Biome[]{Biome.TAIGA, Biome.TAIGA_HILLS, Biome.ICE_FLATS, Biome.ICE_MOUNTAINS, Biome.FROZEN_RIVER, Biome.FROZEN_OCEAN});
 
         for (int x = 0; x < 16; x++) {
             for (int z = 0; z < 16; z++) {

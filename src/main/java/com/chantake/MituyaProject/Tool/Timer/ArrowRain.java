@@ -18,6 +18,7 @@
 package com.chantake.MituyaProject.Tool.Timer;
 
 import org.bukkit.Location;
+import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
@@ -41,7 +42,7 @@ public class ArrowRain implements Runnable {
     public void run() {
         if (time > System.currentTimeMillis()) {
             if (mode == 1) {
-                player.shootArrow();
+                player.launchProjectile(Arrow.class);
             } else {
                 double diff = (2 * Math.PI) / 24.0;
                 for (double a = 0; a < 2 * Math.PI; a += diff) {

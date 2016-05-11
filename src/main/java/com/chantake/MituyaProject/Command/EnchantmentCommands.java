@@ -76,7 +76,7 @@ public class EnchantmentCommands {
                 if (playerInstance.gainMine(-8000)) {
                     ItemStack new_is = new ItemStack(is.getTypeId());
                     player.setItemInHand(new_is);
-                    player.playSound(player.getLocation(), Sound.ANVIL_USE, 1.0f, 1.0f);
+                    player.playSound(player.getLocation(), Sound.BLOCK_ANVIL_USE, 1.0f, 1.0f);
                     playerInstance.sendMessage(ChatColor.AQUA + "エンチャントを削除しました。");
                 } else {
                     playerInstance.sendMessage(ChatColor.RED + "Mineが不足しているためエンチャントを削除出来ませんでした。");
