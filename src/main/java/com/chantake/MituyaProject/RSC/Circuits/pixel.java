@@ -46,7 +46,7 @@ public class pixel extends Circuit {
             List<Byte> colorList = new ArrayList<>();
             for (int i = 0; i < args.length; i++) {
                 try {
-                    colorList.add(DyeColor.valueOf(args[i].toUpperCase()).getData());
+                    colorList.add(DyeColor.valueOf(args[i].toUpperCase()).getWoolData());
                 }
                 catch (IllegalArgumentException ie) {
                     // not dye color
@@ -144,7 +144,7 @@ public class pixel extends Circuit {
         }
 
         if (hasDebuggers()) {
-            debug("Setting pixel color to " + DyeColor.getByData(color));
+            debug("Setting pixel color to " + DyeColor.getByWoolData(color));
         }
 
         for (InterfaceBlock i : interfaceBlocks) {

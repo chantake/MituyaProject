@@ -12,8 +12,9 @@
     
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <spigotVersion>1.9.4-R0.1-SNAPSHOT</spigotVersion>
-        <minecraftVersion>1.9</minecraftVersion>
+        <spigotVersion>1.11.2-R0.1-SNAPSHOT</spigotVersion>
+        <minecraftVersion>1.11.2</minecraftVersion>
+        <dynmapVersion>2.0</dynmapVersion>
         <buildNumber>0</buildNumber>
     </properties>
     <build>
@@ -71,7 +72,7 @@
                             <mainClass>com.chantake.MituyaProject.MituyaProject</mainClass>
                         </manifest>
                         <manifestEntries>
-                            <Class-Path>../lib/twitter4j-core-4.0.2.jar ../lib/json-simple-1.1.1.jar ../lib/mina-core-2.0.4.jar ../lib/commons-lang3-3.1.jar ../lib/slf4j-api-1.7.5.jar ../lib/slf4j-simple-1.7.5.jar ../lib/MituyaApi-2.0-SNAPSHOT.jar ../lib/dynmap-api-2.0.jar</Class-Path>
+                            <Class-Path>../lib/twitter4j-core-4.0.2.jar ../lib/json-simple-1.1.1.jar ../lib/mina-core-2.0.4.jar ../lib/commons-lang3-3.1.jar ../lib/slf4j-api-1.7.5.jar ../lib/slf4j-simple-1.7.5.jar ../lib/MituyaApi-2.0-SNAPSHOT.jar ../lib/dynmap-api-2.2-SNAPSHOT.jar</Class-Path>
                         </manifestEntries>
                     </archive>
                 </configuration>
@@ -259,12 +260,12 @@
         <dependency>
             <groupId>org.dynmap</groupId>
             <artifactId>dynmap-api</artifactId>
-            <version>2.0</version>
+            <version>${dynmapVersion}</version>
         </dependency>
         <dependency>
             <groupId>org.dynmap</groupId>
             <artifactId>dynmap</artifactId>
-            <version>2.0</version>
+            <version>${dynmapVersion}</version>
         </dependency>
         <dependency>
             <groupId>com.googlecode.json-simple</groupId>

@@ -298,7 +298,7 @@ public class PrefsManager {
                     if (material == Material.WOOL) {
                         // try as dye color
                         DyeColor color = DyeColor.valueOf(sdata.toUpperCase());
-                        return new MaterialData(material, color.getData());
+                        return new MaterialData(material, color.getWoolData());
                     } else {
                         throw new IllegalArgumentException("Bad data value: " + m);
                     }
